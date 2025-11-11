@@ -1,0 +1,11 @@
+**Se cambio el path del metodo redirect
+
+public function logout(Request $request)
+{
+    $this->guard()->logout();
+
+    $request->session()->invalidate();
+
+    //return redirect('/');
+    return redirect('/home');
+}

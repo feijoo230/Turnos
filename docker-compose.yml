@@ -1,0 +1,52 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: docker/php/Dockerfile
+    container_name: turnos_app
+    restart: always
+    working_dir: /var/www/html
+    volumes:
+      - ./app:/var/www/html
+    depends_on:
+      - db
+    networks:
+      - turnos_network
+
+  nginx:
+    image: nginx:latest
+    container_name: turnos_nginx
+    restart: always
+    ports:
+      - "8083:80"
+    volumes:
+      - ./app:/var/www/html
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - app
+    networks:
+      - turnos_network
+
+  db:
+    image: mysql:5.7
+    container_name: turnos_db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: laravel
+      MYSQL_USER: laravel_user
+      MYSQL_PASSWORD: secret
+    ports:
+      - "3312:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+    networks:
+      - turnos_network
+
+volumes:
+  db_data:
+
+networks:
+  turnos_network:
+    name: turnos_network  # Agregamos el nombre explícitamente
+    driver: bridge
