@@ -1,38 +1,36 @@
 FROM php:8.0-fpm
 #FROM php:8.3-fpm
 
-# Instalar dependencias necesarias y habilitar la extensión pdo_mysql
+# Instalar dependencias del sistema necesarias para las extensiones de PHP
 RUN apt-get update && apt-get install -y \
+    git \
+    unzip \
     libpng-dev \
     libjpeg-dev \
     libfreetype6-dev \
     libxml2-dev \
-    libcurl4-openssl-dev \
-    libssl-dev \
     libicu-dev \
-    libxslt1-dev \
-    #mysql-client \
-    && docker-php-ext-install -j$(nproc) \
-    bcmath \
-    json \
-    ctype \
+    libzip-dev \
+    libgd-dev \
     curl \
-    dom \
-    fileinfo \
-    filter \
-    hash \
-    mbstring \
-    openssl \
-    pcre \
-    pdo \
-    session \
-    tokenizer \
-    xml \
-    pdo_mysql \
-    && rm -rf /var/lib/apt/lists/* \
-    && apt-get clean \
-    && docker-php-ext-install pdo pdo_mysql \
-    || tail -n 50 /var/log/apt/history.log
+    gnupg
+
+# Instalar las extensiones de PHP necesarias para Laravel
+# pdo_mysql es la clave para la conexión a la base de datos
+RUN docker-php-ext-install -j$(nproc) pdo_mysql bcmath gd intl zip
+
+# Install Node.js and npm
+ENV NODE_VERSION 20.x
+RUN curl -fsSL https://deb.nodesource.com/setup_$NODE_VERSION | bash - \
+    && apt-get update && apt-get install -y nodejs \
+    && npm install -g npm@latest
+
+# Verify installation
+RUN node -v
+RUN npm -v
+
+# Limpiar caché de apt para reducir el tamaño de la imagen
+RUN apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Instalar Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
@@ -40,16 +38,7 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 # Configurar directorio de trabajo
 WORKDIR /var/www/html
 
-# Copiar archivos de Laravel (o se montará con docker-compose)
-COPY . .
-
-# 🔥 Crear manualmente las carpetas antes de dar permisos
-RUN mkdir -p /var/www/html/storage /var/www/html/bootstrap/cache
-
-# Ajustar permisos
-RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
-RUN chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
-
 # Exponer puerto
 EXPOSE 9000
 CMD ["php-fpm"]
+

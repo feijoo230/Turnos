@@ -18,8 +18,7 @@ class CreateTurnosHorariosTable extends Migration
             $table->time('hora_inicio');
             $table->time('hora_fin');
             $table->integer('duracion_minutos');
-            $table->integer('turno_tramite_id')->nullable()->unsigned();
-            $table->foreign('turno_tramite_id')->references('id')->on('turnos_tramites');
+            $table->foreignId('turno_tramite_id')->nullable()->constrained('turnos_tramites');
             $table->boolean('activo')->nullable();
             $table->timestamps();
         });
