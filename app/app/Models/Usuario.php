@@ -2,14 +2,14 @@
 
 namespace App\Models;
 
-use Eloquent as Model;
+use Illuminate\Foundation\Auth\User as Authenticatable;
 
 /**
  * Class Rol
  * @package App\Models
  * @version October 21, 2016, 8:46 pm UTC
  */
-class Usuario extends Model
+class Usuario extends Authenticatable
 {
     public $table = 'users';
     
@@ -22,13 +22,20 @@ class Usuario extends Model
         'name',
         'email',
         'password',
-        'activo'
+        'activo',
+        'google_id'
     ];
 
     public function persona()
     {
         return $this->belongsTo(Persona::class, 'persona_id', 'id');
     }
+
+    public function roles()
+    {
+        return $this->belongsToMany(Rol::class, 'usuarios_roles', 'usuario_id', 'rol_id');
+    }
+
     public function dependencias()
     {
         return $this->belongsToMany(Dependencia::class, 'usuarios_dependencias', 'usuario_id', 'dependencia_id');

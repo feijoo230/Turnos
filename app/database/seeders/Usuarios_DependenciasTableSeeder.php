@@ -31,7 +31,7 @@ class Usuarios_DependenciasTableSeeder extends Seeder
             'activo' => '1'
           ],
           [
-            'usuario_id' => '3',
+            'usuario_id' => '2',
             'dependencia_id' => '24',
             'activo' => '1'
           ]

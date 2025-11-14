@@ -3,7 +3,13 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
+use Laravel\Socialite\Facades\Socialite;
+use App\User;
+use App\Models\Rol;
+use Illuminate\Support\Facades\Auth;
+
 
 class LoginController extends Controller
 {
@@ -25,7 +31,7 @@ class LoginController extends Controller
      *
      * @var string
      */
-    protected $redirectTo = '/homepage';
+    protected $redirectTo = '/home';
 
     /**
      * Create a new controller instance.
@@ -37,8 +43,31 @@ class LoginController extends Controller
         $this->middleware('guest')->except('logout');
     }
 
-    protected function redirectTo()
+    public function redirectToGoogle()
     {
-        return '/home';
+        return Socialite::driver('google')->redirect();
+    }
+
+    public function handleGoogleCallback()
+    {
+        $user = Socialite::driver('google')->user();
+        $finduser = User::where('email', $user->email)->first();
+        if($finduser) {
+            Auth::login($finduser);
+            return redirect('/home');
+        } else {
+            $newUser = User::create([
+                'name' => $user->name,
+                'email' => $user->email,
+                'google_id' => $user->id,
+                'password' => encrypt('12345678')
+            ]);
+            $rol = Rol::where('name','USUARIO')->first();
+            if($rol){
+                $newUser->assignRole($rol->name);
+            }
+            Auth::login($newUser);
+            return redirect('/home');
+        }
     }
 }

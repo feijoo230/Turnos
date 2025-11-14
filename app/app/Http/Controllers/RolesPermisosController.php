@@ -55,19 +55,9 @@ class RolesPermisosController extends Controller
     public function store(Request $request)
     {
         $input = $request->all();
-
-        $aAux = array();
-
         $role = Role::find($input['id_role']);
-        $role->syncPermissions();
-
-        if (!empty($input['id_permisos'])) {
-            
-            foreach ($input['id_permisos'] as $value) {
-                $permission = Permission::find($value);
-                $permission->assignRole($role);
-            }
-        }
+        $permissions = isset($input['id_permisos']) ? $input['id_permisos'] : [];
+        $role->syncPermissions($permissions);
 
         return redirect(route('rolespermisos.index', array('role_id' => $input['id_role'])));
     }

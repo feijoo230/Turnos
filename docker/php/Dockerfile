@@ -1,4 +1,4 @@
-FROM php:8.0-fpm
+FROM php:8.1-fpm
 #FROM php:8.3-fpm
 
 # Instalar dependencias del sistema necesarias para las extensiones de PHP

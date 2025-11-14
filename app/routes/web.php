@@ -82,6 +82,9 @@ Route::group(['middleware' => 'auth'], function(){
   Route::post('usuarios.store_password','UsuariosController@storePassword');
 });
 
+Route::get('auth/google', 'Auth\LoginController@redirectToGoogle')->name('google.login');
+Route::get('auth/google/callback', 'Auth\LoginController@handleGoogleCallback')->name('google.callback');
+
 // Route::get('cualquier',function(){
 //   $user = User::create([
 //     'name' => 'ale368dvs',
