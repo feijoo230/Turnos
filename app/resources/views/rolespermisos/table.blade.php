@@ -11,7 +11,9 @@
       @foreach($rol_permisos as $clave => $permiso)
         <tr>
           <td>{!! $permiso['name'] !!}</td>
-          <td class="text-center">{{ Form::checkbox('id_permisos[]', $clave, $permiso['tiene_permiso']) }}</td>
+          <td class="text-center">
+            <input type="checkbox" name="id_permisos[]" value="{{ $clave }}" {{ $permiso['tiene_permiso'] ? 'checked' : '' }}>
+          </td>
         </tr>
       @endforeach
     </tbody>

@@ -14,17 +14,20 @@ class RolesTableSeeder extends Seeder
      */
     public function run()
     {
-        DB::table('roles')->insert([
+        DB::table('roles')->updateOrInsert(['id' => 1],
           [
-            'id' => 1,
             'name' => 'ADMINISTRADOR',
             'guard_name' => 'web'
-          ],
+          ]);
+        DB::table('roles')->updateOrInsert(['id' => 2],
           [
-            'id' => 2,
             'name' => 'OPERADOR',
             'guard_name' => 'web'
-          ]
-        ]);
+          ]);
+        DB::table('roles')->updateOrInsert(['id' => 3],
+          [
+            'name' => 'USUARIO',
+            'guard_name' => 'web'
+          ]);
     }
 }

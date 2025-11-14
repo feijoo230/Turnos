@@ -10,16 +10,18 @@
         <li class="dropdown">
           <a href="javascript:;" class="user-profile dropdown-toggle" data-toggle="dropdown" >
             <h5 class="text-center">
-              <i class="fa fa-user-circle fa-3x"></i> {{Auth::user()->name }} <span class=" fa fa-angle-down"></span>
+              <i class="fa fa-user-circle fa-3x"></i> @if(Auth::check()) {{Auth::user()->name }} @endif <span class=" fa fa-angle-down"></span>
               <br>
-              <span class="small text-center">{{Auth::user()->Roles->first()->name }}</span>
+              <span class="small text-center">@if(Auth::check() && Auth::user()->Roles->first()) {{Auth::user()->Roles->first()->name }} @endif</span>
             </h5>
           </a>
             <ul class="dropdown-menu" role="menu">
                 <li class="text-center">
                   <span class="font-weight-bold"><u>DEPENDENCIA ORIGEN</u></span>
                   <br>
+                  @if(Auth::check() && Auth::user()->dependencias_origen()->first())
                   {{ Auth::user()->dependencias_origen()->first()->name }}
+                  @endif
                   {{-- @foreach(Auth::user()->dependencias AS $dependencia)
                     <span class="small">{{ $dependencia->nombre }}</span>
                     <br>

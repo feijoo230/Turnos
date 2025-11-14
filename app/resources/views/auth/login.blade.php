@@ -1,60 +1,78 @@
-@extends('layouts.login')
+@extends('layouts.app')
 
 @section('content')
-<div class="login_wrapper">
-  <div class="animate form login_form">
-    <div style="background: #FFFFFF; padding: 0 20px 0 20px;-webkit-box-shadow: 2px 2px 5px #999;
--moz-box-shadow: 2px 2px 5px #999;">
-      @if ($errors->any())
-          </br>
-          <div class="alert alert-danger">
-              <ul>
-                  <li>Por favor verifique los datos ingresados y si tiene los permisos correspondientes.</li>
-              </ul>
-          </div>
-          <div class="clearfix"></div>
-      @endif
-      <section class="login_content" style="padding-top: 10px;">
-        <div>
-          <h2 style="color: #008DDF;">{{ config('constants.NOMBRE_SISTEMA', 'Laravel') }}</h2>
-          <div>
-              <i class="fa fa-user-circle fa-4x" aria-hidden="true"></i>
-          </div>
-          <form method="POST" action="{{ route('login') }}">
-            {{ csrf_field() }}
-            <div>
-              <input id="email" name="email" type="email" class="form-control" placeholder="Email" value="{{ old('email') }}" required autofocus />
-            </div>
-            <div>
-              <input id="password" name="password" type="password" class="form-control" placeholder="Password" required />
-            </div>
-            
-            <div>
-              <button type="submit" class="btn btn-default submit" style="background: #008DDF; color: #FFFFFF">Entrar</button>
-              <!--
-              <a class="reset_pass" href="{{ url('/password/reset') }}" style="color: #008DDF;">¿Olvide mi clave?</a>
-              -->
-            </div>
-            
-            <div class="clearfix"></div>
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">{{ __('Login') }}</div>
 
-            <div class="separator">
-              <!--
-              <p class="change_link">
-                <a href="#signup" class="to_register"> ¿Desea solicitar una cuenta? </a>
-              </p>
-              -->
-              <div class="clearfix"></div>
-              <br />
+                <div class="card-body">
+                    <form method="POST" action="{{ route('login') }}">
+                        @csrf
 
-              <div>
-                <p>{{ config('constants.COPYRIGHT', 'Laravel') }}</p>
-              </div>
+                        <div class="form-group row">
+                            <label for="email" class="col-md-4 col-form-label text-md-right">{{ __('E-Mail Address') }}</label>
+
+                            <div class="col-md-6">
+                                <input id="email" type="email" class="form-control @error('email') is-invalid @enderror" name="email" value="{{ old('email') }}" required autocomplete="email" autofocus>
+
+                                @error('email')
+                                    <span class="invalid-feedback" role="alert">
+                                        <strong>{{ $message }}</strong>
+                                    </span>
+                                @enderror
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <label for="password" class="col-md-4 col-form-label text-md-right">{{ __('Password') }}</label>
+
+                            <div class="col-md-6">
+                                <input id="password" type="password" class="form-control @error('password') is-invalid @enderror" name="password" required autocomplete="current-password">
+
+                                @error('password')
+                                    <span class="invalid-feedback" role="alert">
+                                        <strong>{{ $message }}</strong>
+                                    </span>
+                                @enderror
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <div class="col-md-6 offset-md-4">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="remember" id="remember" {{ old('remember') ? 'checked' : '' }}>
+
+                                    <label class="form-check-label" for="remember">
+                                        {{ __('Remember Me') }}
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group row mb-0">
+                            <div class="col-md-8 offset-md-4">
+                                <button type="submit" class="btn btn-primary">
+                                    {{ __('Login') }}
+                                </button>
+
+                                @if (Route::has('password.request'))
+                                    <a class="btn btn-link" href="{{ route('password.request') }}">
+                                        {{ __('Forgot Your Password?') }}
+                                    </a>
+                                @endif
+                            </div>
+                        </div>
+                    </form>
+                    <div class="flex items-center justify-end mt-4">
+                        <a href="{{ route('google.login') }}">
+                            <img src="https://developers.google.com/identity/images/btn_google_signin_dark_normal_web.png" style="margin-left: 3em;">
+                        </a>
+                    </div>
+                </div>
             </div>
-          </form>
         </div>
-      </section>
     </div>
-  </div>
 </div>
 @endsection
