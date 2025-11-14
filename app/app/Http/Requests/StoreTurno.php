@@ -30,7 +30,7 @@ class StoreTurno extends FormRequest
             'nombre_apellido' => 'required|max:255',
             'dni' => 'required|max:255',
             'celular' => 'required|integer',
-            'email' => 'required|email',
+            'email' => 'required|email|confirmed',
             'dependencia_turno_id' => 'integer',
             'estado_id' => 'integer',
             'activo' => 'integer',

@@ -17,7 +17,8 @@ use App\Models\Dependencia_Tramite;
 use App\Http\Requests\SearchTurno;
 use App\Http\Requests\StoreTurno;
 use App\Mail\NuevoTramite;
-use Carbon\Carbon; 
+use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
 
 class TramitesController extends Controller
 {
@@ -117,7 +118,9 @@ class TramitesController extends Controller
 
             $dependencia = Dependencia::find($dependencia_id)->toArray();
 
-            return view('frontend.form-turno-paso3')->with(compact('dependencia', 'turno_fecha', 'turno_hora'));
+            $usuario = Auth::user();
+
+            return view('frontend.form-turno-paso3')->with(compact('dependencia', 'turno_fecha', 'turno_hora', 'usuario'));
         } catch (\Exception $e) {
             return redirect(route('tramite.index'));
         }

@@ -19,6 +19,17 @@ class TurnosDependenciasReservasController extends Controller
 
     }
 
+    public function show($id)
+    {
+        $reserva = Turnos_Dependencias_Reservas::find($id);
+
+        if (!empty($reserva)) {
+            return view('turnosdependenciasreservas.show')->with(compact('reserva'));
+        } else {
+            return redirect(route('turnosdependenciasreservas.index'))->with('error', 'Error al visualizar reserva');
+        }
+    }
+
     public function index(BusquedaTurno $request)
     {
 
