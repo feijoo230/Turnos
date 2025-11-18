@@ -29,6 +29,7 @@ Route::get('tramite.index','frontend\TramitesController@index')->name('tramite.i
 Route::get('tramite.paso2','frontend\TramitesController@paso2')->name('tramite.paso2');//Valido
 Route::get('tramite.paso3','frontend\TramitesController@paso3')->name('tramite.paso3');//Valido
 Route::post('tramite.guardar','frontend\TramitesController@guardar')->name('tramite.guardar');//Valido
+Route::get('tramite/confirmacion/{id}', 'frontend\TramitesController@confirmacion')->name('tramite.confirmacion');
 
 Route::get('turno.buscar','frontend\TramitesController@buscar')->name('turno.buscar');//Valid
 

@@ -20,7 +20,11 @@
       <td>{!! $reserva->dni !!}</td>
       <td>{!! $reserva->celular !!}</td>
       <td>{!! $reserva->email !!}</td>
-      <td>{!! $reserva->turno_horario->turnoTramite->tramite->dependencia->nombre !!}</td>
+      <td>
+        @if ($reserva->turno_horario && $reserva->turno_horario->turno_tramite && $reserva->turno_horario->turno_tramite->tramite && $reserva->turno_horario->turno_tramite->tramite->dependencia)
+          {!! $reserva->turno_horario->turno_tramite->tramite->dependencia->nombre !!}
+        @endif
+      </td>
       <td>
           <div class='btn-group'>
               <a href="{!! route('turnosdependenciasreservas.show', [$reserva->id]) !!}" class='btn btn-default btn-xs'><i class="fa fa-eye"></i></a>

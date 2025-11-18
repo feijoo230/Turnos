@@ -58,7 +58,7 @@ class TramitesController extends Controller
     {
         $input = $request->all();
 
-        $aHorarios = array();
+        
 
         //Se administran los datos de session
         if (isset($input['dependencia_id'])) {
@@ -98,7 +98,7 @@ class TramitesController extends Controller
 
         $turno_dependencia = $turno_tramite;
 
-        return view('frontend.form-turno-paso2')->with(compact('turno_dependencia', 'turno_fecha', 'turno_hora', 'aHorarios', 'fecha_desde', 'feriados','feriados_text'));
+        return view('frontend.form-turno-paso2')->with(compact('turno_dependencia', 'turno_fecha', 'turno_hora', 'fecha_desde', 'feriados','feriados_text'));
     }
 
     public function paso3(Request $request)
@@ -146,7 +146,7 @@ class TramitesController extends Controller
         // END of the check
 
         $aux_input = [
-            'fecha_hora' => Carbon::createFromFormat('d/m/Y H:i', $request->session()->get('turno_fecha').' '.$turno_hora),
+            'fecha_hora' => Carbon::createFromFormat('d/m/Y H:i:s', $request->session()->get('turno_fecha').' '.$turno_hora),
             'fecha' => Carbon::createFromFormat('d/m/Y', $request->session()->get('turno_fecha')),
             'hora' => $turno_hora,
             'nombre_apellido' => $input['nombre_apellido'],
@@ -171,6 +171,13 @@ class TramitesController extends Controller
         $request->session()->forget('turno_fecha');
         $request->session()->forget('turno_hora');
         
+        $request->session()->forget('turno_reserva_busqueda'); // Forget the search result from session
+        return redirect()->route('tramite.confirmacion', ['id' => $turno_reserva->id]);
+    }
+
+    public function confirmacion($id)
+    {
+        $turno_reserva = Turnos_Dependencias_Reservas::with('turno_tramite.tramite.dependencia')->find($id);
         return view('frontend.form-turno-paso4')->with(compact('turno_reserva'));
     }
 
@@ -190,7 +197,7 @@ class TramitesController extends Controller
     protected function buscar(SearchTurno $request)
     {
         $input = $request->all();
-        $turno_reserva_busqueda = Turnos_Dependencias_Reservas::with('turno_tramite.tramite.dependencia')->where('codigo', $input['codigo_turno'])->first();
+        $turno_reserva_busqueda = Turnos_Dependencias_Reservas::with('turno_horario.turno_tramite.tramite.dependencia')->where('codigo', $input['codigo_turno'])->first();
 
         return back()->with('turno_reserva_busqueda', $turno_reserva_busqueda);
     }
@@ -209,14 +216,15 @@ class TramitesController extends Controller
 
         $reservas = Turnos_Dependencias_Reservas::where('dependencia_tramite_id', $turno_tramite->dependencia_tramite_id)
             ->whereDate('fecha', $turno_fecha)
-            ->select('hora', DB::raw('count(*) as total'))
-            ->groupBy('hora')
-            ->get()
-            ->pluck('total', 'hora')
-            ->toArray();
+            ->select('turno_horario_id', 'hora', DB::raw('count(*) as total'))
+            ->groupBy('turno_horario_id', 'hora')
+            ->get();
+        
+        Log::info('Reservas: ', $reservas->toArray());
 
         $aHorarios = [];
         $now = Carbon::now();
+        $isToday = $turno_fecha->isToday();
 
         foreach ($turno_tramite->turnosHorarios as $horario) {
             if (!$horario->activo) {
@@ -230,15 +238,21 @@ class TramitesController extends Controller
             $tCurrent = $tStart->copy();
 
             while ($tCurrent < $tEnd) {
-                $isPastSlotForToday = $turno_fecha->isToday() && $tCurrent < $now;
+                $slot = $tCurrent->format('H:i:s');
                 
-                $slot = $tCurrent->format('H:i');
-                $reservas_count = $reservas[$slot] ?? 0;
+                $reservas_for_slot = $reservas->where('turno_horario_id', $horario->id)->where('hora', $slot)->first();
+                $reservas_count = $reservas_for_slot ? $reservas_for_slot->total : 0;
+
+                $isPastSlotForToday = $isToday && $tCurrent->isPast();
+
+                Log::info('Horario: ', ['id' => $horario->id, 'slot' => $slot, 'reservas_count' => $reservas_count, 'cantidad_turnos' => $horario->cantidad_turnos]);
 
                 if (!$isPastSlotForToday && $reservas_count < $horario->cantidad_turnos) {
-                    $aHoras[] = [
+                    $available_slots = $horario->cantidad_turnos - $reservas_count;
+                    $aHorarios[] = [
                         'hora' => $slot,
-                        'id' => $horario->id
+                        'id' => $horario->id,
+                        'available' => $available_slots
                     ];
                 }
 
@@ -246,16 +260,16 @@ class TramitesController extends Controller
             }
         }
         
-        sort($aHoras);
-        $aHoras = array_unique($aHoras, SORT_REGULAR);
+        sort($aHorarios);
+        $aHorarios = array_unique($aHorarios, SORT_REGULAR);
 
-        if (empty($aHoras)) {
+        if (empty($aHorarios)) {
             $html = 'Sin turnos. Por favor seleccione otro día.';
         } else {
             $html = '<select name="turno_hora" size="30" class="select list-group overflow-auto text-center" style="max-height: 267px; margin-bottom: 10px; width: 100%; border: 0px;" required="true">';
 
-            foreach ($aHoras as $horario) {
-                $html = $html.'<option class="list-group-item" value="'.$horario['hora'].'|'.$horario['id'].'">'.$horario['hora'].'</option>';
+            foreach ($aHorarios as $horario) {
+                $html = $html.'<option class="list-group-item" value="'.$horario['hora'].'|'.$horario['id'].'">'.$horario['hora'].' ('.$horario['available'].' disponibles)</option>';
             }
             $html = $html.'</select>';
         }
@@ -284,16 +298,12 @@ class TramitesController extends Controller
 
     public function getDisabledDates(Request $request)
     {
-        Log::info('getDisabledDates called');
         $input = $request->all();
-        Log::info('Input:', $input);
         $turno_tramite = Turnos_Tramites::with('turnosHorarios')->find($input['id']);
 
         if (!$turno_tramite) {
-            Log::info('Turno tramite not found');
             return response()->json([]);
         }
-        Log::info('Turno tramite found:', $turno_tramite->toArray());
 
 
         $fecha_desde = $turno_tramite->fecha_desde;
@@ -301,8 +311,6 @@ class TramitesController extends Controller
             $fecha_desde = Carbon::today();
         }
         $fecha_hasta = $turno_tramite->fecha_hasta;
-        Log::info('Fecha desde: '.$fecha_desde->format('Y-m-d'));
-        Log::info('Fecha hasta: '.$fecha_hasta->format('Y-m-d'));
 
 
         $disabled_dates = [];
@@ -315,12 +323,10 @@ class TramitesController extends Controller
             ->groupBy('fecha_date', 'hora')
             ->get()
             ->groupBy('fecha_date');
-        Log::info('Reservas:', $reservas->toArray());
 
 
         while ($current_date <= $fecha_hasta) {
-            Log::info('Checking date: '.$current_date->format('Y-m-d'));
-            $aHoras = [];
+            $aHorarios = [];
             $turno_fecha = $current_date;
             $reservas_del_dia = $reservas->get($turno_fecha->format('Y-m-d'));
 
@@ -328,14 +334,12 @@ class TramitesController extends Controller
             if ($reservas_del_dia) {
                 $reservas_por_hora = $reservas_del_dia->pluck('total', 'hora')->toArray();
             }
-            Log::info('Reservas del dia:', $reservas_por_hora);
 
 
             foreach ($turno_tramite->turnosHorarios as $horario) {
                 if (!$horario->activo) {
                     continue;
                 }
-                Log::info('Checking horario:', $horario->toArray());
 
 
                 $tStart = $turno_fecha->copy()->setTimeFromTimeString($horario->hora_inicio);
@@ -347,26 +351,23 @@ class TramitesController extends Controller
                 while ($tCurrent < $tEnd) {
                     $slot = $tCurrent->format('H:i');
                     $reservas_count = $reservas_por_hora[$slot] ?? 0;
-                    Log::info('Slot: '.$slot.' - Reservas: '.$reservas_count.' - Capacidad: '.$horario->cantidad_turnos);
 
 
                     if ($reservas_count < $horario->cantidad_turnos) {
-                        $aHoras[] = $slot;
+                        $aHorarios[] = $slot;
                     }
 
                     $tCurrent->addMinutes($duration);
                 }
             }
 
-            if (empty($aHoras)) {
-                Log::info('Date disabled: '.$current_date->format('d/m/Y'));
+            if (empty($aHorarios)) {
                 $disabled_dates[] = $current_date->format('d/m/Y');
             }
 
             $current_date->addDay();
         }
 
-        Log::info('Disabled dates:', $disabled_dates);
         return response()->json($disabled_dates);
     }
 }

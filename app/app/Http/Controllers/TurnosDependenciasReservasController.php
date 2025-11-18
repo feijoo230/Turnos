@@ -87,7 +87,7 @@ class TurnosDependenciasReservasController extends Controller
         $dependencia_id = $input['dependencia_id'] ?? null;
         $tramite_id = $input['tramite_id'] ?? null;
          
-        $query = Turnos_Dependencias_Reservas::with('turno_horario.turnoTramite.tramite.dependencia');
+        $query = Turnos_Dependencias_Reservas::with('turno_horario.turno_tramite.tramite.dependencia');
         
         if ($codigo_turno) {
             $query->where('codigo', 'like', '%'.$codigo_turno.'%');
@@ -140,7 +140,7 @@ class TurnosDependenciasReservasController extends Controller
         $dependencia_id = $input['dependencia_id'] ?? null;
         $tramite_id = $input['tramite_id'] ?? null;
          
-        $query = Turnos_Dependencias_Reservas::with('turno_horario.turnoTramite.tramite.dependencia');
+        $query = Turnos_Dependencias_Reservas::with('turno_horario.turno_tramite.tramite.dependencia');
         
         if ($codigo_turno) {
             $query->where('codigo', 'like', '%'.$codigo_turno.'%');

@@ -25,9 +25,7 @@
 							<div class="col-md-4 col-sm-12">
 								<div id="list-horarios" style="color: #000000;">
 									<select name="turno_hora" size="30" class="select list-group overflow-auto text-center" style="max-height: 267px; margin-bottom: 10px; width: 100%; border: 0px;" required="true">
-										@foreach($aHorarios as $horario)
-											<option class="list-group-item" value="{{ $horario }}">{{ $horario }}</option>
-										@endforeach
+										
 									</select>
 
 								</div>
@@ -131,7 +129,7 @@
 
 	function ajax() {
 		$.ajax({
-          url:'turnos.loadhorarios',
+          url:'{{ route("turnos.loadhorarios") }}',
           data:{
           	'id':"<?= $turno_dependencia->id ?>",
           	"_token": "{{ csrf_token() }}",
