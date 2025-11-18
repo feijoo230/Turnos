@@ -42,6 +42,7 @@
                     <th>Hora Inicio</th>
                     <th>Hora Fin</th>
                     <th>Duración (minutos)</th>
+                    <th>Cantidad de Turnos</th>
                     <th>Activo</th>
                     <th></th>
                 </tr>
@@ -71,6 +72,14 @@
                                        {{ $horario->activo ? 'required' : '' }}>
                             </td>
                             <td>
+                                <input type="number" 
+                                       name="horarios[{{$index}}][cantidad_turnos]" 
+                                       value="{{ $horario->cantidad_turnos ?? 1 }}" 
+                                       class="form-control" 
+                                       min="1" 
+                                       {{ $horario->activo ? 'required' : '' }}>
+                            </td>
+                            <td>
                                 <input type="hidden" name="horarios[{{$index}}][activo]" value="0">
                                 <input type="checkbox" name="horarios[{{$index}}][activo]" value="1" 
                                     {{ $horario->activo ? 'checked' : '' }} class="flat">
@@ -97,6 +106,14 @@
                                    min="5" 
                                    max="60" 
                                    step="5" 
+                                   required>
+                        </td>
+                        <td>
+                            <input type="number" 
+                                   name="horarios[0][cantidad_turnos]" 
+                                   class="form-control" 
+                                   min="1" 
+                                   value="1" 
                                    required>
                         </td>
                         <td>

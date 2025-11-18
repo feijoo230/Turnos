@@ -32,6 +32,13 @@ class Turnos_Tramites extends Model
     }
     public function reservas()
     {
-        return $this->hasMany(Turnos_Dependencias_Reservas::class, 'dependencia_turno_id', 'id');
+        return $this->hasManyThrough(
+            \App\Models\Turnos_Dependencias_Reservas::class,
+            \App\Models\Turnos_Horarios::class,
+            'turno_tramite_id', // Foreign key on turnos_horarios table
+            'turno_horario_id', // Foreign key on dependencia_turnos_reservas table
+            'id',               // Local key on turnos_tramites table
+            'id'                // Local key on turnos_horarios table
+        );
     }
 }

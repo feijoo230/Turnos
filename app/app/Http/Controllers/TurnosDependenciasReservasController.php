@@ -22,7 +22,7 @@ class TurnosDependenciasReservasController extends Controller
 
     public function show($id)
     {
-        $reserva = Turnos_Dependencias_Reservas::find($id);
+        $reserva = Turnos_Dependencias_Reservas::with('turno_tramite.tramite.dependencia')->find($id);
 
         if (!empty($reserva)) {
             return view('turnosdependenciasreservas.show')->with(compact('reserva'));
@@ -69,7 +69,7 @@ class TurnosDependenciasReservasController extends Controller
 
     public function edit($id)
     {
-        $reserva = Turnos_Dependencias_Reservas::find($id);
+        $reserva = Turnos_Dependencias_Reservas::with('turno_tramite.tramite.dependencia')->find($id);
 
         if (!empty($reserva)) {
             return view('turnosdependenciasreservas.edit')->with(compact('reserva'));
@@ -80,98 +80,101 @@ class TurnosDependenciasReservasController extends Controller
 
     public function index(BusquedaTurno $request)
     {
-
         $input = $request->all();
 
-        if(!isset($input['codigo_turno'])) {
-            $input['codigo_turno'] = null;
-        }
-
-        if(!isset($input['fecha_turno'])) {
-            $input['fecha_turno'] = null;
-        }
-
-        if(!isset($input['dependencia_id'])) {
-            $input['dependencia_id'] = null;
-        }
-
-        if(!isset($input['tramite_id'])) {
-            $input['tramite_id'] = null;
-        }
+        $codigo_turno = $input['codigo_turno'] ?? null;
+        $fecha_turno = $input['fecha_turno'] ?? null;
+        $dependencia_id = $input['dependencia_id'] ?? null;
+        $tramite_id = $input['tramite_id'] ?? null;
          
-        $aWhere = array();
-        $aWhereDate = array();
+        $query = Turnos_Dependencias_Reservas::with('turno_horario.turnoTramite.tramite.dependencia');
         
-        if (!is_null($input['codigo_turno'])) {
-            $aWhere[] = ['codigo', 'like', '%'.$input['codigo_turno'].'%'];
+        if ($codigo_turno) {
+            $query->where('codigo', 'like', '%'.$codigo_turno.'%');
         }
 
-        if (!is_null($input['fecha_turno'])) {
-            $fecha_turno = Carbon::createFromFormat('d/m/Y', $input['fecha_turno']);
-            $fecha_turno = $fecha_turno->startOfDay();
-            $aWhereDate[] = ['fecha', '=', $fecha_turno];
+        if ($fecha_turno) {
+            $carbon_fecha = Carbon::createFromFormat('d/m/Y', $fecha_turno);
+            $query->whereDate('fecha', $carbon_fecha);
         }
 
-        if (!is_null($input['dependencia_id'])) {
-            $aWhere[] = ['dependencia_turnos.dependencia_id', '=', $input['dependencia_id']];
+        if ($tramite_id) {
+            $query->where('dependencia_turnos_reservas.dependencia_tramite_id', $tramite_id);
         }
 
-        if (!is_null($input['tramite_id'])) {
-            $aWhere[] = ['dependencia_turnos_reservas.tramite_id', '=', $input['tramite_id']];
+        $query->join('turnos_horarios', 'dependencia_turnos_reservas.turno_horario_id', '=', 'turnos_horarios.id')
+              ->join('turnos_tramites', 'turnos_horarios.turno_tramite_id', '=', 'turnos_tramites.id')
+              ->join('dependencia_tramites', 'turnos_tramites.dependencia_tramite_id', '=', 'dependencia_tramites.id');
+
+        if ($dependencia_id) {
+            $query->where('dependencia_tramites.dependencia_id', $dependencia_id);
         }
 
         $usuario_id = Auth::id();
+        $user_dependencias = DB::table('usuarios_dependencias')->where('usuario_id', $usuario_id)->pluck('dependencia_id');
+        $query->whereIn('dependencia_tramites.dependencia_id', $user_dependencias);
 
-        $reservas = Turnos_Dependencias_Reservas::where($aWhere)
-            ->where($aWhereDate)
-            ->join('dependencia_turnos', 'dependencia_turnos_reservas.dependencia_turno_id', '=', 'dependencia_turnos.id')
-            ->whereIn('dependencia_turnos.dependencia_id', DB::table('usuarios_dependencias')->where('usuario_id', $usuario_id)->pluck('dependencia_id')->toArray())
-            ->orderBy('dependencia_turnos_reservas.fecha_hora', 'asc')
-            ->paginate(10);
+        $reservas = $query->select('dependencia_turnos_reservas.*')
+                          ->orderBy('dependencia_turnos_reservas.fecha_hora', 'asc')
+                          ->paginate(10);
         
         $dependencias = Dependencia::all()->pluck('nombre', 'id');
-        $tramites = Tramite::all()->pluck('nombre', 'id');
+        $tramites = \App\Models\Dependencia_Tramite::all()->pluck('nombre', 'id');
 
         return view('turnosdependenciasreservas.index')
             ->with('reservas', $reservas)
-            ->with('codigo_turno', $input['codigo_turno'])
-            ->with('fecha_turno', $input['fecha_turno'])
+            ->with('codigo_turno', $codigo_turno)
+            ->with('fecha_turno', $fecha_turno)
             ->with('dependencias', $dependencias)
             ->with('tramites', $tramites)
-            ->with('dependencia_id', $input['dependencia_id'])
-            ->with('tramite_id', $input['tramite_id']);
+            ->with('dependencia_id', $dependencia_id)
+            ->with('tramite_id', $tramite_id);
     }
 
     public function print(BusquedaTurno $request)
     {
         $input = $request->all();
         
-        $aWhere = array();
-        $aWhereDate = array();
+        $codigo_turno = $input['codigo_turno'] ?? null;
+        $fecha_turno = $input['fecha_turno'] ?? null;
+        $dependencia_id = $input['dependencia_id'] ?? null;
+        $tramite_id = $input['tramite_id'] ?? null;
+         
+        $query = Turnos_Dependencias_Reservas::with('turno_horario.turnoTramite.tramite.dependencia');
         
-        if (!is_null($input['codigo_turno'])) {
-            $aWhere[] = ['codigo', 'like', '%'.$input['codigo_turno'].'%'];
+        if ($codigo_turno) {
+            $query->where('codigo', 'like', '%'.$codigo_turno.'%');
         }
 
-        if (!is_null($input['fecha_turno'])) {
-            $fecha_turno = Carbon::createFromFormat('d/m/Y', $input['fecha_turno']);
-            $fecha_turno = $fecha_turno->startOfDay();
-            $aWhereDate[] = ['fecha', '=', $fecha_turno];
+        if ($fecha_turno) {
+            $carbon_fecha = Carbon::createFromFormat('d/m/Y', $fecha_turno);
+            $query->whereDate('fecha', $carbon_fecha);
+        }
+
+        if ($tramite_id) {
+            $query->where('dependencia_turnos_reservas.dependencia_tramite_id', $tramite_id);
+        }
+
+        $query->join('turnos_horarios', 'dependencia_turnos_reservas.turno_horario_id', '=', 'turnos_horarios.id')
+              ->join('turnos_tramites', 'turnos_horarios.turno_tramite_id', '=', 'turnos_tramites.id')
+              ->join('dependencia_tramites', 'turnos_tramites.dependencia_tramite_id', '=', 'dependencia_tramites.id');
+
+        if ($dependencia_id) {
+            $query->where('dependencia_tramites.dependencia_id', $dependencia_id);
         }
 
         $usuario_id = Auth::id();
+        $user_dependencias = DB::table('usuarios_dependencias')->where('usuario_id', $usuario_id)->pluck('dependencia_id');
+        $query->whereIn('dependencia_tramites.dependencia_id', $user_dependencias);
 
-        $reservas = Turnos_Dependencias_Reservas::where($aWhere)
-            ->where($aWhereDate)
-            ->join('dependencia_turnos', 'dependencia_turnos_reservas.dependencia_turno_id', '=', 'dependencia_turnos.id')
-            ->whereIn('dependencia_turnos.dependencia_id', DB::table('usuarios_dependencias')->where('usuario_id', $usuario_id)->pluck('dependencia_id')->toArray())
-            ->orderBy('dependencia_turnos_reservas.fecha_hora', 'asc')
-            ->get();
+        $reservas = $query->select('dependencia_turnos_reservas.*')
+                          ->orderBy('dependencia_turnos_reservas.fecha_hora', 'asc')
+                          ->get();
 
         $html = view('htmltopdf.listado_reservas_turnos')
             ->with('reservas', $reservas)
-            ->with('codigo_turno', $input['codigo_turno'])
-            ->with('fecha_turno', $input['fecha_turno'])
+            ->with('codigo_turno', $codigo_turno)
+            ->with('fecha_turno', $fecha_turno)
             ->render();
 
         $pdf = \PDF::loadHTML($html);
@@ -179,12 +182,6 @@ class TurnosDependenciasReservasController extends Controller
         $html_header = view('htmltopdf.header_informe')
             ->render();
 
-        /*$options = array(
-            'header-html' =>  '<!DOCTYPE html><div style="margin: 80px 10 10 80;">UNIVERSIDAD NACIONAL DE SALTA</div></html>'
-        );
-        $pdf->setOptions($options);*/
-
         return $pdf->download('reservas_turnos.pdf');
-        //return $pdf->inline();
     }
 }

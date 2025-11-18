@@ -17,12 +17,16 @@
 						<div class="form-group">
 							<a href="{!! route('turnos.print', [$turno_reserva->id]) !!}" class="center-text"><i class="fas fa-file-pdf fa-2x"></i></br>Descargar comprobante</a>
 						</div>
+						@if ($turno_reserva->turno_tramite && $turno_reserva->turno_tramite->tramite && $turno_reserva->turno_tramite->tramite->dependencia)
 						<div class="form-group">
-						    <p style="margin: 0px;"><strong>Dirección</strong> {!! $turno_reserva->turno_dependencia->dependencia->nombre !!}</p>
+						    <p style="margin: 0px;"><strong>Dirección</strong> {!! $turno_reserva->turno_tramite->tramite->dependencia->nombre !!}</p>
 						</div>
+						@endif
+						@if ($turno_reserva->turno_tramite && $turno_reserva->turno_tramite->tramite)
 						<div class="form-group">
-						    <p style="margin: 0px;"><strong>Trámite</strong> {!! $turno_reserva->turno_tramite->nombre !!}</p>
+						    <p style="margin: 0px;"><strong>Trámite</strong> {!! $turno_reserva->turno_tramite->tramite->nombre !!}</p>
 						</div>
+						@endif
 						<div class="form-group">
 						    <p style="margin: 0px;"><strong>Fecha y hora</strong> {!! $turno_reserva->fecha_hora->format('d/m/Y h:i') !!}</p>
 						</div>

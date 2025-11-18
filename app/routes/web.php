@@ -21,6 +21,7 @@ Route::get('turnos', 'frontend\TramitesController@index')->name('turnos');
 //Route::get('turnos.dni', 'frontend\TramitesController@solicitarDni');
 Route::post('turnos.guardar','frontend\TramitesController@guardar');
 Route::post('turnos.loadhorarios', 'frontend\TramitesController@loadHorarios')->name('turnos.loadhorarios');
+Route::post('turnos.getdisableddates', 'frontend\TramitesController@getDisabledDates')->name('turnos.getdisableddates');
 
 Route::get('turnos.print/{id}', 'frontend\TramitesController@print')->name('turnos.print');//Valido
 
@@ -35,12 +36,12 @@ Route::get('getdirecciones','frontend\TramitesController@getDirecciones')->name(
 
 Route::get('gettramites/{id}','frontend\TramitesController@getTramites')->name('gettramites');//valid
 
-
+  
 Route::group(['middleware' => 'auth'], function(){
 
   Route::resource('feriados', 'FeriadosController');//Valido
 
-  Route::resource('turnosdependencias', 'TurnosDependenciasController');//Valido
+
   Route::resource('turnostramites', 'TurnosTramitesController');//Valido
   Route::resource('turnoshorarios', 'TurnosHorariosController')->shallow();//Valido
   Route::get('listar/{id}','TurnosHorariosController@listar')->name('turnos.horarios.listar');//valid
@@ -80,16 +81,14 @@ Route::group(['middleware' => 'auth'], function(){
   Route::post('usuarios.update_perfil','UsuariosController@update_perfil');
   Route::get('usuarios.edit_password/{usuario_id}','UsuariosController@cambiarPassword');
   Route::post('usuarios.store_password','UsuariosController@storePassword');
+
+  // Turnos Admin Routes
+  Route::resource('turnos_admin', 'TurnosController');
+  Route::get('turnos_admin.llamar_siguiente', 'TurnosController@llamar_siguiente')->name('turnos_admin.llamar_siguiente');
+  Route::get('turnos_admin.terminar_turno/{id_turno}', 'TurnosController@terminar_turno')->name('turnos_admin.terminar_turno');
+  Route::get('turnos_admin.es_afiliado/{id_turno}', 'TurnosController@es_afiliado')->name('turnos_admin.es_afiliado');
 });
 
 Route::get('auth/google', 'Auth\LoginController@redirectToGoogle')->name('google.login');
 Route::get('auth/google/callback', 'Auth\LoginController@handleGoogleCallback')->name('google.callback');
 
-// Route::get('cualquier',function(){
-//   $user = User::create([
-//     'name' => 'ale368dvs',
-//     'email' => 'ale368dvs@gmail.com',
-//     'password' => bcrypt('asdfñlkj'),
-//   ]);
-//   $user->roles()->sync(2);
-// });

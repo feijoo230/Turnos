@@ -35,16 +35,20 @@
             <p>{!! $reserva->email !!}</p>
         </div>
     </div>
+    @if ($reserva->turno_tramite && $reserva->turno_tramite->tramite && $reserva->turno_tramite->tramite->dependencia)
     <div class="form-group">
         {!! Form::label('dependencia', 'Dependencia:', array('class' => 'control-label col-md-3 col-sm-3 col-xs-12')) !!}
         <div style="padding-top: 8px;" class="col-md-6 col-sm-6 col-xs-12">
-            <p>{!! $reserva->turno_dependencia->dependencia->nombre !!}</p>
+            <p>{!! $reserva->turno_tramite->tramite->dependencia->nombre !!}</p>
         </div>
     </div>
+    @endif
+    @if ($reserva->turno_tramite && $reserva->turno_tramite->tramite)
     <div class="form-group">
         {!! Form::label('tramite', 'Trámite:', array('class' => 'control-label col-md-3 col-sm-3 col-xs-12')) !!}
         <div style="padding-top: 8px;" class="col-md-6 col-sm-6 col-xs-12">
-            <p>{!! $reserva->turno_tramite->nombre !!}</p>
+            <p>{!! $reserva->turno_tramite->tramite->nombre !!}</p>
         </div>
     </div>
+    @endif
 </div>

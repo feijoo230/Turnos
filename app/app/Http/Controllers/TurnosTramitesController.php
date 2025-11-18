@@ -80,6 +80,7 @@ class TurnosTramitesController extends Controller
                             'hora_inicio' => $horario['hora_inicio'],
                             'hora_fin' => $horario['hora_fin'],
                             'duracion_minutos' => $horario['duracion_minutos'],
+                            'cantidad_turnos' => $horario['cantidad_turnos'],
                             'activo' => isset($horario['activo']) && $horario['activo'] == 1,
                         ]);
                     }
@@ -167,6 +168,7 @@ class TurnosTramitesController extends Controller
                         'hora_inicio' => $horario['hora_inicio'],
                         'hora_fin' => $horario['hora_fin'],
                         'duracion_minutos' => $horario['duracion_minutos'],
+                        'cantidad_turnos' => $horario['cantidad_turnos'],
                         'activo' => isset($horario['activo']) && $horario['activo'] == 1
                     ]);
                 }

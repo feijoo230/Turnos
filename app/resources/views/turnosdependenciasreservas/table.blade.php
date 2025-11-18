@@ -20,7 +20,7 @@
       <td>{!! $reserva->dni !!}</td>
       <td>{!! $reserva->celular !!}</td>
       <td>{!! $reserva->email !!}</td>
-      <td>{!! $reserva->turno_dependencia->dependencia->nombre !!}</td>
+      <td>{!! $reserva->turno_horario->turnoTramite->tramite->dependencia->nombre !!}</td>
       <td>
           <div class='btn-group'>
               <a href="{!! route('turnosdependenciasreservas.show', [$reserva->id]) !!}" class='btn btn-default btn-xs'><i class="fa fa-eye"></i></a>

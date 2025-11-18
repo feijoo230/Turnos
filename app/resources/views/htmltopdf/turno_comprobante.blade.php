@@ -9,12 +9,16 @@
 			<div class="form-group">
             <p><strong>FECHA Y HORA</strong> {!! $turno_reserva->fecha_hora_text !!}</p>
         </div>
-        	<div class="form-group">
-			    <p style="margin: 0px;"><strong>DIRECCIÓN</strong> {!! $turno_reserva->turno_dependencia->dependencia->nombre !!}</p>
-			</div>
+        	@if ($turno_reserva->turno_tramite && $turno_reserva->turno_tramite->tramite && $turno_reserva->turno_tramite->tramite->dependencia)
 			<div class="form-group">
-			    <p style="margin: 0px;"><strong>TRÁMITE</strong> {!! $turno_reserva->turno_tramite->nombre !!}</p>
+			    <p style="margin: 0px;"><strong>DIRECCIÓN</strong> {!! $turno_reserva->turno_tramite->tramite->dependencia->nombre !!}</p>
 			</div>
+			@endif
+			@if ($turno_reserva->turno_tramite && $turno_reserva->turno_tramite->tramite)
+			<div class="form-group">
+			    <p style="margin: 0px;"><strong>TRÁMITE</strong> {!! $turno_reserva->turno_tramite->tramite->nombre !!}</p>
+			</div>
+			@endif
 			<p><strong>NOMBRE Y APELLIDO</strong> <?= strtoupper($turno_reserva->nombre_apellido) ?></p>
 			<p><strong>DNI</strong> <?= strtoupper($turno_reserva->dni) ?></p> 
 			<p><strong>EMAIL</strong> <?= strtoupper($turno_reserva->email) ?></p>

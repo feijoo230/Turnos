@@ -14,7 +14,8 @@
 	        </div>
 		</form>
 
-		@if (isset($turno_reserva_busqueda))
+		@if (session('turno_reserva_busqueda'))
+			@php($turno_reserva_busqueda = session('turno_reserva_busqueda'))
 			<div id="alert-consulta" class="col-md-10 col-lg-10 col-xl-10 mx-auto">
 				<div class="alert alert-primary alert-dismissible fade show" role="alert" style="padding: 10px;">
 					<div class="container">
@@ -22,12 +23,16 @@
 							<div class="form-group" style="padding-top: 30px;">
 							    <h4 class="center-text"><strong>CODIGO DE RESERVA {!! $turno_reserva_busqueda->codigo !!}</strong></h4>
 							</div>
-							<div class="form-group">
-							    <p style="margin: 0px;"><strong>Dirección</strong> {!! $turno_reserva_busqueda->turno_dependencia->dependencia->nombre !!}</p>
-							</div>
-							<div class="form-group">
-							    <p style="margin: 0px;"><strong>Trámite</strong> {!! $turno_reserva_busqueda->turno_tramite->nombre !!}</p>
-							</div>
+							@if ($turno_reserva_busqueda->turno_tramite && $turno_reserva_busqueda->turno_tramite->tramite && $turno_reserva_busqueda->turno_tramite->tramite->dependencia)
+								<div class="form-group">
+								    <p style="margin: 0px;"><strong>Dirección</strong> {!! $turno_reserva_busqueda->turno_tramite->tramite->dependencia->nombre !!}</p>
+								</div>
+							@endif
+							@if ($turno_reserva_busqueda->turno_tramite && $turno_reserva_busqueda->turno_tramite->tramite)
+								<div class="form-group">
+								    <p style="margin: 0px;"><strong>Trámite</strong> {!! $turno_reserva_busqueda->turno_tramite->tramite->nombre !!}</p>
+								</div>
+							@endif
 							<div class="form-group">
 							    <p><strong>Fecha y hora</strong> {!! $turno_reserva_busqueda->fecha_hora->format('d/m/Y h:i') !!}</p>
 							</div>

@@ -67,6 +67,25 @@
 
 	var disableddates = <?php echo json_encode($feriados); ?>;
 
+	$.ajax({
+		url: '{{ route("turnos.getdisableddates") }}',
+		type: 'post',
+		data: {
+			'id': "<?= $turno_dependencia->id ?>",
+			"_token": "{{ csrf_token() }}"
+		},
+		success: function(data) {
+			console.log("Feriados:", disableddates);
+			console.log("Disabled dates from server:", data);
+			disableddates = disableddates.concat(data);
+			console.log("All disabled dates:", disableddates);
+			initDatepicker();
+		},
+		error: function() {
+			initDatepicker();
+		}
+	});
+
 	$.datepicker.regional['es'] = {
 		closeText: 'Cerrar',
 		prevText: '< Ant',
@@ -86,23 +105,29 @@
 	};
 	$.datepicker.setDefaults($.datepicker.regional['es']);
 
-	$("#datepicker1").datepicker({
-	    onSelect: function() { 
-	        var dateObject = $.datepicker.formatDate('dd/mm/yy', $(this).datepicker('getDate'));
-	        $('#turno_fecha').val(dateObject);
-	        ajax();
-	    },
-	    beforeShowDay: function(date) {
-	    	//inhabilitados los fines de semana
-	       var show = true;
-	       if(date.getDay()==6||date.getDay()==0) return [false];
-	       //inhabilitados los feriados
-	       var string = jQuery.datepicker.formatDate('dd/mm/yy', date);
-	   	   return [ disableddates.indexOf(string) == -1, 'unavailable']
-	    },
-	    minDate: "<?= $fecha_desde ?>",
-		maxDate: "<?= $turno_dependencia->fecha_hasta->format('d/m/Y') ?>"
-	});
+	function initDatepicker() {
+		$("#datepicker1").datepicker({
+			onSelect: function() { 
+				var dateObject = $.datepicker.formatDate('dd/mm/yy', $(this).datepicker('getDate'));
+				$('#turno_fecha').val(dateObject);
+				ajax();
+			},
+			beforeShowDay: function(date) {
+				//inhabilitados los fines de semana
+			   var show = true;
+			   if(date.getDay()==6||date.getDay()==0) return [false];
+			   //inhabilitados los feriados
+			   var string = jQuery.datepicker.formatDate('dd/mm/yy', date);
+			   var isDisabled = disableddates.indexOf(string) != -1;
+			   if (isDisabled) {
+				   console.log("Disabling date:", string);
+			   }
+			   return [ !isDisabled, 'unavailable']
+			},
+			minDate: "<?= $fecha_desde ?>",
+			maxDate: "<?= $turno_dependencia->fecha_hasta->format('d/m/Y') ?>"
+		});
+	}
 
 	function ajax() {
 		$.ajax({

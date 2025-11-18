@@ -19,10 +19,16 @@ class Turnos_Horarios extends Model
         'duracion_minutos',
         'turno_tramite_id',
         'activo',
+        'cantidad_turnos'
     ];
 
-    public function turnoTramite()
+    public function turno_tramite()
     {
-        return $this->belongsTo(TurnosTramites::class, 'turno_tramite_id');
+        return $this->belongsTo(Turnos_Tramites::class, 'turno_tramite_id');
+    }
+
+    public function reservas()
+    {
+        return $this->hasMany(Turnos_Dependencias_Reservas::class, 'turno_horario_id');
     }
 }
