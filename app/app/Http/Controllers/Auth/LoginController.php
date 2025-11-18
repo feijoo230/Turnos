@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-
+use Illuminate\Http\Request;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Laravel\Socialite\Facades\Socialite;
 use App\User;
@@ -43,6 +43,22 @@ class LoginController extends Controller
         $this->middleware('guest')->except('logout');
     }
 
+    /**
+     * The user has been authenticated.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  mixed  $user
+     * @return mixed
+     */
+    protected function authenticated(Request $request, $user)
+    {
+        if ($user->hasRole('ADMINISTRADOR') || $user->hasRole('OPERADOR')) {
+            return redirect()->intended($this->redirectPath());
+        }
+
+        return redirect('/');
+    }
+
     public function redirectToGoogle()
     {
         return Socialite::driver('google')->redirect();
@@ -54,7 +70,6 @@ class LoginController extends Controller
         $finduser = User::where('email', $user->email)->first();
         if($finduser) {
             Auth::login($finduser);
-            return redirect('/home');
         } else {
             $newUser = User::create([
                 'name' => $user->name,
@@ -67,7 +82,11 @@ class LoginController extends Controller
                 $newUser->assignRole($rol->name);
             }
             Auth::login($newUser);
-            return redirect('/home');
         }
+
+        if (Auth::user()->hasRole('ADMINISTRADOR') || Auth::user()->hasRole('OPERADOR')) {
+            return redirect()->intended($this->redirectPath());
+        }
+        return redirect('/');
     }
 }

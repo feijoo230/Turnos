@@ -13,7 +13,10 @@ RUN apt-get update && apt-get install -y \
     libzip-dev \
     libgd-dev \
     curl \
-    gnupg
+    gnupg \
+    libxrender1 \
+    libfontconfig1 \
+    libxtst6
 
 # Instalar las extensiones de PHP necesarias para Laravel
 # pdo_mysql es la clave para la conexión a la base de datos

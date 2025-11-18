@@ -36,6 +36,11 @@
 
 <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
   <li>
+    <a class="dropdown-item" href="{{ url('/home') }}">
+      <i class="fas fa-tachometer-alt"></i> Panel de Control
+    </a>
+  </li>
+  <li>
     <a class="dropdown-item" href="{{ route('logout') }}" 
        onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
       <i class="fas fa-sign-out-alt"></i> Cerrar Sesión

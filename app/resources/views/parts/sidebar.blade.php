@@ -3,6 +3,7 @@
   <div class="menu_section">
     <h3>MENÚ PRINCIPAL</h3>
     <ul class="nav side-menu">
+      <li><a href="{{ url('/') }}"><i class="fa fa-calendar"></i> Nuevo Turno</a></li>
       @can('turnosgestion')
         <li><a href="{{ url('turnos_admin') }}"><i class="fa fa-bullhorn" aria-hidden="true"></i>Gestión de turnos</a></li>
       @endcan
@@ -37,7 +38,7 @@
         <ul class="nav child_menu">
           <li><a href="{{ url('tramitesdependencias') }}">Tramites por dependencias</a></li>
           <li><a href="{{ url('turnostramites') }}">Turnos por Tramites</a></li>
-          <li><a href="{{ url('turnosdependencias') }}">Turnos por dependencias</a></li>
+
           <li><a href="{{ url('turnosdependenciasreservas') }}">Reservas de turnos</a></li>
         </ul>
       </li>

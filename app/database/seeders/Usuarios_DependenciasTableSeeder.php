@@ -14,27 +14,14 @@ class Usuarios_DependenciasTableSeeder extends Seeder
      */
     public function run()
     {
-        DB::table('usuarios_dependencias')->insert([
-          [
-            'usuario_id' => '1',
-            'dependencia_id' => '18',
-            'activo' => '1'
-          ],
-          [
-            'usuario_id' => '1',
-            'dependencia_id' => '19',
-            'activo' => '1'
-          ],
-          [
-            'usuario_id' => '1',
-            'dependencia_id' => '21',
-            'activo' => '1'
-          ],
-          [
-            'usuario_id' => '2',
-            'dependencia_id' => '24',
-            'activo' => '1'
-          ]
-        ]);
+        $dependencias = [];
+        for ($i = 1; $i <= 26; $i++) {
+            $dependencias[] = [
+                'usuario_id' => '1',
+                'dependencia_id' => (string)$i,
+                'activo' => '1'
+            ];
+        }
+        DB::table('usuarios_dependencias')->insert($dependencias);
     }
 }

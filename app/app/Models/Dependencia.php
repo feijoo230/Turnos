@@ -66,11 +66,6 @@ class Dependencia extends Model
         
     ];
 
-    public function turnos()
-    {
-        return $this->hasMany(Turnos_Dependencias::class, 'dependencia_id', 'id');
-    }
-
     public function usuarios()
     {
         return $this->belongsToMany(Usuario::class, 'usuarios_dependencias', 'dependencia_id', 'usuario_id');
@@ -180,26 +175,29 @@ class Dependencia extends Model
             ->where('mesas_habilitadas.activo', TRUE)
             ->orderBy('dependencias.nombre')
             ->get()
+            ->keyBy('dependencia_id')
             ->toArray();
 
-        $aAux = array();
-        foreach ($dependencias as $value) {
-            $aAux[$value->dependencia_id] = (array) $value;
-            $aAux[$value->dependencia_id]['count'] = 0;
+        foreach ($dependencias as $id => &$dependencia) {
+            $dependencias[$id] = (array) $dependencia;
+            $dependencias[$id]['count'] = 0;
         }
-        
-        $dependencias = DB::table('dependencia_turnos')
-            ->select(DB::raw('count(*) as dependencia_count, dependencia_turnos.dependencia_id'))
-            ->where('dependencia_turnos.fecha_hasta', '>=', Carbon::now())
-            ->groupBy('dependencia_turnos.dependencia_id')
+
+        $counts = DB::table('dependencias')
+            ->join('dependencia_tramites', 'dependencias.id', '=', 'dependencia_tramites.dependencia_id')
+            ->join('turnos_tramites', 'dependencia_tramites.id', '=', 'turnos_tramites.dependencia_tramite_id')
+            ->where('turnos_tramites.activo', true)
+            ->where('turnos_tramites.fecha_hasta', '>=', Carbon::now())
+            ->groupBy('dependencias.id')
+            ->select(DB::raw('count(*) as tramite_count, dependencias.id as dependencia_id'))
             ->get()
-            ->toArray();
-        
-        foreach ($dependencias as $value) { 
-            $aAux[$value->dependencia_id]['count'] = $value->dependencia_count;
-        }
+            ->keyBy('dependencia_id');
 
-        $dependencias = $aAux;
+        foreach ($counts as $dependencia_id => $count) {
+            if (isset($dependencias[$dependencia_id])) {
+                $dependencias[$dependencia_id]['count'] = $count->tramite_count;
+            }
+        }
         
         return $dependencias;
     }

@@ -27,19 +27,26 @@ class Turnos_Dependencias_Reservas extends Model
         'dni',
         'celular',
         'email',
-        'dependencia_turno_id',
+        'turno_horario_id',
         'dependencia_tramite_id',
         'estado_id',
         'activo'
     ];
 
-    public function turno_dependencia()
+    public function turno_horario()
     {
-        return $this->belongsTo(Turnos_Dependencias::class, 'dependencia_turno_id', 'id');
+        return $this->belongsTo(Turnos_Horarios::class, 'turno_horario_id');
     }
 
     public function turno_tramite()
     {
-        return $this->belongsTo(Dependencia_Tramite::class, 'dependencia_tramite_id', 'id');
-    } 
+        return $this->hasOneThrough(
+            Turnos_Tramites::class,
+            Turnos_Horarios::class,
+            'id', // Foreign key on Turnos_Horarios table
+            'id', // Foreign key on Turnos_Tramites table
+            'turno_horario_id', // Local key on Turnos_Dependencias_Reservas table
+            'turno_tramite_id' // Local key on Turnos_Horarios table
+        );
+    }
 }

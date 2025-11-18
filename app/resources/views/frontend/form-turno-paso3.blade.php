@@ -18,21 +18,32 @@
 						<p class="text-left" style="margin: 0px;"><span class="text-muted">Dirección:</span> {{$dependencia['nombre']}}</p>
 			      		<p class="text-left" style="margin: 0px; padding-bottom: 10px;"><span class="text-muted">Fecha y hora:</span> {{$turno_fecha}} {{$turno_hora}}</p>
 					</div>
-					{!! Form::open(['route' => 'tramite.guardar', 'class' => 'form-horizontal text-left']) !!}
+
+					@if ($errors->any())
+					    <div class="alert alert-danger">
+					        <ul>
+					            @foreach ($errors->all() as $error)
+					                <li>{{ $error }}</li>
+					            @endforeach
+					        </ul>
+					    </div>
+					@endif
+
+					{!! Form::open(['route' => 'tramite.guardar', 'method' => 'post', 'class' => 'form-horizontal text-left']) !!}
 						<div class="form-group" style="margin-bottom: 5px;">
-				          {!! Form::text('nombre_apellido', null, ['class' => 'form-control', 'placeholder' => 'Nombre y Apellido', 'required' => 'true']) !!}
+				          {!! Form::text('nombre_apellido', isset($usuario) ? $usuario->name : null, ['class' => 'form-control', 'placeholder' => 'Nombre y Apellido', 'required' => 'true']) !!}
 				        </div>
 				        <div class="form-group" style="margin-bottom: 5px;">
-				          {!! Form::text('dni', null, ['class' => 'form-control', 'placeholder' => 'DNI', 'required' => 'true']) !!}
+				          {!! Form::text('dni', isset($usuario) && $usuario->persona ? $usuario->persona->nro_documento : null, ['class' => 'form-control', 'placeholder' => 'DNI', 'required' => 'true']) !!}
 				        </div>
 						<div class="form-group" style="margin-bottom: 5px;">
-				          {!! Form::text('celular', null, ['class' => 'form-control', 'placeholder' => 'Celular', 'required' => 'true']) !!}
+				          {!! Form::text('celular', isset($usuario) && $usuario->persona ? $usuario->persona->tel_movil : null, ['class' => 'form-control', 'placeholder' => 'Celular', 'required' => 'true']) !!}
 				        </div>
 				        <div class="form-group" style="margin-bottom: 5px;">
-				          {!! Form::text('email', null, ['class' => 'form-control', 'placeholder' => 'Email', 'required' => 'true']) !!}
+				          {!! Form::text('email', isset($usuario) ? $usuario->email : null, ['class' => 'form-control', 'placeholder' => 'Email', 'required' => 'true']) !!}
 				        </div>
 				        <div class="form-group" style="margin-bottom: 5px;">
-				          {!! Form::text('email', null, ['class' => 'form-control', 'placeholder' => 'Confirmar Email', 'required' => 'true']) !!}
+				          {!! Form::text('email_confirmation', isset($usuario) ? $usuario->email : null, ['class' => 'form-control', 'placeholder' => 'Confirmar Email', 'required' => 'true']) !!}
 				        </div>
 				</div>
 				<div class="card-footer">

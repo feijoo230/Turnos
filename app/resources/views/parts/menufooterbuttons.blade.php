@@ -3,11 +3,11 @@
     <a data-toggle="tooltip" data-placement="top" title="Settings">
       <i class="fa fa-cog" aria-hidden="true"></i>
     </a>
-    <a data-toggle="tooltip" data-placement="top" title="FullScreen">
-      <i class="fa fa-tasks" aria-hidden="true"></i>
-    </a>
     <a data-toggle="tooltip" data-placement="top" title="Lock">
       <i class="fa fa-area-chart" aria-hidden="true"></i>
+    </a>
+    <a data-toggle="tooltip" data-placement="top" title="Gestión de Turnos" href="{{ url('turnos_admin') }}">
+      <i class="fa fa-bullhorn" aria-hidden="true"></i>
     </a>
     <a data-toggle="tooltip" data-placement="top" title="Logout" href="{{ url('/logout') }}"
                         onclick="event.preventDefault();

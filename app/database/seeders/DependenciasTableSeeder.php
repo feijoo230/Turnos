@@ -21,7 +21,7 @@ class DependenciasTableSeeder extends Seeder
           'codigo' => '',
           'parent_id' => 0,
           '_lft' => '1',
-          '_rgt' => '44',
+          '_rgt' => '46',
           'es_unidad_academica' => '1',
           'tipo_dependencia_id' => '5',
           'nivel' => '1'
@@ -300,6 +300,17 @@ class DependenciasTableSeeder extends Seeder
           'es_unidad_academica' => '0',
           'tipo_dependencia_id' => '1',
           'nivel' => '4'
+        ],
+        [
+          'id' => '27',
+          'nombre' => 'OBSERVATORIO',
+          'codigo' => 'OBS',
+          'parent_id' => 1,
+          '_lft' => '44',
+          '_rgt' => '45',
+          'es_unidad_academica' => '1',
+          'tipo_dependencia_id' => '5',
+          'nivel' => '2'
         ]
       ]);
     }
