@@ -4,7 +4,7 @@
             <div class="col-lg-12 col-md-12" style="padding:0px;">
                 <select v-model="selectDependencia" name="dependencia_id" class="select list-group" required="true" size="7" style="width: 100%;">
 
-                  <option v-for="option in direcciones" :value="option.id" :disabled="option.count > 0 ? false : true" >
+                  <option v-for="option in direcciones" :value="option.id" :disabled="!option.has_turns" >
                     {{ option.nombre }}
                   </option>
                 </select>
@@ -14,7 +14,7 @@
         <div class="row">
             <div class="col-lg-12 col-md-12" style="padding:0px;">
                 <select v-model="selectTramite" name="dependencia_tramite_id" class="select list-group" required="true" size="7" style="width: 100%;">
-                  <option v-for="option in tramites" :value="option.id">
+                  <option v-for="option in tramites" :value="option.id" v-bind:disabled="!option.has_turns">
                     {{ option.nombre }}
                   </option>
                 </select>

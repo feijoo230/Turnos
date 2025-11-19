@@ -70,6 +70,10 @@ class TramitesController extends Controller
         }
 
         $dependencia_tramite_id = $request->session()->get('dependencia_tramite_id');
+        if (!$this->checkAvailability($dependencia_tramite_id)) {
+            return redirect()->route('tramite.index')->with('error', 'No hay turnos disponibles para este trámite.');
+        }
+
         $turno_tramite = Turnos_Tramites::where('dependencia_tramite_id', $dependencia_tramite_id)
             ->where('activo', true)
             ->where('fecha_hasta', '>=', Carbon::today())
@@ -92,7 +96,7 @@ class TramitesController extends Controller
         $turno_hora = $request->session()->get('turno_hora', 0);
         
         $feriados = Feriado::whereDate('fecha', '>=', Carbon::today())->get()->map(function ($feriado) {
-            return $feriado->fecha->format('d/m/Y');
+            return $feriado->fecha;
         })->toArray();
         $feriados_text = Feriado::whereDate('fecha', '>=', Carbon::today())->get();
 
@@ -287,10 +291,98 @@ class TramitesController extends Controller
         return json_encode($dependencias);
     }
     
+    private function checkAvailability(int $dependencia_tramite_id): bool
+    {
+        $has_turns = false;
+        $today = Carbon::today();
+
+        $turno_tramite = Turnos_Tramites::where('dependencia_tramite_id', $dependencia_tramite_id)
+            ->where('activo', true)
+            ->where('fecha_hasta', '>=', $today)
+            ->orderByDesc('id')
+            ->first();
+
+        if ($turno_tramite) {
+            $feriados = Feriado::where('activo', 1)
+                ->where('fecha', '>=', $today)
+                ->get()
+                ->map(function ($feriado) {
+                    return Carbon::createFromFormat('d/m/Y', $feriado->fecha)->format('Y-m-d');
+                })->toArray();
+            
+            $fecha_desde = $turno_tramite->fecha_desde;
+            if ($today->gt($fecha_desde)) {
+                $fecha_desde = $today;
+            }
+            $fecha_hasta = $turno_tramite->fecha_hasta;
+
+            $current_date = $fecha_desde->copy();
+
+            $reservas_all = Turnos_Dependencias_Reservas::where('dependencia_tramite_id', $dependencia_tramite_id)
+                ->whereDate('fecha', '>=', $fecha_desde)
+                ->whereDate('fecha', '<=', $fecha_hasta)
+                ->select(DB::raw('DATE(fecha) as fecha_date'), 'turno_horario_id', 'hora', DB::raw('count(*) as total'))
+                ->groupBy('fecha_date', 'turno_horario_id', 'hora')
+                ->get()
+                ->groupBy('fecha_date');
+
+            while ($current_date->lte($fecha_hasta) && !$has_turns) {
+                if ($current_date->isWeekend() || in_array($current_date->format('Y-m-d'), $feriados)) {
+                    $current_date->addDay();
+                    continue;
+                }
+
+                $reservas_del_dia = $reservas_all->get($current_date->format('Y-m-d'));
+                
+                $reservas_por_horario_y_hora = [];
+                if ($reservas_del_dia) {
+                    foreach ($reservas_del_dia as $reserva) {
+                        if (!isset($reservas_por_horario_y_hora[$reserva->turno_horario_id])) {
+                            $reservas_por_horario_y_hora[$reserva->turno_horario_id] = [];
+                        }
+                        $reservas_por_horario_y_hora[$reserva->turno_horario_id][$reserva->hora] = $reserva->total;
+                    }
+                }
+                
+                $isToday = $current_date->isToday();
+
+                foreach ($turno_tramite->turnosHorarios as $horario) {
+                    if (!$horario->activo) {
+                        continue;
+                    }
+
+                    $tStart = $current_date->copy()->setTimeFromTimeString($horario->hora_inicio);
+                    $tEnd = $current_date->copy()->setTimeFromTimeString($horario->hora_fin);
+                    $duration = $horario->duracion_minutos;
+
+                    $tCurrent = $tStart->copy();
+
+                    while ($tCurrent->lt($tEnd)) {
+                        $slot = $tCurrent->format('H:i:s');
+                        $reservas_count = $reservas_por_horario_y_hora[$horario->id][$slot] ?? 0;
+                        
+                        $isPastSlotForToday = $isToday && $tCurrent->isPast();
+
+                        if (!$isPastSlotForToday && $reservas_count < $horario->cantidad_turnos) {
+                            $has_turns = true;
+                            break 3;
+                        }
+                        $tCurrent->addMinutes($duration);
+                    }
+                }
+                $current_date->addDay();
+            }
+        }
+        return $has_turns;
+    }
+
     public function getTramites($id)
     {
-        //Se obtiene las dependencias que tienen emiten turnos
         $dependencias_tramites = Dependencia_Tramite::where('dependencia_id', $id)->get()->toArray();
+
+        foreach ($dependencias_tramites as &$tramite) {
+            $tramite['has_turns'] = $this->checkAvailability($tramite['id']);
+        }
 
         header('Content-Type: application/json');
         return json_encode($dependencias_tramites);

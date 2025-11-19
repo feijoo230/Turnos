@@ -57,13 +57,13 @@
   </div>
 </nav>
     <!-- Masthead -->
-    <header class="masthead text-white text-center" style="padding-top: 10px !important;">
+    <header class="masthead text-black text-center" style="padding-top: 10px !important;">
       <div class="overlay"></div>
       <div class="container">
         <div class="row" style="margin-top: 0px; margin-bottom: 0px !important;">
           <div class="col-xl-9 mx-auto">
-            <h1 class="mb-5" style="margin-top: 0px; margin-bottom: 0px !important;">{{ config('constants.NOMBRE_SISTEMA', 'Laravel') }}</h1>
-            <p style="font-size: 16px;">La atención al público en general es solamente con turno previo otorgado por este medio. <strong>La utilización de barbijo es obligatoria.</strong></p>
+           <h1 class="mb-5" style="margin-top: 0px; margin-bottom: 0px !important;">{{ config('constants.NOMBRE_SISTEMA', 'Laravel') }}</h1>
+            <p style="font-size: 16px;">¡Hola! Para una mejor atención, te invitamos a solicitar tu turno de forma sencilla a través de este medio.</p>
           </div>
           
           <div class="col-md-9 col-lg-7 col-xl-6 mx-auto">

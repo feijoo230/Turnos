@@ -7,13 +7,13 @@
     </div>
   </nav>
 <!-- Masthead -->
-<header class="masthead text-white text-center effect2">
+<header class="masthead text-dark text-center effect2">
 	<div class="overlay"></div>
 	<div class="container">
 	  <div class="row">
 	    <div class="col-xl-9 mx-auto">
-	      <h1 class="mb-5" style="margin-bottom: 10px !important;">TURNOS RECTORADO</h1>
-	      <p style="font-size: 18px;"><strong>La atención al público en general es solamente con turno previo</strong>, otorgado por este medio. <strong>La utilización de barbijo es obligatoria.</strong></p>
+	      <h1 class="mb-5" style="margin-bottom: 10px !important;">¡Bienvenido al Sistema de Turnos!</h1>
+	      <p style="font-size: 18px;">¡Hola! Para una mejor atención, te invitamos a solicitar tu turno de forma sencilla a través de este medio. ¡Estamos aquí para ayudarte!</p>
 	    </div>
 	    
 	    <div class="col-md-9 col-lg-7 col-xl-6 mx-auto">
