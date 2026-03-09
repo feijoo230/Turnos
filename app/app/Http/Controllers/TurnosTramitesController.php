@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\Turnos_Tramites;
 use Illuminate\Support\Facades\DB;
 use App\Http\Requests\StoreTurnoTramite;
+use App\Models\Rol;
 
 class TurnosTramitesController extends Controller
 {
@@ -17,15 +18,23 @@ class TurnosTramitesController extends Controller
      */
     public function index()
     {
-        $usuario_id = Auth::id();
-        
-        $turnostramites = Turnos_Tramites::select('turnos_tramites.*')
-            ->join('dependencia_tramites', 'turnos_tramites.dependencia_tramite_id', '=', 'dependencia_tramites.id')
-            ->join('usuarios_dependencias', 'dependencia_tramites.dependencia_id', '=', 'usuarios_dependencias.dependencia_id')
-            ->where('usuarios_dependencias.usuario_id', $usuario_id)
-            ->where('usuarios_dependencias.activo', true)
-            ->orderBy('turnos_tramites.created_at', 'desc')
-            ->paginate(15);
+        $usuario = Auth::user();
+        $isAdmin = $usuario->roles->contains(Rol::ADMINISTRADOR);
+
+        if ($isAdmin) {
+            $turnostramites = Turnos_Tramites::with('tramite.dependencia')
+                ->orderBy('created_at', 'desc')
+                ->paginate(15);
+        } else {
+            $dependencia_ids = $usuario->dependencias()->where('usuarios_dependencias.activo', true)->pluck('dependencias.id');
+    
+            $turnostramites = Turnos_Tramites::with('tramite.dependencia')
+                ->whereHas('tramite', function ($query) use ($dependencia_ids) {
+                    $query->whereIn('dependencia_id', $dependencia_ids);
+                })
+                ->orderBy('created_at', 'desc')
+                ->paginate(15);
+        }
 
         return view('turnostramites.index')
             ->with('turnostramites', $turnostramites);
@@ -38,14 +47,19 @@ class TurnosTramitesController extends Controller
      */
     public function create()
     {
-        $usuario_id = Auth::id();
+        $usuario = Auth::user();
+        $isAdmin = $usuario->roles->contains(Rol::ADMINISTRADOR);
         
-        $dependenciaTramites = DB::table('dependencias')
-        ->join('dependencia_tramites', 'dependencia_tramites.dependencia_id', '=', 'dependencias.id')
-        ->join('usuarios_dependencias', 'dependencias.id', '=', 'usuarios_dependencias.dependencia_id')
-        ->where('usuarios_dependencias.usuario_id', $usuario_id)
-        ->select(DB::raw("CONCAT(dependencias.nombre, ' - ', dependencia_tramites.nombre) as nombre_completo"), 'dependencia_tramites.id')
-        ->pluck('nombre_completo', 'dependencia_tramites.id')->toArray();
+        $query = DB::table('dependencias')
+            ->join('dependencia_tramites', 'dependencia_tramites.dependencia_id', '=', 'dependencias.id');
+
+        if (!$isAdmin) {
+            $query->join('usuarios_dependencias', 'dependencias.id', '=', 'usuarios_dependencias.dependencia_id')
+                  ->where('usuarios_dependencias.usuario_id', $usuario->id);
+        }
+        
+        $dependenciaTramites = $query->select(DB::raw("CONCAT(dependencias.nombre, ' - ', dependencia_tramites.nombre) as nombre_completo"), 'dependencia_tramites.id')
+            ->pluck('nombre_completo', 'dependencia_tramites.id')->toArray();
         
         
         return view('turnostramites.create')
@@ -119,14 +133,19 @@ class TurnosTramitesController extends Controller
     public function edit($id)
     {
         $turnostramites = Turnos_Tramites::with('turnosHorarios')->find($id);
-        $usuario_id = Auth::id();
+        $usuario = Auth::user();
+        $isAdmin = $usuario->roles->contains(Rol::ADMINISTRADOR);
         
         
-        $dependenciaTramites = DB::table('dependencias')
-            ->join('dependencia_tramites', 'dependencia_tramites.dependencia_id', '=', 'dependencias.id')
-            ->join('usuarios_dependencias', 'dependencias.id', '=', 'usuarios_dependencias.dependencia_id')
-            ->where('usuarios_dependencias.usuario_id', $usuario_id)
-            ->select(DB::raw("CONCAT(dependencias.nombre, ' - ', dependencia_tramites.nombre) as nombre_completo"), 'dependencia_tramites.id')
+        $query = DB::table('dependencias')
+            ->join('dependencia_tramites', 'dependencia_tramites.dependencia_id', '=', 'dependencias.id');
+        
+        if (!$isAdmin) {
+            $query->join('usuarios_dependencias', 'dependencias.id', '=', 'usuarios_dependencias.dependencia_id')
+                  ->where('usuarios_dependencias.usuario_id', $usuario->id);
+        }
+
+        $dependenciaTramites = $query->select(DB::raw("CONCAT(dependencias.nombre, ' - ', dependencia_tramites.nombre) as nombre_completo"), 'dependencia_tramites.id')
             ->pluck('nombre_completo', 'dependencia_tramites.id')
             ->toArray();
         
