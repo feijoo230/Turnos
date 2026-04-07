@@ -38,7 +38,7 @@
 <div class="form-group">
   {!! Form::label('activo', 'Activo:', array('class' => 'control-label col-md-3 col-sm-3 col-xs-12')) !!}
   <div class="col-md-6 col-sm-6 col-xs-12">
-    {!! Form::checkbox('activo', TRUE, ((isset($usuario->activo))? $usuario->activo : FALSE)) !!}
+    {!! Form::checkbox('activo', 1, ((isset($usuario->activo))? $usuario->activo : FALSE)) !!}
   </div>      
 </div>
 {{ (isset($usuario->id))? Form::hidden('id', $usuario->id) : Form::hidden('id', 0) }}

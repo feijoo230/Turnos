@@ -41,9 +41,10 @@ class DependenciasController extends Controller
         return view('dependencias.create')->with(compact('dependencias', 'tipos_dependencias'));
     }
 
-    public function store(Request $request)
+    public function store(StoreDependencia $request)
     {
         $input = $request->all();
+        $input['es_unidad_academica'] = $request->has('es_unidad_academica');
 
         $parent = Dependencia::find($request['parent_id']);
         $input['nivel'] = (!empty($input['nivel']))? $input['nivel'] : ($parent->nivel + 1);
