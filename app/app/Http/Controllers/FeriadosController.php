@@ -6,6 +6,9 @@ use Illuminate\Http\Request;
 use App\Models\Feriado;
 use App\Http\Requests\StoreFeriado;
 use Carbon\Carbon;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Imports\FeriadosImport;
+use App\Exports\FeriadosExport;
 
 class FeriadosController extends Controller
 {
@@ -84,5 +87,21 @@ class FeriadosController extends Controller
         $feriado->delete();
 
         return redirect(route('feriados.index'));
+    }
+
+    public function import(Request $request) 
+    {
+        $request->validate([
+            'excel' => 'required|mimes:xls,xlsx'
+        ]);
+
+        Excel::import(new FeriadosImport, $request->file('excel'));
+        
+        return redirect(route('feriados.index'))->with('success', 'Feriados importados correctamente.');
+    }
+
+    public function export() 
+    {
+        return Excel::download(new FeriadosExport, 'feriados.xlsx');
     }
 }

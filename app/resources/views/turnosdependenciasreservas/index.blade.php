@@ -33,6 +33,7 @@
               {!! Form::open(['route' => 'turnosdependenciasreservas.print', 'method' => 'post']) !!}
                 {!! Form::hidden('codigo_turno', (isset($codigo_turno)? $codigo_turno : null)) !!}
                 {!! Form::hidden('fecha_turno', (isset($fecha_turno)? $fecha_turno : null)) !!}
+                <a href="{{ route('turnosdependenciasreservas.export') }}" class="btn btn-success pull-right"><i class="fa fa-file-excel-o"></i> Exportar</a>
                 {{ Form::submit('Imprimir', array('class' => 'btn btn-secundary pull-right')) }}
               </form>
                   </div>

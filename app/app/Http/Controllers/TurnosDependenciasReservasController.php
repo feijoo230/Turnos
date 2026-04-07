@@ -12,12 +12,19 @@ use App\Http\Requests\BusquedaTurno;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\TurnosReservadosExport;
 
 class TurnosDependenciasReservasController extends Controller
 {
     public function __construct()
     {
 
+    }
+
+    public function export() 
+    {
+        return Excel::download(new TurnosReservadosExport, 'turnos_reservados.xlsx');
     }
 
     public function show($id)

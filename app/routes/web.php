@@ -42,14 +42,11 @@ Route::get('gettramites/{id}','frontend\TramitesController@getTramites')->name('
   
 Route::group(['middleware' => 'auth'], function(){
 
+  Route::post('feriados/import', 'FeriadosController@import')->name('feriados.import');
+  Route::get('feriados/export', 'FeriadosController@export')->name('feriados.export');
   Route::resource('feriados', 'FeriadosController');//Valido
 
-
-  Route::resource('turnostramites', 'TurnosTramitesController');//Valido
-  Route::resource('turnoshorarios', 'TurnosHorariosController')->shallow();//Valido
-  Route::get('listar/{id}','TurnosHorariosController@listar')->name('turnos.horarios.listar');//valid
-  Route::resource('tramitesdependencias', 'TramitesDependenciasController');//Valido
-
+  Route::get('turnosdependenciasreservas/export', 'TurnosDependenciasReservasController@export')->name('turnosdependenciasreservas.export');
   Route::resource('turnosdependenciasreservas', 'TurnosDependenciasReservasController');//Valido
   Route::post('turnosdependenciasreservas.buscar', 'TurnosDependenciasReservasController@buscar')->name('turnosdependenciasreservas.buscar');//Valido
  Route::post('turnosdependenciasreservas.print', 'TurnosDependenciasReservasController@print')->name('turnosdependenciasreservas.print');//Valido

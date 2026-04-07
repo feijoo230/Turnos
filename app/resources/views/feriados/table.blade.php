@@ -3,6 +3,7 @@
     <tr>
       <th>Fecha</th>
       <th>Observación</th>
+      <th>Activo</th>
       <th>Acción</th>
     </tr>
   </thead>
@@ -11,6 +12,13 @@
     <tr>
       <td>{!! $feriado->fecha !!}</td>
       <td>{!! $feriado->observacion !!}</td>
+      <td class="text-center">
+        @if($feriado->activo)
+          <span class="label label-success">SÍ</span>
+        @else
+          <span class="label label-danger">NO</span>
+        @endif
+      </td>
       <td>
         {!! Form::open(['route' => ['feriados.destroy', $feriado->id], 'method' => 'delete']) !!}
           <div class='btn-group'>
