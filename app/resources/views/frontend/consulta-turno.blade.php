@@ -5,11 +5,18 @@
 		{!! Form::open(['route' => 'turno.buscar', 'method'=> 'get', 'class' => 'form-horizontal text-center']) !!}
 
 			<div class="form-group" style="margin-bottom: 5px;">
-				{!! Form::text('codigo_turno', null, ['class' => 'form-control', 'placeholder' => 'Codigo de turno', 'required' => 'true']) !!}
+				<div class="row">
+					<div class="col-md-6" style="margin-bottom: 5px;">
+						{!! Form::text('codigo_turno', null, ['class' => 'form-control', 'placeholder' => 'Codigo de turno']) !!}
+					</div>
+					<div class="col-md-6" style="margin-bottom: 5px;">
+						{!! Form::text('dni_turno', null, ['class' => 'form-control', 'placeholder' => 'DNI']) !!}
+					</div>
+				</div>
 		    </div>
 		    <div class="form-group" style="margin-top: 5px;">
 	          <div style="text-align: right;">
-	            <button type="submit" class="btn btn-primary">Enviar</button>
+	            <button type="submit" class="btn btn-primary">Buscar</button>
 	          </div>
 	        </div>
 		</form>

@@ -201,7 +201,17 @@ class TramitesController extends Controller
     protected function buscar(SearchTurno $request)
     {
         $input = $request->all();
-        $turno_reserva_busqueda = Turnos_Dependencias_Reservas::with('turno_horario.turno_tramite.tramite.dependencia')->where('codigo', $input['codigo_turno'])->first();
+        $query = Turnos_Dependencias_Reservas::with('turno_horario.turno_tramite.tramite.dependencia');
+
+        if (!empty($input['codigo_turno'])) {
+            $query->where('codigo', $input['codigo_turno']);
+        }
+
+        if (!empty($input['dni_turno'])) {
+            $query->where('dni', $input['dni_turno']);
+        }
+
+        $turno_reserva_busqueda = $query->first();
 
         return back()->with('turno_reserva_busqueda', $turno_reserva_busqueda);
     }

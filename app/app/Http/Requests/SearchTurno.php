@@ -24,14 +24,16 @@ class SearchTurno extends FormRequest
     public function rules()
     {
         return [
-            'codigo_turno' => 'required|max:255'
+            'codigo_turno' => 'required_without:dni_turno|max:255',
+            'dni_turno' => 'required_without:codigo_turno|max:20'
         ];
     }
 
     public function attributes()
     {
         return [
-            'codigo_turno' => 'CODIGO DE TURNO'
+            'codigo_turno' => 'CODIGO DE TURNO',
+            'dni_turno' => 'DNI'
         ];
     }
 }
