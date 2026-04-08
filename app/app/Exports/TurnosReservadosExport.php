@@ -11,34 +11,73 @@ class TurnosReservadosExport implements FromCollection, WithHeadings, WithMappin
 {
     public function collection()
     {
-        return Turnos_Dependencias_Reservas::with(['dependencia_tramite.dependencia', 'dependencia_tramite.tramite'])->get();
+        $reservas = Turnos_Dependencias_Reservas::with(['turno_tramite.tramite.dependencia', 'integrantes'])->get();
+        $data = collect();
+
+        foreach ($reservas as $reserva) {
+            if ($reserva->es_grupal && $reserva->integrantes->count() > 0) {
+                foreach ($reserva->integrantes as $integrante) {
+                    // Clonamos la información para cada integrante
+                    $data->push([
+                        'reserva' => $reserva,
+                        'integrante_nombre' => $integrante->nombre,
+                        'integrante_apellido' => $integrante->apellido,
+                        'integrante_dni' => $integrante->dni,
+                    ]);
+                }
+            } else {
+                // Reserva individual o grupal sin lista cargada
+                $data->push([
+                    'reserva' => $reserva,
+                    'integrante_nombre' => '-',
+                    'integrante_apellido' => '-',
+                    'integrante_dni' => '-',
+                ]);
+            }
+        }
+
+        return $data;
     }
 
     public function headings(): array
     {
         return [
-            'ID',
+            'ID Reserva',
+            'Código',
             'Fecha',
             'Hora',
             'Dependencia',
             'Trámite',
-            'DNI',
-            'Nombre',
-            'Email'
+            'Responsable (Nombre)',
+            'Responsable (DNI)',
+            'Email',
+            'Institución',
+            'Total Personas Grupo',
+            'Integrante (Nombre)',
+            'Integrante (Apellido)',
+            'Integrante (DNI)'
         ];
     }
 
-    public function map($reserva): array
+    public function map($row): array
     {
+        $reserva = $row['reserva'];
+        
         return [
             $reserva->id,
-            $reserva->fecha,
+            $reserva->codigo,
+            $reserva->fecha->format('d/m/Y'),
             $reserva->hora,
-            $reserva->dependencia_tramite->dependencia->nombre ?? 'N/A',
-            $reserva->dependencia_tramite->tramite->nombre ?? 'N/A',
-            $reserva->dni,
+            $reserva->turno_tramite->tramite->dependencia->nombre ?? 'N/A',
+            $reserva->turno_tramite->tramite->nombre ?? 'N/A',
             $reserva->nombre_apellido,
-            $reserva->email
+            $reserva->dni,
+            $reserva->email,
+            $reserva->nombre_institucion ?? '-',
+            $reserva->cantidad_personas,
+            $row['integrante_nombre'],
+            $row['integrante_apellido'],
+            $row['integrante_dni']
         ];
     }
 }
