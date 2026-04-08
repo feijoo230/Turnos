@@ -21,6 +21,8 @@ use App\Mail\NuevoTramite;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Imports\IntegrantesImport;
 
 class TramitesController extends Controller
 {
@@ -131,21 +133,48 @@ class TramitesController extends Controller
     {
         $input = $request->all();
 
-        $values = $request->session()->all();
+        if (!$request->session()->has('turno_hora') || !$request->session()->has('turno_fecha')) {
+            return redirect()->route('tramite.index')->with('error', 'La sesión ha expirado o los datos del turno son inválidos. Por favor, intente de nuevo.');
+        }
 
-        list($turno_hora, $turno_horario_id) = explode('|', $request->session()->get('turno_hora'));
+        $session_turno_hora = $request->session()->get('turno_hora');
+        
+        if (strpos($session_turno_hora, '|') === false) {
+            return redirect()->route('tramite.index')->with('error', 'Formato de hora inválido. Por favor, seleccione un turno nuevamente.');
+        }
+
+        list($turno_hora, $turno_horario_id) = explode('|', $session_turno_hora);
 
         // START of the check
         $turno_horario = \App\Models\Turnos_Horarios::find($turno_horario_id);
         $fecha = Carbon::createFromFormat('d/m/Y', $request->session()->get('turno_fecha'));
 
-        $reservas_count = Turnos_Dependencias_Reservas::where('turno_horario_id', $turno_horario_id)
+        $reservas_sum = Turnos_Dependencias_Reservas::where('turno_horario_id', $turno_horario_id)
             ->whereDate('fecha', $fecha)
             ->where('hora', $turno_hora)
-            ->count();
+            ->sum('cantidad_personas');
 
-        if ($reservas_count >= $turno_horario->cantidad_turnos) {
-            return redirect()->route('tramite.index')->with('error', 'El turno seleccionado ya no está disponible. Por favor, elija otro horario.');
+        $solicitadas = (int) $request->input('cantidad_personas', 1);
+
+        // Validación de Cupo
+        if (($reservas_sum + $solicitadas) > $turno_horario->cantidad_turnos) {
+            $disponibles = $turno_horario->cantidad_turnos - $reservas_sum;
+            return back()->withInput()->with('error', "El turno seleccionado no tiene cupo suficiente. Lugares disponibles: {$disponibles}. Usted solicitó: {$solicitadas}.");
+        }
+
+        // Validación de Excel vs Cantidad de Personas
+        if ($request->input('es_grupal')) {
+            if ($request->hasFile('archivo_integrantes')) {
+                $data = Excel::toArray([], $request->file('archivo_integrantes'));
+                // data[0] es la primera hoja. Restamos 1 por el encabezado.
+                $filas_excel = count($data[0]) - 1; 
+
+                if ($filas_excel != $solicitadas) {
+                    return back()->withInput()->with('error', "La cantidad de integrantes en el Excel ({$filas_excel}) no coincide con la cantidad declarada ({$solicitadas}). Por favor, corrija el archivo o el número de personas.");
+                }
+            } else {
+                return back()->withInput()->with('error', "Debe subir el archivo de integrantes para una reserva grupal.");
+            }
         }
         // END of the check
 
@@ -157,6 +186,9 @@ class TramitesController extends Controller
             'dni' => $input['dni'],
             'celular' => $input['celular'],
             'email' => $input['email'],
+            'es_grupal' => $request->input('es_grupal', false),
+            'cantidad_personas' => $solicitadas,
+            'nombre_institucion' => $request->input('nombre_institucion'),
             'turno_horario_id' => $turno_horario_id,
             'dependencia_tramite_id' => $request->session()->get('dependencia_tramite_id'),
             'estado_id' => 1,
@@ -164,6 +196,10 @@ class TramitesController extends Controller
         ];
 
         $turno_reserva = Turnos_Dependencias_Reservas::create($aux_input);
+
+        if ($request->hasFile('archivo_integrantes')) {
+            Excel::import(new IntegrantesImport($turno_reserva->id), $request->file('archivo_integrantes'));
+        }
 
         $dependencia_codigo = $turno_reserva->turno_horario->turno_tramite->tramite->dependencia->codigo;
         $turno_reserva->codigo = $dependencia_codigo.str_pad($turno_reserva->id, 6, "0", STR_PAD_LEFT);
@@ -201,19 +237,39 @@ class TramitesController extends Controller
     protected function buscar(SearchTurno $request)
     {
         $input = $request->all();
-        $query = Turnos_Dependencias_Reservas::with('turno_horario.turno_tramite.tramite.dependencia');
+        $query = Turnos_Dependencias_Reservas::with('turno_horario.turno_tramite.tramite.dependencia')
+            ->where('activo', 1);
 
         if (!empty($input['codigo_turno'])) {
             $query->where('codigo', $input['codigo_turno']);
+            $turno_reserva_busqueda = $query->first();
+            return back()->with('turno_reserva_busqueda', $turno_reserva_busqueda);
         }
 
         if (!empty($input['dni_turno'])) {
-            $query->where('dni', $input['dni_turno']);
+            $dni = $input['dni_turno'];
+            $query->where('dni', $dni)
+                  ->whereDate('fecha', '>=', Carbon::today())
+                  ->orderBy('fecha', 'asc')
+                  ->orderBy('hora', 'asc');
+            
+            $reservas = $query->get();
+
+            if ($reservas->count() > 1) {
+                $html = view('htmltopdf.listado_mis_turnos')
+                    ->with('reservas', $reservas)
+                    ->with('dni', $dni)
+                    ->render();
+
+                $pdf = \PDF::loadHTML($html);
+                return $pdf->download('mis_turnos_'.$dni.'.pdf');
+            }
+
+            $turno_reserva_busqueda = $reservas->first();
+            return back()->with('turno_reserva_busqueda', $turno_reserva_busqueda);
         }
 
-        $turno_reserva_busqueda = $query->first();
-
-        return back()->with('turno_reserva_busqueda', $turno_reserva_busqueda);
+        return back();
     }
 
     public function loadHorarios(Request $request)
@@ -230,7 +286,7 @@ class TramitesController extends Controller
 
         $reservas = Turnos_Dependencias_Reservas::where('dependencia_tramite_id', $turno_tramite->dependencia_tramite_id)
             ->whereDate('fecha', $turno_fecha)
-            ->select('turno_horario_id', 'hora', DB::raw('count(*) as total'))
+            ->select('turno_horario_id', 'hora', DB::raw('sum(cantidad_personas) as total'))
             ->groupBy('turno_horario_id', 'hora')
             ->get();
         
@@ -331,7 +387,7 @@ class TramitesController extends Controller
             $reservas_all = Turnos_Dependencias_Reservas::where('dependencia_tramite_id', $dependencia_tramite_id)
                 ->whereDate('fecha', '>=', $fecha_desde)
                 ->whereDate('fecha', '<=', $fecha_hasta)
-                ->select(DB::raw('DATE(fecha) as fecha_date'), 'turno_horario_id', 'hora', DB::raw('count(*) as total'))
+                ->select(DB::raw('DATE(fecha) as fecha_date'), 'turno_horario_id', 'hora', DB::raw('sum(cantidad_personas) as total'))
                 ->groupBy('fecha_date', 'turno_horario_id', 'hora')
                 ->get()
                 ->groupBy('fecha_date');
@@ -421,7 +477,7 @@ class TramitesController extends Controller
         $reservas = Turnos_Dependencias_Reservas::where('dependencia_tramite_id', $turno_tramite->dependencia_tramite_id)
             ->whereDate('fecha', '>=', $fecha_desde)
             ->whereDate('fecha', '<=', $fecha_hasta)
-            ->select(DB::raw('DATE(fecha) as fecha_date'), 'hora', DB::raw('count(*) as total'))
+            ->select(DB::raw('DATE(fecha) as fecha_date'), 'hora', DB::raw('sum(cantidad_personas) as total'))
             ->groupBy('fecha_date', 'hora')
             ->get()
             ->groupBy('fecha_date');

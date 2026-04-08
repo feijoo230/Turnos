@@ -16,7 +16,7 @@ class Turnos_Dependencias_Reservas extends Model
     const CREATED_AT = 'created_at';
     const UPDATED_AT = 'updated_at';
 
-    protected $dates = ['deleted_at', 'fecha_hora'];
+    protected $dates = ['deleted_at', 'fecha_hora', 'fecha'];
 
     public $fillable = [
         'codigo',
@@ -27,6 +27,9 @@ class Turnos_Dependencias_Reservas extends Model
         'dni',
         'celular',
         'email',
+        'es_grupal',
+        'cantidad_personas',
+        'nombre_institucion',
         'turno_horario_id',
         'dependencia_tramite_id',
         'estado_id',
@@ -48,5 +51,10 @@ class Turnos_Dependencias_Reservas extends Model
             'turno_horario_id', // Local key on Turnos_Dependencias_Reservas table
             'turno_tramite_id' // Local key on Turnos_Horarios table
         );
+    }
+
+    public function integrantes()
+    {
+        return $this->hasMany(ReservaIntegrante::class, 'reserva_id');
     }
 }

@@ -29,7 +29,7 @@
 					    </div>
 					@endif
 
-					{!! Form::open(['route' => 'tramite.guardar', 'method' => 'post', 'class' => 'form-horizontal text-left']) !!}
+					{!! Form::open(['route' => 'tramite.guardar', 'method' => 'post', 'class' => 'form-horizontal text-left', 'files' => true]) !!}
 						<div class="form-group" style="margin-bottom: 5px;">
 				          {!! Form::text('nombre_apellido', isset($usuario) ? $usuario->name : null, ['class' => 'form-control', 'placeholder' => 'Nombre y Apellido', 'required' => 'true']) !!}
 				        </div>
@@ -45,6 +45,29 @@
 				        <div class="form-group" style="margin-bottom: 5px;">
 				          {!! Form::text('email_confirmation', isset($usuario) ? $usuario->email : null, ['class' => 'form-control', 'placeholder' => 'Confirmar Email', 'required' => 'true']) !!}
 				        </div>
+
+						<div class="form-check" style="margin-bottom: 10px; margin-top: 15px;">
+							<input class="form-check-input" type="checkbox" name="es_grupal" id="es_grupal" value="1">
+							<label class="form-check-label" for="es_grupal">
+								¿Es una reserva grupal?
+							</label>
+						</div>
+
+						<div id="campos_grupales" style="display: none; background: #f8f9fa; padding: 15px; border-radius: 5px; margin-bottom: 10px; border: 1px solid #dee2e6;">
+							<div class="form-group" style="margin-bottom: 10px;">
+								<label for="cantidad_personas">Cantidad de personas</label>
+								{!! Form::number('cantidad_personas', 1, ['class' => 'form-control', 'placeholder' => 'Cantidad de personas', 'min' => 1, 'id' => 'cantidad_personas']) !!}
+							</div>
+							<div class="form-group" style="margin-bottom: 10px;">
+								<label for="nombre_institucion">Nombre de la Institución / Colegio</label>
+								{!! Form::text('nombre_institucion', null, ['class' => 'form-control', 'placeholder' => 'Ej: Colegio Nacional Nro 1']) !!}
+							</div>
+							<div class="form-group" style="margin-bottom: 0px;">
+								<label for="archivo_integrantes">Importar lista de integrantes (Excel/CSV)</label>
+								{!! Form::file('archivo_integrantes', ['class' => 'form-control', 'accept' => '.xls,.xlsx,.csv']) !!}
+								<small class="text-muted">El archivo debe tener las columnas: <b>nombre, apellido, dni</b>. <a href="{{ asset('plantilla_integrantes.xlsx') }}" download>Descargar plantilla de ejemplo</a></small>
+							</div>
+						</div>
 				</div>
 				<div class="card-footer">
 					<div style="text-align: right;">
@@ -59,3 +82,23 @@
 </div>
 
 @stop
+
+@section('script')
+<script>
+	$(document).ready(function() {
+		$('#es_grupal').on('change', function() {
+			if ($(this).is(':checked')) {
+				$('#campos_grupales').show();
+				$('#cantidad_personas').val(2).attr('min', 2).attr('required', true);
+				$('input[name="nombre_institucion"]').attr('required', true);
+				$('input[name="archivo_integrantes"]').attr('required', true);
+			} else {
+				$('#campos_grupales').hide();
+				$('#cantidad_personas').val(1).attr('min', 1).removeAttr('required');
+				$('input[name="nombre_institucion"]').removeAttr('required');
+				$('input[name="archivo_integrantes"]').removeAttr('required');
+			}
+		});
+	});
+</script>
+@endsection

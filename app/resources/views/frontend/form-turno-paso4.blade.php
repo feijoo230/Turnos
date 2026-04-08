@@ -39,6 +39,19 @@
 						<div class="form-group">
 						    <p style="margin: 0px;"><strong>Email</strong> {!! $turno_reserva->email !!}</p>
 						</div>
+						@if($turno_reserva->es_grupal)
+						<div class="form-group">
+						    <p style="margin: 0px;"><strong>Tipo de Reserva</strong> Grupal</p>
+						</div>
+						<div class="form-group">
+						    <p style="margin: 0px;"><strong>Cantidad de personas</strong> {!! $turno_reserva->cantidad_personas !!}</p>
+						</div>
+						@if($turno_reserva->nombre_institucion)
+						<div class="form-group">
+						    <p style="margin: 0px;"><strong>Institución</strong> {!! $turno_reserva->nombre_institucion !!}</p>
+						</div>
+						@endif
+						@endif
 					</div>
 				</div>
 				<div class="card-footer">

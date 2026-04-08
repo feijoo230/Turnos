@@ -23,7 +23,7 @@ class StoreTurno extends FormRequest
      */
     public function rules()
     {
-        return [
+        $rules = [
             'fecha_hora' => 'date',
             'fecha' => 'date_format:d/m/Y',
             'hora' => 'date_format:H:i',
@@ -31,10 +31,22 @@ class StoreTurno extends FormRequest
             'dni' => 'required|max:255',
             'celular' => 'required|string',
             'email' => 'required|email|confirmed',
+            'es_grupal' => 'nullable|boolean',
+            'cantidad_personas' => 'required|integer|min:1',
+            'nombre_institucion' => 'nullable|string|max:255',
+            'archivo_integrantes' => 'nullable|file|mimes:xls,xlsx,csv|max:2048',
             'dependencia_turno_id' => 'integer',
             'estado_id' => 'integer',
             'activo' => 'integer',
         ];
+
+        if ($this->input('es_grupal')) {
+            $rules['cantidad_personas'] = 'required|integer|min:2';
+            $rules['nombre_institucion'] = 'required|string|max:255';
+            $rules['archivo_integrantes'] = 'required|file|mimes:xls,xlsx,csv|max:2048';
+        }
+
+        return $rules;
     }
 
     public function attributes()
