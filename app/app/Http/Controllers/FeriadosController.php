@@ -89,6 +89,16 @@ class FeriadosController extends Controller
         return redirect(route('feriados.index'));
     }
 
+    public function massDestroy(Request $request)
+    {
+        $ids = $request->input('ids');
+        if (!empty($ids)) {
+            Feriado::whereIn('id', $ids)->delete();
+            return response()->json(['success' => true, 'message' => 'Feriados eliminados correctamente.']);
+        }
+        return response()->json(['success' => false, 'message' => 'No se seleccionaron feriados.'], 400);
+    }
+
     public function import(Request $request) 
     {
         $request->validate([

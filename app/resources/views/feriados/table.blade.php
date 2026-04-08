@@ -1,6 +1,7 @@
 <table id="datatable" class="table table-striped table-bordered">
   <thead>
     <tr>
+      <th style="width: 30px;"><input type="checkbox" id="select-all"></th>
       <th>Fecha</th>
       <th>Observación</th>
       <th>Activo</th>
@@ -10,6 +11,7 @@
   <tbody>
   @foreach($feriados as $feriado)
     <tr>
+      <td><input type="checkbox" class="select-item" value="{{ $feriado->id }}"></td>
       <td>{!! $feriado->fecha !!}</td>
       <td>{!! $feriado->observacion !!}</td>
       <td class="text-center">

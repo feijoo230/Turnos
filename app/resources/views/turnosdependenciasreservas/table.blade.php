@@ -1,12 +1,13 @@
 <table id="datatable" class="table table-striped table-bordered">
   <thead>
     <tr>
+      <th style="width: 30px;"><input type="checkbox" id="select-all"></th>
       <th>Codigo</th>
       <th>Fecha hora</th>
       <th>Apellido y Nombre</th>
       <th>DNI</th>
-      <th>Celular</th>
-      <th>Email</th>
+      <th>Personas</th>
+      <th>Institución</th>
       <th>Dependencia</th>
       <th>Acción</th>
     </tr>
@@ -14,12 +15,19 @@
   <tbody>
   @foreach($reservas as $reserva)
     <tr>
+      <td><input type="checkbox" class="select-item" value="{{ $reserva->id }}"></td>
       <td>{!! $reserva->codigo !!}</td>
       <td>{!! $reserva->fecha_hora->format('d/m/Y h:i') !!}</td>
       <td>{!! $reserva->nombre_apellido !!}</td>
       <td>{!! $reserva->dni !!}</td>
-      <td>{!! $reserva->celular !!}</td>
-      <td>{!! $reserva->email !!}</td>
+      <td>
+        @if($reserva->es_grupal)
+          <span class="badge badge-info">{!! $reserva->cantidad_personas !!} (Grupal)</span>
+        @else
+          {!! $reserva->cantidad_personas !!}
+        @endif
+      </td>
+      <td>{!! $reserva->nombre_institucion ?? '-' !!}</td>
       <td>
         @if ($reserva->turno_horario && $reserva->turno_horario->turno_tramite && $reserva->turno_horario->turno_tramite->tramite && $reserva->turno_horario->turno_tramite->tramite->dependencia)
           {!! $reserva->turno_horario->turno_tramite->tramite->dependencia->nombre !!}

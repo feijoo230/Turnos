@@ -43,10 +43,12 @@ Route::get('gettramites/{id}','frontend\TramitesController@getTramites')->name('
 Route::group(['middleware' => 'auth'], function(){
 
   Route::post('feriados/import', 'FeriadosController@import')->name('feriados.import');
-  Route::get('feriados/export', 'FeriadosController@export')->name('feriados.export');
-  Route::resource('feriados', 'FeriadosController');//Valido
+  Route::get('feriados.export', 'FeriadosController@export')->name('feriados.export');
+  Route::post('feriados.massDestroy', 'FeriadosController@massDestroy')->name('feriados.massDestroy');
+  Route::resource('feriados', 'FeriadosController');
 
   Route::get('turnosdependenciasreservas/export', 'TurnosDependenciasReservasController@export')->name('turnosdependenciasreservas.export');
+  Route::post('turnosdependenciasreservas.massDestroy', 'TurnosDependenciasReservasController@massDestroy')->name('turnosdependenciasreservas.massDestroy');
   Route::resource('turnosdependenciasreservas', 'TurnosDependenciasReservasController');//Valido
   Route::post('turnosdependenciasreservas.buscar', 'TurnosDependenciasReservasController@buscar')->name('turnosdependenciasreservas.buscar');//Valido
  Route::post('turnosdependenciasreservas.print', 'TurnosDependenciasReservasController@print')->name('turnosdependenciasreservas.print');//Valido
@@ -81,6 +83,9 @@ Route::group(['middleware' => 'auth'], function(){
   Route::post('usuarios.update_perfil','UsuariosController@update_perfil');
   Route::get('usuarios.edit_password/{usuario_id}','UsuariosController@cambiarPassword');
   Route::post('usuarios.store_password','UsuariosController@storePassword');
+
+  Route::resource('tramitesdependencias', 'TramitesDependenciasController');
+  Route::resource('turnostramites', 'TurnosTramitesController');
 
   // Turnos Admin Routes
   Route::resource('turnos_admin', 'TurnosController');

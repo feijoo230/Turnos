@@ -33,6 +33,7 @@
               {!! Form::open(['route' => 'turnosdependenciasreservas.print', 'method' => 'post']) !!}
                 {!! Form::hidden('codigo_turno', (isset($codigo_turno)? $codigo_turno : null)) !!}
                 {!! Form::hidden('fecha_turno', (isset($fecha_turno)? $fecha_turno : null)) !!}
+                <button id="btn-delete-selected" type="button" class="btn btn-danger pull-right" style="display:none; margin-left: 5px;">Eliminar Seleccionados</button>
                 <a href="{{ route('turnosdependenciasreservas.export') }}" class="btn btn-success pull-right"><i class="fa fa-file-excel-o"></i> Exportar</a>
                 {{ Form::submit('Imprimir', array('class' => 'btn btn-secundary pull-right')) }}
               </form>
@@ -51,8 +52,57 @@
 @section('script')
 <script>
 $(function () {
+    // Manejar "Seleccionar todos"
+    $('#select-all').on('click', function() {
+        $('.select-item').prop('checked', this.checked);
+        toggleDeleteButton();
+    });
+
+    // Manejar selección individual
+    $(document).on('change', '.select-item', function() {
+        if ($('.select-item:checked').length == $('.select-item').length) {
+            $('#select-all').prop('checked', true);
+        } else {
+            $('#select-all').prop('checked', false);
+        }
+        toggleDeleteButton();
+    });
+
+    function toggleDeleteButton() {
+        if ($('.select-item:checked').length > 0) {
+            $('#btn-delete-selected').fadeIn();
+        } else {
+            $('#btn-delete-selected').fadeOut();
+        }
+    }
+
+    // Ejecutar eliminación masiva
+    $('#btn-delete-selected').on('click', function() {
+        if (confirm('¿Está seguro de que desea eliminar las reservas seleccionadas?')) {
+            var selectedIds = [];
+            $('.select-item:checked').each(function() {
+                selectedIds.push($(this).val());
+            });
+
+            $.ajax({
+                url: '{{ route("turnosdependenciasreservas.massDestroy") }}',
+                method: 'POST',
+                data: {
+                    _token: '{{ csrf_token() }}',
+                    ids: selectedIds
+                },
+                success: function(response) {
+                    alert(response.message);
+                    location.reload();
+                },
+                error: function(xhr) {
+                    alert('Error al eliminar: ' + (xhr.responseJSON ? xhr.responseJSON.message : 'Error desconocido'));
+                }
+            });
+        }
+    });
+
     // Configuración global de AJAX para incluir el token CSRF en todas las peticiones
-    // Esta es la forma estándar y recomendada en Laravel
     $.ajaxSetup({
         headers: {
             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -63,25 +113,19 @@ $(function () {
     $('#deleteModal').on('show.bs.modal', function (event) {
         var button = $(event.relatedTarget);
         var url = button.data('url');
-        
-        console.log("URL para eliminar capturada:", url); 
-        
         $('#deleteConfirmBtn').data('url', url); 
     });
 
-    // 2. Manejar el clic en el botón de confirmación de eliminación
+    // 2. Manejar el clic en el botón de confirmación de eliminación individual
     $('#deleteConfirmBtn').on('click', function (e) {
         e.preventDefault(); 
         var deleteUrl = $(this).data('url');
         
-        console.log("Enviando petición DELETE a:", deleteUrl);
-
         if (!deleteUrl) {
-            alert("Error: No se encontró la URL para eliminar. Refresque la página y vuelva a intentarlo.");
+            alert("Error: No se encontró la URL para eliminar.");
             return;
         }
 
-        // 3. Realizar la petición con la API nativa fetch
         fetch(deleteUrl, {
             method: 'DELETE',
             headers: {
@@ -91,23 +135,16 @@ $(function () {
         })
         .then(response => {
             if (response.ok) {
-                // Si la respuesta es exitosa (ej. status 200-299)
                 location.reload();
             } else {
-                // Si hay un error, intentar leer el cuerpo del error como JSON
                 response.json().then(data => {
-                    console.error("Error del servidor:", data);
-                    var message = data.message || 'Error desconocido del servidor.';
-                    alert('No se pudo eliminar la reserva. Razón: ' + message);
-                }).catch(() => {
-                    // Si el cuerpo del error no es JSON
-                    alert('No se pudo eliminar la reserva. Status: ' + response.statusText);
+                    var message = data.message || 'Error desconocido.';
+                    alert('No se pudo eliminar: ' + message);
                 });
             }
         })
         .catch(error => {
-            console.error('Error en la petición fetch:', error);
-            alert('Ocurrió un error de red. Revisa la consola.');
+            alert('Ocurrió un error de red.');
         });
     });
 });

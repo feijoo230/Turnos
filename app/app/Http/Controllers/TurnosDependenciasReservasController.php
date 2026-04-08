@@ -29,7 +29,7 @@ class TurnosDependenciasReservasController extends Controller
 
     public function show($id)
     {
-        $reserva = Turnos_Dependencias_Reservas::with('turno_tramite.tramite.dependencia')->find($id);
+        $reserva = Turnos_Dependencias_Reservas::with(['turno_tramite.tramite.dependencia', 'integrantes'])->find($id);
 
         if (!empty($reserva)) {
             return view('turnosdependenciasreservas.show')->with(compact('reserva'));
@@ -57,6 +57,16 @@ class TurnosDependenciasReservasController extends Controller
             // Devuelve un error 500 si algo más falla
             return response()->json(['message' => 'Error al eliminar la reserva: ' . $e->getMessage()], 500);
         }
+    }
+
+    public function massDestroy(Request $request)
+    {
+        $ids = $request->input('ids');
+        if (!empty($ids)) {
+            Turnos_Dependencias_Reservas::whereIn('id', $ids)->delete();
+            return response()->json(['success' => true, 'message' => 'Reservas eliminadas correctamente.']);
+        }
+        return response()->json(['success' => false, 'message' => 'No se seleccionaron reservas.'], 400);
     }
 
     public function update(Request $request, $id)
@@ -174,7 +184,7 @@ class TurnosDependenciasReservasController extends Controller
         $user_dependencias = DB::table('usuarios_dependencias')->where('usuario_id', $usuario_id)->pluck('dependencia_id');
         $query->whereIn('dependencia_tramites.dependencia_id', $user_dependencias);
 
-        $reservas = $query->select('dependencia_turnos_reservas.*')
+        $reservas = $query->with('integrantes')->select('dependencia_turnos_reservas.*')
                           ->orderBy('dependencia_turnos_reservas.fecha_hora', 'asc')
                           ->get();
 
