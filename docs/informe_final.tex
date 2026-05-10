@@ -1,0 +1,321 @@
+\documentclass[12pt,a4paper]{report}
+\usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{geometry}
+\usepackage{titlesec}
+\usepackage{enumitem}
+\usepackage{tocbibind}
+\usepackage{xcolor}
+\usepackage{listings}
+
+\geometry{top=2.5cm, bottom=2.5cm, left=3cm, right=2.5cm}
+
+% Configuración de colores para código
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{backcolour},   
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{magenta},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    numbers=left,                    
+    numbersep=5pt,                  
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=2
+}
+\lstset{style=mystyle}
+
+\begin{document}
+
+\begin{titlepage}
+    \centering
+    \begin{minipage}{0.45\textwidth}
+        \centering
+        \includegraphics[width=0.8\textwidth]{logo_unsa.jpg}
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.45\textwidth}
+        \centering
+        \includegraphics[width=0.8\textwidth]{logo_facultad.jpg}
+    \end{minipage}
+    \par\vspace{1cm}
+    {\bfseries\LARGE Universidad Nacional de Salta \par}
+    \vspace{0.5cm}
+    {\bfseries\Large Facultad de Ciencias Exactas \par}
+    \vspace{0.5cm}
+    {\bfseries\large Tecnicatura Universitaria en Programación \par}
+    \vspace{2cm}
+    {\scshape\Huge SISTEMA DE GESTIÓN DE TURNOS ACADÉMICOS \par}
+    \vspace{0.5cm}
+    {\scshape\Large OBSERVATORIO DE LA UNSA \par}
+    \vspace{2cm}
+    {\itshape\Large Seminario Técnico Profesional \par}
+    \vspace{2cm}
+    {\Large \textbf{Autor:} Juan Martin Feijoo \par}
+    {\Large \textbf{DNI:} 42.035.443 \par}
+    \vfill
+    {\Large Salta, Argentina \par}
+    {\Large \today \par}
+\end{titlepage}
+
+\clearpage
+\pagenumbering{roman}
+\tableofcontents
+\newpage
+\pagenumbering{arabic}
+
+\chapter{Introducción}
+
+\section{Descripción general del proyecto}
+El presente trabajo final de carrera documenta el diseño, desarrollo e implementación de un sistema de gestión de turnos académicos. En el ámbito universitario, la coordinación de espacios y servicios especializados, como los laboratorios, bibliotecas o centros de investigación, requiere de una organización meticulosa para garantizar que tanto alumnos como docentes y público en general puedan acceder a los recursos de manera equitativa y eficiente.
+
+El sistema de \textbf{Turnos Académicos} surge como una solución tecnológica diseñada específicamente para la \textbf{Universidad Nacional de Salta (UNSa)}, con un enfoque inicial y prioritario para el \textbf{Observatorio de la Universidad}. El Observatorio, al ser un espacio de divulgación científica y académica, recibe constantes solicitudes de visitas, consultas técnicas y uso de instrumentos, lo que hace indispensable contar con una plataforma que centralice y automatice la reserva de citas.
+
+Esta plataforma web permite que la interacción entre la comunidad universitaria y el Observatorio se realice de manera fluida y previsible. A diferencia de los métodos tradicionales de consulta por correo o presenciales, este sistema permite la autogestión por parte del usuario, quien puede visualizar la disponibilidad real de horarios para las distintas actividades ofrecidas desde cualquier dispositivo con acceso a internet.
+
+Desde el punto de vista administrativo, el sistema provee herramientas robustas para que los gestores del Observatorio y otras dependencias universitarias puedan configurar su capacidad de atención (definida como "mesas habilitadas" o puestos de atención), administrar los tipos de \textbf{trámites} o actividades ofrecidas y gestionar un calendario de feriados o días sin actividad académica. Esta granularidad asegura que el sistema sea adaptable a las particularidades del calendario universitario de la UNSa.
+
+\section{Problemática y Justificación}
+En las instituciones académicas, la gestión de la demanda para servicios especializados suele realizarse de forma fragmentada. En el caso del Observatorio de la UNSa, la falta de un sistema centralizado puede derivar en superposición de horarios, dificultades para llevar un registro estadístico de las visitas y una carga administrativa excesiva para el personal encargado de la atención.
+
+La implementación de este sistema se justifica por la necesidad de:
+\begin{itemize}
+    \item \textbf{Digitalización de la gestión académica:} Modernizar los procesos de reserva de turnos dentro de la UNSa, alineándose con las políticas de transformación digital de la universidad.
+    \item \textbf{Optimización del Observatorio:} Permitir una mejor organización de las visitas guiadas y actividades astronómicas, asegurando que el aforo sea el adecuado para cada jornada.
+    \item \textbf{Mejora en la experiencia del usuario:} Facilitar a los estudiantes y al público externo la obtención de un turno sin necesidad de intermediarios o traslados previos.
+    \item \textbf{Trazabilidad y Estadísticas:} Generar datos precisos sobre la afluencia al Observatorio, lo cual es vital para la planificación de recursos y la elaboración de informes de impacto institucional.
+\end{itemize}
+\section{Objetivos del proyecto}
+
+\subsection{Objetivo general}
+Desarrollar e implementar una plataforma web de gestión de turnos que centralice la administración de dependencias y trámites, facilitando el acceso a los ciudadanos y optimizando los recursos humanos de la organización.
+
+\subsection{Objetivos específicos}
+\begin{itemize}
+    \item \textbf{Desarrollo del Frontend Ciudadano:} Crear una interfaz web responsiva y amigable que guíe al usuario en el proceso de reserva en menos de tres pasos.
+    \item \textbf{Implementación del Panel Administrativo:} Proveer a los operadores y administradores de una herramienta basada en \textit{AdminLTE} para el control total de la operatividad diaria.
+    \item \textbf{Gestión Dinámica de Disponibilidad:} Desarrollar un motor de lógica que calcule los horarios disponibles basándose en la cantidad de "mesas habilitadas" y los feriados cargados en el sistema.
+    \item \textbf{Seguridad y Control de Acceso:} Implementar un esquema de Roles y Permisos (RBAC) que garantice que cada operador solo pueda acceder a la información de su dependencia asignada.
+    \item \textbf{Notificación y Comprobantes:} Integrar la generación automática de comprobantes en formato PDF para que el ciudadano tenga una constancia física o digital de su turno.
+\end{itemize}
+
+\section{Alcance del sistema}
+El proyecto abarca el ciclo completo de la gestión de un turno, desde su concepción en la configuración administrativa hasta su conclusión en la atención presencial.
+
+\textbf{Funcionalidades para el Ciudadano:}
+\begin{itemize}
+    \item Navegación por el catálogo de dependencias y trámites disponibles.
+    \item Selección de fecha y hora mediante un calendario interactivo.
+    \item Ingreso de datos personales y validación mínima de seguridad.
+    \item Descarga del comprobante del turno en formato PDF.
+\end{itemize}
+
+\textbf{Funcionalidades para la Administración:}
+\begin{itemize}
+    \item Gestión de ABM (Alta, Baja, Modificación) de dependencias, tipos de trámites y usuarios.
+    \item Asociación de trámites a dependencias con configuraciones personalizadas.
+    \item Configuración de capacidad de atención por franjas horarias.
+    \item Gestión de feriados nacionales, provinciales o institucionales.
+    \item Monitoreo en tiempo real de los turnos del día.
+    \item Reportes básicos de gestión y estadísticas de atención.
+\end{itemize}
+
+\section{Tecnologías utilizadas}
+Para garantizar la escalabilidad, mantenibilidad y facilidad de despliegue, se ha optado por un stack tecnológico moderno y ampliamente probado en la industria.
+
+\subsection{Backend: Laravel 8.x}
+Se utiliza el framework \textbf{Laravel} en su versión 8 por ser uno de los ecosistemas más robustos del lenguaje PHP. Sus principales ventajas para este proyecto incluyen:
+\begin{itemize}
+    \item \textbf{Eloquent ORM:} Facilita la interacción con la base de datos MySQL mediante un paradigma orientado a objetos.
+    \item \textbf{Sistema de Migraciones:} Permite versionar la estructura de la base de datos, facilitando el trabajo en equipo y el despliegue.
+    \item \textbf{Seguridad integrada:} Protecciones nativas contra inyección SQL, XSS y CSRF.
+\end{itemize}
+
+\subsection{Frontend: Vue 2 y Blade}
+La interfaz combina el renderizado potente de \textbf{Blade} (motor de plantillas de Laravel) para la estructura general, con la reactividad de \textbf{Vue.js 2} para los componentes que requieren interacción en tiempo real sin recargar la página, como el selector de horarios.
+
+\subsection{Infraestructura: Docker}
+Todo el entorno de ejecución está contenido en \textbf{Docker}. Esto asegura que la aplicación funcione de la misma manera en la computadora de desarrollo como en el servidor de producción, empaquetando los servicios de Nginx, PHP-FPM y MySQL de forma aislada.
+
+\subsection{Librerías y Paquetes Clave}
+\begin{itemize}
+    \item \textbf{Spatie Laravel-Permission:} Para gestionar de manera sencilla quién puede hacer qué dentro del sistema.
+    \item \textbf{Snappy (wkhtmltopdf):} Motor utilizado para convertir las vistas HTML de los comprobantes en archivos PDF de alta fidelidad.
+    \item \textbf{Socialite:} Para permitir que los administradores inicien sesión con su cuenta de Google, eliminando la necesidad de recordar una contraseña adicional.
+\end{itemize}
+
+\chapter{Análisis y diseño del sistema}
+
+\section{Requerimientos funcionales}
+A partir del análisis de las necesidades del Observatorio de la UNSa y la estructura del código fuente, se han definido los siguientes requerimientos funcionales:
+
+\textbf{Gestión de la Estructura Universitaria:}
+\begin{itemize}
+    \item El sistema debe soportar una \textbf{jerarquía de dependencias} organizada de forma arbórea (Nested Set), permitiendo representar desde la Universidad como raíz, pasando por las Facultades, hasta llegar a institutos específicos como el Observatorio.
+    \item Se debe permitir la creación de diferentes \textbf{Tipos de Dependencia} para categorizar cada oficina según su función académica o administrativa.
+\end{itemize}
+
+\textbf{Gestión de Actividades y Turnos:}
+\begin{itemize}
+    \item El sistema debe permitir definir \textbf{Trámites} o actividades (ej. "Visita Guiada Nocturna", "Consulta por uso de Telescopio", "Trámite de Constancia").
+    \item Se debe poder asociar cada trámite a una dependencia específica, configurando su vigencia mediante fechas de inicio y fin.
+    \item El sistema debe soportar tanto \textbf{turnos individuales} como \textbf{turnos grupales}, solicitando en este último caso el nombre de la institución y la cantidad de personas (ideal para visitas de colegios al Observatorio).
+\end{itemize}
+
+\textbf{Lógica de Disponibilidad y Cupos:}
+\begin{itemize}
+    \item La disponibilidad horaria se debe calcular dinámicamente basándose en la configuración de \textbf{Mesas Habilitadas}, que representa la capacidad de atención simultánea.
+    \item El sistema debe excluir automáticamente del calendario de reservas los fines de semana y los \textbf{Feriados} o días de asueto académico registrados.
+    \item Cada reserva debe generar un código único de seguimiento y permitir la carga de datos de contacto (Email, Celular) y el DNI de la persona responsable.
+\end{itemize}
+
+\section{Casos de uso principales}
+Los flujos principales de interacción se resumen en:
+\begin{itemize}
+    \item \textbf{CU1 - Reservar Turno para Observatorio:} Un estudiante o particular selecciona la dependencia "Observatorio", elige la actividad (ej. "Visita Guiada"), selecciona una fecha con cupo disponible, completa los datos (individuales o grupales) y confirma la reserva.
+    \item \textbf{CU2 - Administración de Capacidad:} Un administrador del Observatorio accede al panel y ajusta la cantidad de "Mesas Habilitadas" para un día particular si cuenta con más personal de atención o guías disponibles.
+    \item \textbf{CU3 - Gestión Diaria de Operador:} El personal del Observatorio visualiza el listado de turnos del día, filtra por actividad y marca la asistencia de los visitantes.
+\end{itemize}
+
+\section{Modelo de datos relacional}
+El modelo de datos es el núcleo de la flexibilidad del sistema. Las tablas principales y sus relaciones son:
+
+\begin{itemize}
+    \item \textbf{dependencias:} Utiliza los campos \texttt{\_lft}, \texttt{\_rgt} y \texttt{parent\_id} para gestionar la jerarquía mediante el patrón Nested Set, optimizando las consultas de subárboles académicos.
+    \item \textbf{dependencia\_turnos\_reservas:} Es la tabla central que almacena las reservas. Contiene metadatos como \texttt{es\_grupal}, \texttt{nombre\_institucion} y el estado de la reserva (\texttt{estado\_id}).
+    \item \textbf{turnos\_horarios:} Define las franjas de tiempo disponibles, asociando cada horario con un trámite y la cantidad de turnos permitidos por slot.
+    \item \textbf{mesas\_habilitadas:} Configura la capacidad operativa de cada dependencia.
+    \item \textbf{usuarios\_dependencias:} Relación muchos a muchos que permite asignar operadores a una o varias dependencias para su gestión exclusiva.
+\end{itemize}
+
+\section{Arquitectura del sistema}
+La aplicación se asienta sobre el patrón \textbf{MVC (Modelo-Vista-Controlador)} implementado por Laravel 8.x, garantizando una separación clara de responsabilidades:
+\begin{itemize}
+    \item \textbf{Modelos (Eloquent):} Se encargan de la persistencia y las relaciones complejas. Por ejemplo, el modelo \texttt{Dependencia} incluye métodos estáticos para generar estructuras de árboles seleccionables en el frontend.
+    \item \textbf{Controladores:} Coordinan la lógica de negocio. El \texttt{TurnosDependenciasReservasController} gestiona la exportación a Excel y la generación de reportes en PDF utilizando plantillas personalizadas.
+    \item \textbf{Middlewares:} Se utilizan para la protección de rutas administrativas, asegurando que un operador solo pueda ver los turnos de las dependencias a las que tiene acceso (\texttt{Auth::id()}).
+\end{itemize}
+
+\chapter{Desarrollo e Implementación}
+
+\section{Estructura general del proyecto}
+El proyecto se organiza bajo los estándares de Laravel. Los principales directorios involucrados son:
+\begin{itemize}
+    \item \texttt{app/Models}: Modelos Eloquent.
+    \item \texttt{app/Http/Controllers}: Contiene la lógica agrupada funcionalmente, separando los controladores de la interfaz pública (\texttt{frontend/}) de los del panel administrativo (\texttt{DependenciasController}, \texttt{TurnosController}, etc.).
+    \item \texttt{resources/views}: Vistas Blade.
+    \item \texttt{resources/js} y \texttt{resources/sass}: Archivos base para Vue y estilos.
+    \item \texttt{routes/}: Definición de rutas web y de API.
+\end{itemize}
+
+\section{Frontend}
+El frontend combina la solidez del renderizado del lado del servidor con la reactividad del lado del cliente.
+\begin{itemize}
+    \item \textbf{Vistas Blade y Layouts:} Se utiliza un layout maestro para la parte pública y otro basado en \textbf{AdminLTE} para el panel administrativo, asegurando consistencia visual y menús laterales dinámicos según el rol del usuario.
+    \item \textbf{Componentes Vue 2:} Para procesos complejos como la selección de fechas y horas disponibles, se utilizan componentes Vue que se comunican con las rutas API de Laravel, ofreciendo una experiencia sin recargas de página.
+    \item \textbf{Estilos:} Se implementa Bootstrap 5 junto con SASS para personalizar la apariencia de los componentes y mantener un código CSS ordenado.
+\end{itemize}
+
+\section{Backend}
+El backend se apoya en las capacidades integradas de Laravel:
+\begin{itemize}
+    \item \textbf{Rutas y middlewares:} Se dividen en rutas públicas (acceso al catálogo de trámites y reserva) y rutas protegidas (administración). Se emplean middlewares propios y de Spatie para validar permisos (ej. \texttt{can:gestionar\_dependencias}).
+    \item \textbf{Controladores:} Entidades como \texttt{TurnosDependenciasReservasController} y \texttt{FeriadosController} manejan la lógica fuerte del negocio, como el cálculo de cupos (mesas habilitadas) frente a los feriados cargados.
+\end{itemize}
+
+
+\chapter{Base de datos}
+
+\section{Diseño general}
+La base de datos relacional MySQL fue diseñada para garantizar la integridad de las reservas. Los puntos centrales del esquema son la flexibilidad para agregar nuevas dependencias y relacionarlas con múltiples tipos de trámites.
+
+\section{Migraciones y Relaciones clave}
+La estructura se define mediante migraciones de Laravel. Las relaciones más importantes implementadas en Eloquent son:
+\begin{itemize}
+    \item \textbf{Dependencia - Trámite (N:M):} Gestionada mediante la tabla pivote \texttt{dependencia\_tramite}. Permite que un trámite exista en varias dependencias con configuraciones de duración distintas.
+    \item \textbf{Turno - Dependencia - Trámite (1:N):} Cada registro en \texttt{turnos\_dependencias\_reservas} está ligado al horario asignado y al trámite específico dentro de una dependencia.
+    \item \textbf{Usuario - Dependencia (N:M o 1:N):} Permite asignar a un operador la visualización exclusiva de los turnos correspondientes a su sucursal de trabajo (\texttt{usuarios\_dependencias}).
+\end{itemize}
+
+\section{Optimización de consultas}
+Se implementa carga ansiosa (\textit{Eager Loading}) utilizando el método \texttt{with()} en Eloquent para prevenir el problema de N+1 consultas al listar turnos junto con la información del cliente y el trámite asociado, mejorando el rendimiento en el panel de operadores.
+
+
+\chapter{Módulos y funcionalidades del sistema}
+
+\section{Módulo de Gestión de Dependencias y Trámites}
+Permite a los administradores globales (Super Admin) crear y modificar el catálogo de dependencias. Por cada dependencia, se configuran:
+\begin{itemize}
+    \item Trámites habilitados.
+    \item \textbf{Mesas habilitadas:} Define la capacidad de atención en paralelo por franja horaria.
+    \item \textbf{Feriados:} Días específicos en los que la dependencia no presta servicio, bloqueando la reserva de turnos en el calendario público.
+\end{itemize}
+
+\section{Módulo de Reserva de Turnos (Frontend)}
+Constituye la interfaz ciudadana.
+\begin{itemize}
+    \item \textbf{Flujo de reserva:} El usuario elige Dependencia $\rightarrow$ Trámite $\rightarrow$ Fecha $\rightarrow$ Horario $\rightarrow$ Completa sus datos (Persona/Cliente).
+    \item \textbf{Validación de stock (cupo):} Antes de confirmar, el sistema evalúa dinámicamente si la cantidad de turnos reservados para esa fecha/hora no supera las mesas habilitadas definidas en la dependencia.
+    \item Tras la reserva, se envía un \textbf{correo de confirmación} y se permite descargar el \textbf{comprobante PDF} generado con Snappy.
+\end{itemize}
+
+\section{Módulo de Panel de Operador}
+Herramienta para el trabajo diario del personal de las dependencias.
+\begin{itemize}
+    \item Visualización de la lista de personas citadas para el día actual.
+    \item Cambio de estado del turno (Pendiente, Atendido, Ausente).
+    \item Opción de generar \textbf{Pases} o derivaciones a otras áreas si el trámite lo requiere.
+    \item Reportes estadísticos de atención.
+\end{itemize}
+
+
+\chapter{Sistema de Autenticación y Seguridad}
+
+\section{Autenticación de usuarios}
+Se utiliza la base de autenticación de \texttt{laravel/ui}.
+\begin{itemize}
+    \item El registro e inicio de sesión tradicional utiliza contraseñas cifradas (Hash).
+    \item Se integra el paquete \textbf{Laravel Socialite} para permitir el inicio de sesión a través de cuentas de \textbf{Google}, agilizando el acceso para usuarios internos.
+\end{itemize}
+
+\section{Gestión de roles y permisos}
+Integración profunda con \textbf{Spatie Laravel-Permission}.
+\begin{itemize}
+    \item \textbf{Roles:} Se definen roles como Super Administrador, Administrador de Dependencia, y Operador.
+    \item \textbf{Permisos granulares:} El acceso a cada controlador (\texttt{RolesPermisosController}, \texttt{UsuariosController}) está protegido. Un operador solo ve las rutas y menús laterales pertinentes a la atención de turnos, mientras que el Super Admin tiene acceso total.
+\end{itemize}
+
+\section{Protección de rutas y datos}
+\begin{itemize}
+    \item Todas las solicitudes web (POST/PUT/DELETE) utilizan protección \textbf{CSRF}.
+    \item Validación exhaustiva de los datos de entrada a través de \textbf{FormRequests} de Laravel, garantizando que tipos de datos, formatos de DNI y correos electrónicos sean correctos antes de procesarlos.
+\end{itemize}
+
+\chapter{Conclusiones}
+El desarrollo del Sistema de Gestión de Turnos permitió construir una solución integral que digitaliza eficientemente la atención al público. Al separar el flujo del ciudadano del panel de gestión administrativa, el sistema logra escalar de manera estructurada.
+
+La utilización de Laravel 8 y paquetes de la comunidad (Spatie, Snappy, Socialite) redujo significativamente los tiempos de desarrollo de funcionalidades transversales como la seguridad y la generación de documentos. Asimismo, la arquitectura basada en Docker garantiza que la aplicación pueda desplegarse fácilmente en cualquier entorno de producción sin conflictos de dependencias, asegurando una alta disponibilidad.
+
+\chapter{Bibliografía}
+\begin{itemize}
+    \item Documentación oficial de Laravel: \url{https://laravel.com/docs/8.x}
+    \item Spatie Laravel-Permission: \url{https://spatie.be/docs/laravel-permission}
+    \item Laravel Socialite: \url{https://laravel.com/docs/8.x/socialite}
+    \item AdminLTE Bootstrap 4 Admin Dashboard: \url{https://adminlte.io}
+    \item Vue.js 2 Documentation: \url{https://v2.vuejs.org/}
+\end{itemize}
+
+\end{document}

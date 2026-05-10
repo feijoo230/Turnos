@@ -1,0 +1,36 @@
+# LaTeX build artifacts
+docs/build/
+*.aux
+*.log
+*.out
+*.toc
+*.fdb_latexmk
+*.fls
+*.synctex.gz
+*.pdf
+!docs/Informe final STP-TUP Ceballos, Diego Ezequiel.pdf
+!docs/*.png
+!docs/*.jpg
+
+# Project specific
+node_modules/
+.env
+.env.backup
+.phpunit.result.cache
+
+# Laravel specific (within app directory)
+app/vendor/
+app/public/storage
+app/public/hot
+app/storage/*.key
+app/storage/framework/cache/data/*
+app/storage/framework/sessions/*
+app/storage/framework/testing/*
+app/storage/framework/views/*
+app/storage/logs/*
+
+# IDE and OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
