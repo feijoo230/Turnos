@@ -1,0 +1,31 @@
+\chapter{Base de Datos}
+
+\section{Diseño general}
+El diseño de la base de datos para el Sistema de Turnos Académicos se fundamenta en un modelo relacional robusto, capaz de soportar la complejidad de una institución como la Universidad Nacional de Salta. El objetivo principal es garantizar la integridad referencial y la consistencia de las reservas, evitando solapamientos y asegurando que cada turno esté vinculado correctamente a una dependencia, un trámite y un solicitante.
+
+\section{Modelo Entidad-Relación}
+A continuación se describen las entidades principales identificadas en el esquema \texttt{estructura.sql} y sus interacciones dentro del sistema:
+
+\begin{itemize}
+    \item \textbf{Dependencias y Jerarquía:} La tabla \texttt{dependencias} es la columna vertebral del sistema. Utiliza el motor \textit{InnoDB} para soportar claves foráneas. La implementación del patrón \textbf{Nested Set} (\texttt{\_lft}, \texttt{\_rgt}) permite realizar consultas jerárquicas rápidas, fundamental para representar la estructura UNSa $\rightarrow$ Facultad $\rightarrow$ Departamento $\rightarrow$ Observatorio.
+    \item \textbf{Gestión de Trámites:} La entidad \texttt{tramites} almacena el catálogo de actividades. La relación con las dependencias se gestiona a través de \texttt{dependencia\_tramites}, permitiendo que una dependencia específica (como el Observatorio) ofrezca un conjunto particular de servicios.
+    \item \textbf{Reservas de Turnos:} La tabla \texttt{dependencia\_turnos\_reservas} centraliza la información de las citas. Almacena datos del solicitante (DNI, Nombre, Email) y metadatos de la reserva (código único, fecha, hora). Además, soporta la distinción entre turnos individuales y grupales (\texttt{es\_grupal}).
+    \item \textbf{Control de Capacidad:} Las tablas \texttt{turnos\_horarios} y \texttt{mesas\_habilitadas} definen la lógica de "stock" de turnos. Mientras que \texttt{turnos\_horarios} define las franjas (ej. de 09:00 a 10:00), \texttt{mesas\_habilitadas} limita cuántas personas pueden ser atendidas simultáneamente en dicha franja.
+\end{itemize}
+
+\section{Diccionario de Datos y Migraciones}
+La estructura se ha implementado utilizando las \textbf{Migraciones de Laravel}, lo que permite un control de versiones preciso sobre el esquema de la base de datos. Entre los tipos de datos y restricciones más relevantes se destacan:
+
+\begin{itemize}
+    \item \textbf{Tipos de Datos Optimistas:} Se utilizan campos de tipo \texttt{tinyint(1)} para estados booleanos (activo/inactivo), optimizando el almacenamiento.
+    \item \textbf{Integridad Referencial:} Se han definido restricciones \texttt{ON DELETE CASCADE} en tablas críticas como las de roles y permisos (\texttt{model\_has\_roles}), asegurando que no existan registros huérfanos.
+    \item \textbf{Trazabilidad:} Todas las tablas incluyen los campos \texttt{created\_at} y \texttt{updated\_at}, permitiendo auditar cuándo se creó una dependencia o cuándo se modificó el estado de un turno.
+\end{itemize}
+
+\section{Optimización y Rendimiento}
+Debido a que el sistema puede recibir una alta concurrencia durante periodos de inscripciones o eventos en el Observatorio, se han aplicado las siguientes estrategias:
+
+\begin{itemize}
+    \item \textbf{Indexación Estratégica:} Se han creado índices compuestos, como en la tabla \texttt{dependencias} (\texttt{\_lft}, \texttt{\_rgt}, \texttt{parent\_id}), para acelerar la navegación por el árbol académico.
+    \item \textbf{Soft Deletes:} Tablas como \texttt{personas} y \texttt{dependencias} implementan \textit{borrado lógico} (\texttt{deleted\_at}), permitiendo recuperar información eliminada accidentalmente y manteniendo el historial de atención.
+\end{itemize}

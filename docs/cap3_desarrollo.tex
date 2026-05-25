@@ -1,0 +1,47 @@
+\chapter{Desarrollo e Implementación}
+
+\section{Configuración del Entorno de Ejecución (Docker)}
+Para asegurar un entorno de desarrollo consistente y facilitar el despliegue del sistema en la infraestructura de la UNSa, se ha optado por la contenerización mediante \textbf{Docker} y \textbf{Docker Compose}. Esta metodología permite aislar la aplicación de las particularidades del sistema operativo anfitrión, empaquetando todas las dependencias necesarias.
+
+La arquitectura de servicios definida en el archivo \texttt{docker-compose.yml} consta de tres contenedores principales interconectados:
+
+\begin{itemize}
+    \item \textbf{Servicio App (PHP-FPM):} Construido sobre una imagen de PHP 7.4/8.0, este contenedor procesa la lógica de la aplicación Laravel. Se incluyen extensiones necesarias para el correcto funcionamiento de los reportes PDF y la comunicación con MySQL.
+    \item \textbf{Servicio Nginx:} Actúa como servidor web y proxy inverso. Está configurado para servir los archivos estáticos y redirigir las peticiones dinámicas al contenedor de la aplicación.
+    \item \textbf{Servicio DB (MySQL 5.7):} Gestiona la persistencia de datos. El volumen de datos está mapeado externamente para garantizar que la información de los turnos no se pierda al reiniciar los contenedores.
+\end{itemize}
+
+El uso de redes virtuales (\texttt{turnos\_network}) garantiza una comunicación segura y privada entre los servicios, exponiendo únicamente el puerto 8083 para el acceso externo al sistema.
+
+\section{Estructura general del proyecto}
+El proyecto sigue el estándar de \textbf{Laravel 8.x}, organizando el código de manera que la lógica de negocio esté claramente separada de la presentación y los datos. Los directorios clave identificados son:
+
+\begin{itemize}
+    \item \texttt{app/Models}: Contiene las entidades Eloquent como \texttt{Turno.php}, \texttt{Dependencia.php} y \texttt{Feriado.php}. Aquí se definen las relaciones (1:N, N:M) y los \textit{Accessors} para formatear datos.
+    \item \texttt{app/Http/Controllers}: Organiza la lógica de respuesta. Se dividen en subcarpetas para separar las acciones del \texttt{frontend} (reserva pública) de las de administración (\texttt{DependenciasController}, \texttt{TurnosController}).
+    \item \texttt{database/migrations}: Almacena el historial de cambios en la estructura de la base de datos, permitiendo recrear el esquema académico en cualquier momento.
+    \item \texttt{resources/views}: Contiene las plantillas \textbf{Blade}. Se han implementado \textit{Layouts} maestros para mantener la coherencia visual en todo el sitio.
+\end{itemize}
+
+\section{Implementación del Frontend}
+El frontend del Sistema de Turnos Académicos se ha diseñado bajo una premisa de "Simplicidad y Eficiencia".
+
+\subsection{Vistas Blade y AdminLTE}
+Para el panel administrativo, se integra la plantilla \textbf{AdminLTE 4 (Beta)}. Esta elección permite disponer de un menú lateral colapsable, tablas dinámicas y una interfaz profesional para el personal del Observatorio. Se han personalizado los componentes de AdminLTE para adaptarlos a la identidad visual de la Facultad de Ciencias Exactas.
+
+\subsection{Reactividad con Vue.js 2}
+En las secciones donde la interacción es crítica, como la selección de horarios en tiempo real, se utilizan componentes de \textbf{Vue.js 2}. Estos componentes consumen una API interna de Laravel para:
+\begin{itemize}
+    \item Cargar dinámicamente los trámites disponibles al seleccionar una dependencia.
+    \item Refrescar los horarios libres sin necesidad de recargar toda la página al cambiar la fecha en el calendario.
+    \item Validar los datos del solicitante (DNI, Celular) antes de enviar el formulario.
+\end{itemize}
+
+\section{Lógica del Backend y Procesos Críticos}
+El backend orquestado por Laravel maneja procesos que garantizan la integridad del sistema:
+
+\begin{itemize}
+    \item \textbf{Validación de Cupos:} En el controlador \texttt{TurnosDependenciasReservasController}, se implementa una lógica que verifica que la cantidad de personas (especialmente en turnos grupales) no exceda la capacidad de la dependencia antes de confirmar la reserva.
+    \item \textbf{Gestión de Feriados:} Se integra un motor de búsqueda que cruza la fecha seleccionada con la tabla de feriados para bloquear días de asueto académico o mantenimiento del Observatorio.
+    \item \textbf{Generación de Comprobantes:} Mediante el paquete \texttt{laravel-snappy}, se renderiza una vista Blade específica como PDF, incorporando un código de turno único para que el visitante lo presente en su llegada.
+\end{itemize}

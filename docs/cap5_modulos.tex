@@ -1,0 +1,36 @@
+\chapter{Módulos y funcionalidades del sistema}
+
+\section{Módulo de Gestión de Dependencias y Trámites}
+Este módulo constituye el núcleo administrativo del sistema, permitiendo modelar la estructura orgánica de la UNSa y las actividades del Observatorio.
+
+\begin{itemize}
+    \item \textbf{Administración de Dependencias:} Los administradores pueden gestionar la jerarquía universitaria. Al crear una dependencia, se define su nombre, código interno y si es una unidad académica. El sistema utiliza el patrón \textit{Nested Set} para permitir que una facultad contenga múltiples institutos o laboratorios.
+    \item \textbf{Configuración de Mesas Habilitadas:} A través del \texttt{MesasHabilitadasController}, se gestiona la capacidad operativa de cada oficina. Una "mesa" representa un puesto de atención o un guía disponible. Si el Observatorio cuenta con 3 guías para un horario determinado, se habilitan 3 mesas, lo que limita automáticamente las reservas concurrentes a ese número.
+    \item \textbf{Catálogo de Trámites Académicos:} Permite definir actividades con descripciones detalladas, requisitos y estados de activación. Cada trámite se vincula a una o más dependencias, permitiendo una gestión descentralizada.
+\end{itemize}
+
+\section{Módulo de Reserva de Turnos (Interfaz Ciudadana)}
+Diseñado para la simplicidad, este módulo guía al usuario en un flujo lineal procesado por el \texttt{frontend/TramitesController}.
+
+\begin{itemize}
+    \item \textbf{Flujo de Selección:} El solicitante selecciona la Dependencia (ej. Observatorio) y el Trámite (ej. Visita Guiada). El sistema carga dinámicamente los días disponibles mediante una integración con el calendario de feriados.
+    \item \textbf{Validación Dinámica:} Antes de mostrar un horario como "Libre", el backend verifica en tiempo real la cantidad de reservas existentes contra las mesas habilitadas. 
+    \item \textbf{Gestión de Turnos Grupales:} Una característica distintiva para el Observatorio es la posibilidad de realizar reservas institucionales. El sistema permite cargar la cantidad de integrantes y los datos de la institución solicitante, disparando una lógica de cupos diferente a la individual.
+    \item \textbf{Comprobante y Notificación:} Una vez confirmada la reserva, se genera un archivo PDF único mediante \texttt{Snappy}. Simultáneamente, se utiliza el sistema de \textbf{Mailables} de Laravel (\texttt{NuevoTramite.php}) para enviar una confirmación automática al correo electrónico del usuario.
+\end{itemize}
+
+\section{Módulo de Panel de Operador y Control Diario}
+Este módulo está optimizado para el personal que atiende en el Observatorio, permitiendo un control fluido del flujo de visitantes.
+
+\begin{itemize}
+    \item \textbf{Gestión de Asistencia:} El operador visualiza el listado de turnos filtrados por su dependencia asignada. Puede marcar el estado del turno como "Atendido", "Pendiente" o "Ausente", manteniendo las estadísticas de atención actualizadas.
+    \item \textbf{Sistema de Pases y Derivaciones:} Implementado en el \texttt{PasesController}, permite derivar un ciudadano o trámite de una dependencia a otra (ej. de una consulta técnica en el Observatorio a un trámite administrativo en la Facultad), registrando el motivo del pase y el usuario de origen y destino para mantener la trazabilidad.
+    \item \textbf{Control de Feriados y Asuetos:} El sistema permite cargar el calendario académico de la UNSa de forma masiva. El administrador puede importar un archivo \textbf{Excel} con los feriados del año, lo que bloquea automáticamente la disponibilidad en todas las dependencias vinculadas, evitando errores humanos en la asignación de turnos.
+\end{itemize}
+
+\section{Módulo de Reportes y Estadísticas}
+Para facilitar la toma de decisiones institucionales, el sistema provee herramientas de exportación de datos:
+\begin{itemize}
+    \item \textbf{Exportación a Excel:} Todos los listados de turnos, feriados y usuarios pueden ser exportados a formato \texttt{.xlsx} para su análisis en herramientas externas.
+    \item \textbf{Reportes de Gestión:} Generación de resúmenes de atención por dependencia, permitiendo al Observatorio justificar su carga de trabajo y afluencia de público ante las autoridades universitarias.
+\end{itemize}

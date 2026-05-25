@@ -1,0 +1,30 @@
+\chapter{Sistema de Autenticación y Seguridad}
+
+\section{Autenticación de usuarios}
+La seguridad en el acceso al sistema es un pilar fundamental para proteger la información académica y los datos personales de los ciudadanos. Se ha implementado un esquema de autenticación híbrido que combina el método tradicional con tecnologías modernas de Single Sign-On (SSO).
+
+\begin{itemize}
+    \item \textbf{Autenticación Base (Laravel UI):} Se utiliza el andamiaje proporcionado por \texttt{laravel/ui} para gestionar el registro, inicio de sesión y recuperación de contraseñas. Todas las credenciales son almacenadas en la base de datos utilizando algoritmos de hashing seguros (Bcrypt), garantizando que las contraseñas nunca sean legibles en texto plano.
+    \item \textbf{Integración con Google (Laravel Socialite):} Para facilitar el acceso a los usuarios internos de la UNSa, se ha integrado el paquete \textbf{Laravel Socialite}. Esto permite a los administradores y operadores iniciar sesión utilizando sus cuentas institucionales de Google. En la base de datos, la tabla \texttt{users} ha sido extendida con el campo \texttt{google\_id} para vincular de forma segura las cuentas sociales con los perfiles locales del sistema.
+\end{itemize}
+
+\section{Gestión de roles y permisos (RBAC)}
+El control de acceso basado en roles (Role-Based Access Control) se ha implementado de manera profunda utilizando el paquete \textbf{Spatie Laravel-Permission}. Este esquema permite una separación clara de funciones:
+
+\begin{itemize}
+    \item \textbf{Super Administrador:} Posee acceso total a todos los módulos del sistema, incluyendo la gestión de usuarios, roles, permisos y la configuración global de la jerarquía de dependencias.
+    \item \textbf{Administrador de Dependencia:} Tiene permisos para configurar los trámites, mesas habilitadas y feriados específicos de su área de competencia (ej. el Observatorio), pero no puede modificar usuarios de otras dependencias.
+    \item \textbf{Operador:} Rol destinado al personal de atención. Sus permisos están restringidos a la visualización de los turnos del día, cambio de estados (Atendido/Ausente) y generación de pases internos.
+\end{itemize}
+
+La protección se aplica tanto a nivel de \textbf{rutas} mediante middlewares (ej. \texttt{middleware(['role:admin'])}) como a nivel de \textbf{vistas} mediante directivas Blade (ej. \texttt{@can('gestionar\_tramites')}), asegurando que la interfaz se adapte dinámicamente a lo que el usuario tiene permitido hacer.
+
+\section{Protección de rutas y datos}
+El sistema incorpora múltiples capas de protección nativas de Laravel para mitigar las vulnerabilidades web más comunes:
+
+\begin{itemize}
+    \item \textbf{Prevención de CSRF (Cross-Site Request Forgery):} Todas las peticiones de modificación de datos (POST, PUT, DELETE) requieren un token de seguridad único generado por el servidor, evitando que atacantes externos realicen acciones en nombre del usuario autenticado.
+    \item \textbf{Validación mediante FormRequests:} En lugar de validar los datos directamente en los controladores, se han creado clases de validación específicas. Esto asegura que solo los datos que cumplen con los tipos, formatos y restricciones esperadas (ej. formato de DNI argentino, correos válidos) ingresen a la lógica de negocio.
+    \item \textbf{Protección contra Inyección SQL:} El uso de \textbf{Eloquent ORM} y el constructor de consultas de Laravel garantiza que todos los parámetros sean escapados automáticamente, neutralizando cualquier intento de inyección de código malicioso en la base de datos MySQL.
+    \item \textbf{Seguridad en el Lado del Cliente:} La integración con \textbf{Vue.js} se realiza de manera segura, evitando la exposición de lógica sensible en el frontend y comunicándose siempre a través de rutas API protegidas por los mismos mecanismos de autenticación del sistema.
+\end{itemize}

@@ -1,0 +1,51 @@
+\chapter{Análisis y diseño del sistema}
+
+\section{Requerimientos funcionales}
+A partir del análisis de las necesidades del Observatorio de la UNSa y la estructura del código fuente, se han definido los siguientes requerimientos funcionales:
+
+\textbf{Gestión de la Estructura Universitaria:}
+\begin{itemize}
+    \item El sistema debe soportar una \textbf{jerarquía de dependencias} organizada de forma arbórea (Nested Set), permitiendo representar desde la Universidad como raíz, pasando por las Facultades, hasta llegar a institutos específicos como el Observatorio.
+    \item Se debe permitir la creación de diferentes \textbf{Tipos de Dependencia} para categorizar cada oficina según su función académica o administrativa.
+\end{itemize}
+
+\textbf{Gestión de Actividades y Turnos:}
+\begin{itemize}
+    \item El sistema debe permitir definir \textbf{Trámites} o actividades (ej. "Visita Guiada Nocturna", "Consulta por uso de Telescopio", "Trámite de Constancia").
+    \item Se debe poder asociar cada trámite a una dependencia específica, configurando su vigencia mediante fechas de inicio y fin.
+    \item El sistema debe soportar tanto \textbf{turnos individuales} como \textbf{turnos grupales}, solicitando en este último caso el nombre de la institución y la cantidad de personas (ideal para visitas de colegios al Observatorio).
+\end{itemize}
+
+\textbf{Lógica de Disponibilidad y Cupos:}
+\begin{itemize}
+    \item La disponibilidad horaria se debe calcular dinámicamente basándose en la configuración de \textbf{Mesas Habilitadas}, que representa la capacidad de atención simultánea.
+    \item El sistema debe excluir automáticamente del calendario de reservas los fines de semana y los \textbf{Feriados} o días de asueto académico registrados.
+    \item Cada reserva debe generar un código único de seguimiento y permitir la carga de datos de contacto (Email, Celular) y el DNI de la persona responsable.
+\end{itemize}
+
+\section{Casos de uso principales}
+Los flujos principales de interacción se resumen en:
+\begin{itemize}
+    \item \textbf{CU1 - Reservar Turno para Observatorio:} Un estudiante o particular selecciona la dependencia "Observatorio", elige la actividad (ej. "Visita Guiada"), selecciona una fecha con cupo disponible, completa los datos (individuales o grupales) y confirma la reserva.
+    \item \textbf{CU2 - Administración de Capacidad:} Un administrador del Observatorio accede al panel y ajusta la cantidad de "Mesas Habilitadas" para un día particular si cuenta con más personal de atención o guías disponibles.
+    \item \textbf{CU3 - Gestión Diaria de Operador:} El personal del Observatorio visualiza el listado de turnos del día, filtra por actividad y marca la asistencia de los visitantes.
+\end{itemize}
+
+\section{Modelo de datos relacional}
+El modelo de datos es el núcleo de la flexibilidad del sistema. Las tablas principales y sus relaciones son:
+
+\begin{itemize}
+    \item \textbf{dependencias:} Utiliza los campos \texttt{\_lft}, \texttt{\_rgt} y \texttt{parent\_id} para gestionar la jerarquía mediante el patrón Nested Set, optimizando las consultas de subárboles académicos.
+    \item \textbf{dependencia\_turnos\_reservas:} Es la tabla central que almacena las reservas. Contiene metadatos como \texttt{es\_grupal}, \texttt{nombre\_institucion} y el estado de la reserva (\texttt{estado\_id}).
+    \item \textbf{turnos\_horarios:} Define las franjas de tiempo disponibles, asociando cada horario con un trámite y la cantidad de turnos permitidos por slot.
+    \item \textbf{mesas\_habilitadas:} Configura la capacidad operativa de cada dependencia.
+    \item \textbf{usuarios\_dependencias:} Relación muchos a muchos que permite asignar operadores a una o varias dependencias para su gestión exclusiva.
+\end{itemize}
+
+\section{Arquitectura del sistema}
+La aplicación se asienta sobre el patrón \textbf{MVC (Modelo-Vista-Controlador)} implementado por Laravel 8.x, garantizando una separación clara de responsabilidades:
+\begin{itemize}
+    \item \textbf{Modelos (Eloquent):} Se encargan de la persistencia y las relaciones complejas. Por ejemplo, el modelo \texttt{Dependencia} incluye métodos estáticos para generar estructuras de árboles seleccionables en el frontend.
+    \item \textbf{Controladores:} Coordinan la lógica de negocio. El \texttt{TurnosDependenciasReservasController} gestiona la exportación a Excel y la generación de reportes en PDF utilizando plantillas personalizadas.
+    \item \textbf{Middlewares:} Se utilizan para la protección de rutas administrativas, asegurando que un operador solo pueda ver los turnos de las dependencias a las que tiene acceso (\texttt{Auth::id()}).
+\end{itemize}

@@ -1,0 +1,80 @@
+\chapter{Introducción}
+
+\section{Descripción general del proyecto}
+El presente trabajo final de carrera documenta el diseño, desarrollo e implementación de un sistema de gestión de turnos académicos. En el ámbito universitario, la coordinación de espacios y servicios especializados, como los laboratorios, bibliotecas o centros de investigación, requiere de una organización meticulosa para garantizar que tanto alumnos como docentes y público en general puedan acceder a los recursos de manera equitativa y eficiente.
+
+El sistema de \textbf{Turnos Académicos} surge como una solución tecnológica diseñada específicamente para la \textbf{Universidad Nacional de Salta (UNSa)}, con un enfoque inicial y prioritario para el \textbf{Observatorio de la Universidad}. El Observatorio, al ser un espacio de divulgación científica y académica, recibe constantes solicitudes de visitas, consultas técnicas y uso de instrumentos, lo que hace indispensable contar con una plataforma que centralice y automatice la reserva de citas.
+
+Esta plataforma web permite que la interacción entre la comunidad universitaria y el Observatorio se realice de manera fluida y previsible. A diferencia de los métodos tradicionales de consulta por correo o presenciales, este sistema permite la autogestión por parte del usuario, quien puede visualizar la disponibilidad real de horarios para las distintas actividades ofrecidas desde cualquier dispositivo con acceso a internet.
+
+Desde el punto de vista administrativo, el sistema provee herramientas robustas para que los gestores del Observatorio y otras dependencias universitarias puedan configurar su capacidad de atención (definida como "mesas habilitadas" o puestos de atención), administrar los tipos de \textbf{trámites} o actividades ofrecidas y gestionar un calendario de feriados o días sin actividad académica. Esta granularidad asegura que el sistema sea adaptable a las particularidades del calendario universitario de la UNSa.
+
+\section{Problemática y Justificación}
+En las instituciones académicas, la gestión de la demanda para servicios especializados suele realizarse de forma fragmentada. En el caso del Observatorio de la UNSa, la falta de un sistema centralizado puede derivar en superposición de horarios, dificultades para llevar un registro estadístico de las visitas y una carga administrativa excesiva para el personal encargado de la atención.
+
+La implementación de este sistema se justifica por la necesidad de:
+\begin{itemize}
+    \item \textbf{Digitalización de la gestión académica:} Modernizar los procesos de reserva de turnos dentro de la UNSa, alineándose con las políticas de transformación digital de la universidad.
+    \item \textbf{Optimización del Observatorio:} Permitir una mejor organización de las visitas guiadas y actividades astronómicas, asegurando que el aforo sea el adecuado para cada jornada.
+    \item \textbf{Mejora en la experiencia del usuario:} Facilitar a los estudiantes y al público externo la obtención de un turno sin necesidad de intermediarios o traslados previos.
+    \item \textbf{Trazabilidad y Estadísticas:} Generar datos precisos sobre la afluencia al Observatorio, lo cual es vital para la planificación de recursos y la elaboración de informes de impacto institucional.
+\end{itemize}
+
+\section{Objetivos del proyecto}
+
+\subsection{Objetivo general}
+Desarrollar e implementar una plataforma web de gestión de turnos que centralice la administración de dependencias y trámites, facilitando el acceso a los ciudadanos y optimizando los recursos humanos de la organización.
+
+\subsection{Objetivos específicos}
+\begin{itemize}
+    \item \textbf{Desarrollo del Frontend Ciudadano:} Crear una interfaz web responsiva y amigable que guíe al usuario en el proceso de reserva en menos de tres pasos.
+    \item \textbf{Implementación del Panel Administrativo:} Proveer a los operadores y administradores de una herramienta basada en \textit{AdminLTE} para el control total de la operatividad diaria.
+    \item \textbf{Gestión Dinámica de Disponibilidad:} Desarrollar un motor de lógica que calcule los horarios disponibles basándose en la cantidad de "mesas habilitadas" y los feriados cargados en el sistema.
+    \item \textbf{Seguridad y Control de Acceso:} Implementar un esquema de Roles y Permisos (RBAC) que garantice que cada operador solo pueda acceder a la información de su dependencia asignada.
+    \item \textbf{Notificación y Comprobantes:} Integrar la generación automática de comprobantes en formato PDF para que el ciudadano tenga una constancia física o digital de su turno.
+\end{itemize}
+
+\section{Alcance del sistema}
+El proyecto abarca el ciclo completo de la gestión de un turno, desde su concepción en la configuración administrativa hasta su conclusión en la atención presencial.
+
+\textbf{Funcionalidades para el Ciudadano:}
+\begin{itemize}
+    \item Navegación por el catálogo de dependencias y trámites disponibles.
+    \item Selección de fecha y hora mediante un calendario interactivo.
+    \item Ingreso de datos personales y validación mínima de seguridad.
+    \item Descarga del comprobante del turno en formato PDF.
+\end{itemize}
+
+\textbf{Funcionalidades para la Administración:}
+\begin{itemize}
+    \item Gestión de ABM (Alta, Baja, Modificación) de dependencias, tipos de trámites y usuarios.
+    \item Asociación de trámites a dependencias con configuraciones personalizadas.
+    \item Configuración de capacidad de atención por franjas horarias.
+    \item Gestión de feriados nacionales, provinciales o institucionales.
+    \item Monitoreo en tiempo real de los turnos del día.
+    \item Reportes básicos de gestión y estadísticas de atención.
+\end{itemize}
+
+\section{Tecnologías utilizadas}
+Para garantizar la escalabilidad, mantenibilidad y facilidad de despliegue, se ha optado por un stack tecnológico moderno y ampliamente probado en la industria.
+
+\subsection{Backend: Laravel 8.x}
+Se utiliza el framework \textbf{Laravel} en su versión 8 por ser uno de los ecosistemas más robustos del lenguaje PHP. Sus principales ventajas para este proyecto incluyen:
+\begin{itemize}
+    \item \textbf{Eloquent ORM:} Facilita la interacción con la base de datos MySQL mediante un paradigma orientado a objetos.
+    \item \textbf{Sistema de Migraciones:} Permite versionar la estructura de la base de datos, facilitando el trabajo en equipo y el despliegue.
+    \item \textbf{Seguridad integrada:} Protecciones nativas contra inyección SQL, XSS y CSRF.
+\end{itemize}
+
+\subsection{Frontend: Vue 2 y Blade}
+La interfaz combina el renderizado potente de \textbf{Blade} (motor de plantillas de Laravel) para la estructura general, con la reactividad de \textbf{Vue.js 2} para los componentes que requieren interacción en tiempo real sin recargar la página, como el selector de horarios.
+
+\subsection{Infraestructura: Docker}
+Todo el entorno de ejecución está contenido en \textbf{Docker}. Esto asegura que la aplicación funcione de la misma manera en la computadora de desarrollo como en el servidor de producción, empaquetando los servicios de Nginx, PHP-FPM y MySQL de forma aislada.
+
+\subsection{Librerías y Paquetes Clave}
+\begin{itemize}
+    \item \textbf{Spatie Laravel-Permission:} Para gestionar de manera sencilla quién puede hacer qué dentro del sistema.
+    \item \textbf{Snappy (wkhtmltopdf):} Motor utilizado para convertir las vistas HTML de los comprobantes en archivos PDF de alta fidelidad.
+    \item \textbf{Socialite:} Para permitir que los administradores inicien sesión con su cuenta de Google, eliminando la necesidad de recordar una contraseña adicional.
+\end{itemize}
