@@ -34,3 +34,9 @@ app/storage/logs/*
 .idea/
 .DS_Store
 Thumbs.db
+
+# Agent and Graphify tools
+.agents/
+.antigravitycli/
+graphify-out/
+
