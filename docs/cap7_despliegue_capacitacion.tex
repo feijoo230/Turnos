@@ -1,0 +1,72 @@
+\chapter{Despliegue y Puesta en Producción}
+\label{cap:despliegue}
+
+Una etapa fundamental en el ciclo de vida del desarrollo de software es la transición del entorno de desarrollo local al entorno de producción. En este capítulo se documentan las decisiones técnicas, la configuración del servidor y los procesos realizados para que Kong Tienda Online quede accesible al público, así como el proceso de transferencia del sistema a los usuarios finales.
+
+\section{Preparación para Producción}
+
+Antes de trasladar el código al servidor, fue necesario realizar ajustes de optimización y seguridad propios del entorno de producción. Entre las tareas destacadas se encuentran:
+
+\begin{itemize}
+    \item \textbf{Gestión de dependencias:} Instalación exclusiva de paquetes requeridos para producción, omitiendo herramientas de desarrollo (ej. ejecutando \texttt{composer install --optimize-autoloader --no-dev}).
+    \item \textbf{Compilación de Assets:} Los archivos de \textit{frontend} (Tailwind CSS, JavaScript) fueron compilados y minimizados para reducir tiempos de carga mediante la ejecución de Vite/NPM.
+    \item \textbf{Caché de configuración:} Se generaron cachés de rutas, vistas y configuración de Laravel para acelerar los tiempos de respuesta del framework.
+\end{itemize}
+
+\section{Entorno de Servidor y Despliegue (Deploy)}
+
+% TODO: Completa aquí con los detalles reales de tu servidor. Ejemplos:
+% - ¿Usaste un VPS (DigitalOcean, AWS), hosting compartido (Hostinger, cPanel) o PaaS?
+% - ¿Qué servidor web usaste? (Apache, Nginx).
+% - ¿Qué herramientas utilizaste para subir los archivos? (Git, FTP, SSH).
+
+El despliegue de la aplicación se llevó a cabo en un servidor % [MENCIONAR TIPO DE SERVIDOR]
+que cumple con los requisitos tecnológicos del stack TALL. La configuración del entorno consistió en:
+
+\begin{enumerate}
+    \item \textbf{Configuración del Servidor Web y PHP:} Se habilitaron los módulos necesarios (como OpenSSL, PDO, Mbstring) y se configuró el \textit{Virtual Host} para apuntar al directorio \texttt{public} de Laravel, impidiendo el acceso directo a los archivos de configuración.
+    \item \textbf{Base de Datos:} Se configuró el motor MySQL y se ejecutaron las migraciones correspondientes (\texttt{php artisan migrate}) para recrear la estructura relacional en producción.
+    \item \textbf{Variables de Entorno (\texttt{.env}):} Se establecieron de forma segura las credenciales de la base de datos, las claves de las APIs (Mercado Pago / Niubiz) y los datos del servidor de correo electrónico (SMTP).
+\end{enumerate}
+
+% [INSERTA CAPTURA DE PANTALLA AQUÍ]
+% Sugerencia: Una captura de la terminal haciendo el deploy, o del panel de control de tu hosting.
+\begin{figure}[H]
+    \centering
+    % \includegraphics[width=0.8\textwidth]{img/deploy_terminal.png}
+    \caption{Proceso de despliegue y ejecución de migraciones en el servidor de producción.}
+    \label{fig:deploy_terminal}
+\end{figure}
+
+\section{Capacitación y Entrega al Cliente}
+
+Un sistema por más robusto que sea, requiere que los usuarios finales comprendan su funcionamiento para poder sacarle el máximo provecho. Por ello, la entrega del software incluyó un proceso de transferencia de conocimientos.
+
+\subsection{Material de Soporte}
+
+Para facilitar la adopción del sistema, se elaboró material de apoyo dirigido principalmente a los usuarios con roles de Administrador y Ventas.
+
+% TODO: Menciona si hiciste un manual en PDF, videos, o una guía rápida.
+Este material incluye instrucciones detalladas sobre:
+\begin{itemize}
+    \item Cómo dar de alta nuevos productos y gestionar el stock de las variantes.
+    \item El flujo para procesar las órdenes de compra (cambios de estado: de \textit{Pending} a \textit{Shipped}).
+    \item La configuración de portadas (banners) e información de contacto desde el panel.
+\end{itemize}
+
+% [INSERTA CAPTURA DE PANTALLA AQUÍ]
+% Sugerencia: Una captura de la portada de tu manual o un índice del mismo.
+\begin{figure}[H]
+    \centering
+    % \includegraphics[width=0.6\textwidth]{img/manual_portada.jpg}
+    \caption{Portada del Manual de Administrador entregado al cliente.}
+    \label{fig:manual_portada}
+\end{figure}
+
+\subsection{Sesiones de Capacitación}
+
+% TODO: Describe aquí cómo le enseñaste al cliente a usarlo. 
+% ¿Fue presencial? ¿Por videollamada? ¿Fueron los dueños o los empleados?
+Se llevaron a cabo sesiones de capacitación con el personal encargado de la tienda. Durante estas sesiones, se realizó un recorrido completo por el \textit{dashboard} administrativo. 
+
+Uno de los enfoques principales de la capacitación fue el manejo de las variantes de productos y el sistema jerárquico de descuentos, asegurando que los encargados pudieran reflejar correctamente las promociones del negocio físico en la tienda online. La retroalimentación obtenida durante estas pruebas finales fue altamente positiva, logrando una rápida curva de aprendizaje gracias al diseño intuitivo del panel administrativo.
