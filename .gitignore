@@ -1,5 +1,4 @@
 # LaTeX build artifacts
-docs/build/
 informe_final/build/
 *.aux
 *.log
