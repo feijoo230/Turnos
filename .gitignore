@@ -8,7 +8,6 @@ docs/build/
 *.fls
 *.synctex.gz
 *.pdf
-!docs/Informe final STP-TUP Ceballos, Diego Ezequiel.pdf
 !docs/*.png
 !docs/*.jpg
 
@@ -36,6 +35,7 @@ app/storage/logs/*
 Thumbs.db
 
 # Agent and Graphify tools
+GEMINI.md
 .agents/
 .antigravitycli/
 graphify-out/
