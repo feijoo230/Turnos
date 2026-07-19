@@ -3,7 +3,7 @@
     <a data-toggle="tooltip" data-placement="top" title="Settings">
       <i class="fa fa-cog" aria-hidden="true"></i>
     </a>
-    <a data-toggle="tooltip" data-placement="top" title="Lock">
+    <a data-toggle="tooltip" data-placement="top" title="Estadísticas" href="{{ route('estadisticas.index') }}">
       <i class="fa fa-area-chart" aria-hidden="true"></i>
     </a>
     <a data-toggle="tooltip" data-placement="top" title="Gestión de Turnos" href="{{ url('turnos_admin') }}">

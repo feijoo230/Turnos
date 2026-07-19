@@ -87,6 +87,10 @@ Route::group(['middleware' => 'auth'], function(){
   Route::resource('tramitesdependencias', 'TramitesDependenciasController');
   Route::resource('turnostramites', 'TurnosTramitesController');
 
+  // Estadísticas y Reportes
+  Route::get('estadisticas', 'EstadisticasController@index')->name('estadisticas.index');
+  Route::get('estadisticas/data', 'EstadisticasController@getData')->name('estadisticas.data');
+
   // Turnos Admin Routes
   Route::resource('turnos_admin', 'TurnosController');
   Route::get('turnos_admin.llamar_siguiente', 'TurnosController@llamar_siguiente')->name('turnos_admin.llamar_siguiente');
