@@ -70,8 +70,12 @@ class UsuariosController extends Controller
             
             $datos = $usuario->toArray();
 
-            Mail::to($usuario->email)
-            ->send(new NuevoUsuario($datos));
+            try {
+                Mail::to($usuario->email)
+                ->send(new NuevoUsuario($datos));
+            } catch (\Exception $e) {
+                \Log::error('Error al enviar correo de nuevo usuario: ' . $e->getMessage());
+            }
 
             return redirect(route('usuarios.index'))->with('success','El usuario se registro correctamente.');
         } catch (\Exception $e) {
@@ -96,8 +100,12 @@ class UsuariosController extends Controller
         
         try{
             $usuario->save();
-            Mail::to($usuario->email)
-            ->send(new EditarUsuario($request->all()));
+            try {
+                Mail::to($usuario->email)
+                ->send(new EditarUsuario($request->all()));
+            } catch (\Exception $e) {
+                \Log::error('Error al enviar correo de edición: ' . $e->getMessage());
+            }
             return redirect(route('usuarios.index'))->with('success','El usuario de actualizó correctamente.');
         } catch (\Exception $e) {
             return redirect(route('usuarios.index'))->with('error','Hubo un error en la actualización del usuario. Por favor intente nuevamente.');
@@ -164,8 +172,12 @@ class UsuariosController extends Controller
               
         try{
             $usuario->save();
-            Mail::to($usuario->email)
-            ->send(new EditarUsuario($datos));
+            try {
+                Mail::to($usuario->email)
+                ->send(new EditarUsuario($datos));
+            } catch (\Exception $e) {
+                \Log::error('Error al enviar correo de edición de perfil: ' . $e->getMessage());
+            }
             return redirect(url('usuarios.mi_perfil'))->with('success','El usuario de actualizó correctamente.');
         } catch (\Exception $e) {
             return redirect(url('usuarios.mi_perfil'))->with('error','Hubo un error en la actualización del usuario. Por favor intente nuevamente.');
