@@ -296,8 +296,19 @@ class TramitesController extends Controller
         $now = Carbon::now();
         $isToday = $turno_fecha->isToday();
 
+        $diasMap = [
+            1 => 'lunes',
+            2 => 'martes',
+            3 => 'miercoles',
+            4 => 'jueves',
+            5 => 'viernes',
+            6 => 'sabado',
+            7 => 'domingo'
+        ];
+        $diaSemana = $diasMap[$turno_fecha->dayOfWeekIso];
+
         foreach ($turno_tramite->turnosHorarios as $horario) {
-            if (!$horario->activo) {
+            if (!$horario->activo || !$horario->$diaSemana) {
                 continue;
             }
 
@@ -412,8 +423,13 @@ class TramitesController extends Controller
                 
                 $isToday = $current_date->isToday();
 
+                $diasMap = [
+                    1 => 'lunes', 2 => 'martes', 3 => 'miercoles', 4 => 'jueves', 5 => 'viernes', 6 => 'sabado', 7 => 'domingo'
+                ];
+                $diaSemana = $diasMap[$current_date->dayOfWeekIso];
+
                 foreach ($turno_tramite->turnosHorarios as $horario) {
-                    if (!$horario->activo) {
+                    if (!$horario->activo || !$horario->$diaSemana) {
                         continue;
                     }
 
@@ -494,8 +510,13 @@ class TramitesController extends Controller
             }
 
 
+            $diasMap = [
+                1 => 'lunes', 2 => 'martes', 3 => 'miercoles', 4 => 'jueves', 5 => 'viernes', 6 => 'sabado', 7 => 'domingo'
+            ];
+            $diaSemana = $diasMap[$turno_fecha->dayOfWeekIso];
+
             foreach ($turno_tramite->turnosHorarios as $horario) {
-                if (!$horario->activo) {
+                if (!$horario->activo || !$horario->$diaSemana) {
                     continue;
                 }
 
