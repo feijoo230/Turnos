@@ -17,14 +17,14 @@
 
 					{!! Form::open(['route' => 'tramite.paso3', 'files'=>'true', 'class' => 'form-horizontal text-center', 'method' => 'get']) !!}
 						<div class="row">
-							<div class="col-md-8 col-sm-12">
+							<div class="col-md-7 col-sm-12">
 								<div class="text-center" style="margin: 0 auto;">
 									<div id="datepicker1" style="color: #000000;"></div>
 								</div>
 							</div>
-							<div class="col-md-4 col-sm-12">
+							<div class="col-md-5 col-sm-12">
 								<div id="list-horarios" style="color: #000000;">
-									<select name="turno_hora" size="30" class="select list-group overflow-auto text-center" style="max-height: 267px; margin-bottom: 10px; width: 100%; border: 0px;" required="true">
+									<select name="turno_hora" size="30" class="select list-group overflow-auto text-center shadow-sm" style="max-height: 267px; font-size: 1.1em; margin-bottom: 10px; width: 100%; border: 1px solid #dee2e6; border-radius: 8px;" required="true">
 										
 									</select>
 

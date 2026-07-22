@@ -336,7 +336,7 @@ class TramitesController extends Controller
         if (empty($aHorarios)) {
             $html = 'Sin turnos. Por favor seleccione otro día.';
         } else {
-            $html = '<select name="turno_hora" size="30" class="select list-group overflow-auto text-center" style="max-height: 267px; margin-bottom: 10px; width: 100%; border: 0px;" required="true">';
+            $html = '<select name="turno_hora" size="30" class="select list-group overflow-auto text-center shadow-sm" style="max-height: 267px; font-size: 1.1em; margin-bottom: 10px; width: 100%; border: 1px solid #dee2e6; border-radius: 8px;" required="true">';
 
             foreach ($aHorarios as $horario) {
                 $html = $html.'<option class="list-group-item" value="'.$horario['hora'].'|'.$horario['id'].'">'.$horario['hora'].' ('.$horario['available'].' disponibles)</option>';
