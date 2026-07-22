@@ -61,9 +61,15 @@ class TurnosTramitesController extends Controller
         $dependenciaTramites = $query->select(DB::raw("CONCAT(dependencias.nombre, ' - ', dependencia_tramites.nombre) as nombre_completo"), 'dependencia_tramites.id')
             ->pluck('nombre_completo', 'dependencia_tramites.id')->toArray();
         
+        $tiposEvento = \App\Models\TipoEvento::where('activo', true)->pluck('nombre', 'id')->toArray();
+        $proyectosExtension = \App\Models\ProyectoExtension::where('activo', true)->pluck('nombre', 'id')->toArray();
+        $usuarios = \App\Models\Usuario::where('activo', true)->orWhereNull('activo')->pluck('name', 'id')->toArray();
         
         return view('turnostramites.create')
-            ->with('dependenciaTramites', $dependenciaTramites);
+            ->with('dependenciaTramites', $dependenciaTramites)
+            ->with('tiposEvento', $tiposEvento)
+            ->with('proyectosExtension', $proyectosExtension)
+            ->with('usuarios', $usuarios);
     }
 
     /**
@@ -84,6 +90,9 @@ class TurnosTramitesController extends Controller
                 'fecha_desde' => $input['fecha_desde'],
                 'fecha_hasta' => $input['fecha_hasta'],
                 'activo' => isset($input['activo']) ? true : false,
+                'tipo_evento_id' => $input['tipo_evento_id'] ?? null,
+                'proyecto_extension_id' => $input['proyecto_extension_id'] ?? null,
+                'responsable_id' => $input['responsable_id'] ?? null,
             ]);
             
             
@@ -96,6 +105,13 @@ class TurnosTramitesController extends Controller
                             'duracion_minutos' => $horario['duracion_minutos'],
                             'cantidad_turnos' => $horario['cantidad_turnos'],
                             'activo' => isset($horario['activo']) && $horario['activo'] == 1,
+                            'lunes' => isset($horario['lunes']) && $horario['lunes'] == 1,
+                            'martes' => isset($horario['martes']) && $horario['martes'] == 1,
+                            'miercoles' => isset($horario['miercoles']) && $horario['miercoles'] == 1,
+                            'jueves' => isset($horario['jueves']) && $horario['jueves'] == 1,
+                            'viernes' => isset($horario['viernes']) && $horario['viernes'] == 1,
+                            'sabado' => isset($horario['sabado']) && $horario['sabado'] == 1,
+                            'domingo' => isset($horario['domingo']) && $horario['domingo'] == 1,
                         ]);
                     }
                 }
@@ -121,7 +137,13 @@ class TurnosTramitesController extends Controller
      */
     public function show($id)
     {
-        //
+        $turnostramites = \App\Models\Turnos_Tramites::with(['turnosHorarios', 'tramite.dependencia', 'tipoEvento', 'proyectoExtension', 'responsable'])->find($id);
+
+        if (empty($turnostramites)) {
+            return redirect(route('turnostramites.index'));
+        }
+
+        return view('turnostramites.show')->with('turnostramite', $turnostramites);
     }
 
     /**
@@ -153,9 +175,16 @@ class TurnosTramitesController extends Controller
             return redirect()->back()->with('error', 'Turno no encontrado');
         }
         
+        $tiposEvento = \App\Models\TipoEvento::where('activo', true)->pluck('nombre', 'id')->toArray();
+        $proyectosExtension = \App\Models\ProyectoExtension::where('activo', true)->pluck('nombre', 'id')->toArray();
+        $usuarios = \App\Models\Usuario::where('activo', true)->orWhereNull('activo')->pluck('name', 'id')->toArray();
+        
         return view('turnostramites.edit')
             ->with('turnostramites', $turnostramites)
-            ->with('dependenciaTramites', $dependenciaTramites);
+            ->with('dependenciaTramites', $dependenciaTramites)
+            ->with('tiposEvento', $tiposEvento)
+            ->with('proyectosExtension', $proyectosExtension)
+            ->with('usuarios', $usuarios);
     }
 
     /**
@@ -188,7 +217,14 @@ class TurnosTramitesController extends Controller
                         'hora_fin' => $horario['hora_fin'],
                         'duracion_minutos' => $horario['duracion_minutos'],
                         'cantidad_turnos' => $horario['cantidad_turnos'],
-                        'activo' => isset($horario['activo']) && $horario['activo'] == 1
+                        'activo' => isset($horario['activo']) && $horario['activo'] == 1,
+                        'lunes' => isset($horario['lunes']) && $horario['lunes'] == 1,
+                        'martes' => isset($horario['martes']) && $horario['martes'] == 1,
+                        'miercoles' => isset($horario['miercoles']) && $horario['miercoles'] == 1,
+                        'jueves' => isset($horario['jueves']) && $horario['jueves'] == 1,
+                        'viernes' => isset($horario['viernes']) && $horario['viernes'] == 1,
+                        'sabado' => isset($horario['sabado']) && $horario['sabado'] == 1,
+                        'domingo' => isset($horario['domingo']) && $horario['domingo'] == 1,
                     ]);
                 }
             }

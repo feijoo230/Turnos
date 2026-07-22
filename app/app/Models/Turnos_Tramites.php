@@ -19,7 +19,10 @@ class Turnos_Tramites extends Model
         'fecha_desde',
         'fecha_hasta',
         'dependencia_tramite_id',
-        'activo'
+        'activo',
+        'tipo_evento_id',
+        'proyecto_extension_id',
+        'responsable_id'
     ];
     
     public function tramite()
@@ -40,5 +43,17 @@ class Turnos_Tramites extends Model
             'id',               // Local key on turnos_tramites table
             'id'                // Local key on turnos_horarios table
         );
+    }
+    public function tipoEvento()
+    {
+        return $this->belongsTo(TipoEvento::class, 'tipo_evento_id');
+    }
+    public function proyectoExtension()
+    {
+        return $this->belongsTo(ProyectoExtension::class, 'proyecto_extension_id');
+    }
+    public function responsable()
+    {
+        return $this->belongsTo(Usuario::class, 'responsable_id');
     }
 }

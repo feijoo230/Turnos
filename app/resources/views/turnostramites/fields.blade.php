@@ -26,6 +26,24 @@
     </div>
 </div>
 <div class="form-group">
+    {!! Form::label('tipo_evento_id', 'Tipo de evento:', array('class' => 'control-label col-md-3 col-sm-3 col-xs-12')) !!}
+    <div class="col-md-6 col-sm-6 col-xs-12">
+        {!! Form::select('tipo_evento_id', ['' => 'SELECCIONAR'] + $tiposEvento, isset($turnostramites) ? $turnostramites->tipo_evento_id : null, ['class' => 'form-control col-md-7 col-xs-12']) !!}
+    </div>
+</div>
+<div class="form-group">
+    {!! Form::label('proyecto_extension_id', 'Proyecto de extensión:', array('class' => 'control-label col-md-3 col-sm-3 col-xs-12')) !!}
+    <div class="col-md-6 col-sm-6 col-xs-12">
+        {!! Form::select('proyecto_extension_id', ['' => 'SELECCIONAR'] + $proyectosExtension, isset($turnostramites) ? $turnostramites->proyecto_extension_id : null, ['class' => 'form-control col-md-7 col-xs-12']) !!}
+    </div>
+</div>
+<div class="form-group">
+    {!! Form::label('responsable_id', 'Responsable:', array('class' => 'control-label col-md-3 col-sm-3 col-xs-12')) !!}
+    <div class="col-md-6 col-sm-6 col-xs-12">
+        {!! Form::select('responsable_id', ['' => 'SELECCIONAR'] + $usuarios, isset($turnostramites) ? $turnostramites->responsable_id : null, ['class' => 'form-control col-md-7 col-xs-12']) !!}
+    </div>
+</div>
+<div class="form-group">
     {!! Form::label('activo', 'Activo:', array('class' => 'control-label col-md-3 col-sm-3 col-xs-12')) !!}
     <div class="col-md-6 col-sm-6 col-xs-12">
         {!! Form::hidden('activo', 0) !!}
@@ -41,9 +59,15 @@
                 <tr>
                     <th>Hora Inicio</th>
                     <th>Hora Fin</th>
-                    <th>Duración (minutos)</th>
-                    <th>Cantidad de Turnos</th>
-                    <th>Activo</th>
+                    <th>Duración (min)</th>
+                    <th>Turnos</th>
+                    <th title="Lunes">L</th>
+                    <th title="Martes">M</th>
+                    <th title="Miércoles">X</th>
+                    <th title="Jueves">J</th>
+                    <th title="Viernes">V</th>
+                    <th title="Sábado">S</th>
+                    <th title="Domingo">D</th>
                     <th></th>
                 </tr>
             </thead>
@@ -80,9 +104,33 @@
                                        {{ $horario->activo ? 'required' : '' }}>
                             </td>
                             <td>
-                                <input type="hidden" name="horarios[{{$index}}][activo]" value="0">
-                                <input type="checkbox" name="horarios[{{$index}}][activo]" value="1" 
-                                    {{ $horario->activo ? 'checked' : '' }} class="flat">
+                                <input type="hidden" name="horarios[{{$index}}][lunes]" value="0">
+                                <input type="checkbox" name="horarios[{{$index}}][lunes]" value="1" {{ $horario->lunes ? 'checked' : '' }} class="flat">
+                            </td>
+                            <td>
+                                <input type="hidden" name="horarios[{{$index}}][martes]" value="0">
+                                <input type="checkbox" name="horarios[{{$index}}][martes]" value="1" {{ $horario->martes ? 'checked' : '' }} class="flat">
+                            </td>
+                            <td>
+                                <input type="hidden" name="horarios[{{$index}}][miercoles]" value="0">
+                                <input type="checkbox" name="horarios[{{$index}}][miercoles]" value="1" {{ $horario->miercoles ? 'checked' : '' }} class="flat">
+                            </td>
+                            <td>
+                                <input type="hidden" name="horarios[{{$index}}][jueves]" value="0">
+                                <input type="checkbox" name="horarios[{{$index}}][jueves]" value="1" {{ $horario->jueves ? 'checked' : '' }} class="flat">
+                            </td>
+                            <td>
+                                <input type="hidden" name="horarios[{{$index}}][viernes]" value="0">
+                                <input type="checkbox" name="horarios[{{$index}}][viernes]" value="1" {{ $horario->viernes ? 'checked' : '' }} class="flat">
+                            </td>
+                            <td>
+                                <input type="hidden" name="horarios[{{$index}}][sabado]" value="0">
+                                <input type="checkbox" name="horarios[{{$index}}][sabado]" value="1" {{ $horario->sabado ? 'checked' : '' }} class="flat">
+                            </td>
+                            <td>
+                                <input type="hidden" name="horarios[{{$index}}][domingo]" value="0">
+                                <input type="checkbox" name="horarios[{{$index}}][domingo]" value="1" {{ $horario->domingo ? 'checked' : '' }} class="flat">
+                                <input type="hidden" name="horarios[{{$index}}][activo]" value="1">
                             </td>
                             <td>
                                 <button type="button" class="btn btn-danger btn-xs remove-horario">
@@ -117,8 +165,33 @@
                                    required>
                         </td>
                         <td>
-                            {!! Form::hidden("horarios[0][activo]", 0) !!}
-                            {!! Form::checkbox("horarios[0][activo]", 1, true, ['class' => 'flat']) !!}
+                            <input type="hidden" name="horarios[0][lunes]" value="0">
+                            <input type="checkbox" name="horarios[0][lunes]" value="1" checked class="flat">
+                        </td>
+                        <td>
+                            <input type="hidden" name="horarios[0][martes]" value="0">
+                            <input type="checkbox" name="horarios[0][martes]" value="1" checked class="flat">
+                        </td>
+                        <td>
+                            <input type="hidden" name="horarios[0][miercoles]" value="0">
+                            <input type="checkbox" name="horarios[0][miercoles]" value="1" checked class="flat">
+                        </td>
+                        <td>
+                            <input type="hidden" name="horarios[0][jueves]" value="0">
+                            <input type="checkbox" name="horarios[0][jueves]" value="1" checked class="flat">
+                        </td>
+                        <td>
+                            <input type="hidden" name="horarios[0][viernes]" value="0">
+                            <input type="checkbox" name="horarios[0][viernes]" value="1" checked class="flat">
+                        </td>
+                        <td>
+                            <input type="hidden" name="horarios[0][sabado]" value="0">
+                            <input type="checkbox" name="horarios[0][sabado]" value="1" checked class="flat">
+                        </td>
+                        <td>
+                            <input type="hidden" name="horarios[0][domingo]" value="0">
+                            <input type="checkbox" name="horarios[0][domingo]" value="1" checked class="flat">
+                            <input type="hidden" name="horarios[0][activo]" value="1">
                         </td>
                         <td>
                             <button type="button" class="btn btn-danger btn-xs remove-horario">

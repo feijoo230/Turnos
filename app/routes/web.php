@@ -86,6 +86,8 @@ Route::group(['middleware' => 'auth'], function(){
 
   Route::resource('tramitesdependencias', 'TramitesDependenciasController');
   Route::resource('turnostramites', 'TurnosTramitesController');
+  Route::resource('proyectos-extension', 'ProyectoExtensionController');
+  Route::resource('tipos-evento', 'TipoEventoController');
 
   // Estadísticas y Reportes
   Route::get('estadisticas', 'EstadisticasController@index')->name('estadisticas.index');

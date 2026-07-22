@@ -35,9 +35,11 @@
               <i class="fa fa-clock-o"></i>
             </button>
             @if (count($turnostramite->reservas) > 0)
+              <a href="{!! route('turnostramites.show', [$turnostramite->id]) !!}" class='btn btn-success btn-xs'><i class="fa fa-eye"></i></a>
               <a class='btn btn-default btn-xs' disabled='true'><i class="fa fa-edit"></i></a>
               {!! Form::button('<i class="fa fa-trash"></i>', ['type' => 'submit', 'class' => 'btn btn-danger btn-xs', 'onclick' => "return confirm('Esta seguro?')", 'disabled' => 'disabled']) !!}
             @else
+              <a href="{!! route('turnostramites.show', [$turnostramite->id]) !!}" class='btn btn-success btn-xs'><i class="fa fa-eye"></i></a>
               <a href="{!! route('turnostramites.edit', [$turnostramite->id]) !!}" class='btn btn-default btn-xs'><i class="fa fa-edit"></i></a>
               {!! Form::button('<i class="fa fa-trash"></i>', ['type' => 'submit', 'class' => 'btn btn-danger btn-xs', 'onclick' => "return confirm('Esta seguro?')"]) !!}
             @endif

@@ -37,6 +37,8 @@
       <li><a><i class="fa fa-cog"></i> Operadores <span class="fa fa-chevron-down"></span></a>
         <ul class="nav child_menu">
           <li><a href="{{ url('tramitesdependencias') }}">Tramites por dependencias</a></li>
+          <li><a href="{{ url('proyectos-extension') }}">Proyectos de Extensión</a></li>
+          <li><a href="{{ url('tipos-evento') }}">Tipos de Evento</a></li>
           <li><a href="{{ url('turnostramites') }}">Turnos por Tramites</a></li>
 
           <li><a href="{{ url('turnosdependenciasreservas') }}">Reservas de turnos</a></li>

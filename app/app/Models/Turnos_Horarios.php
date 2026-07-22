@@ -19,7 +19,14 @@ class Turnos_Horarios extends Model
         'duracion_minutos',
         'turno_tramite_id',
         'activo',
-        'cantidad_turnos'
+        'cantidad_turnos',
+        'lunes',
+        'martes',
+        'miercoles',
+        'jueves',
+        'viernes',
+        'sabado',
+        'domingo'
     ];
 
     public function turno_tramite()
