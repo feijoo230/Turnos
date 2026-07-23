@@ -10,7 +10,6 @@
       <th>Fecha Hora egreso</th>
       <th>Tiempo atención</th>
       <th>Operador</th>
-      <th>¿Es afiliado?</th>
       <th>Terminar turno</th>
     </tr>
   </thead>
@@ -25,13 +24,6 @@
       <td>{!! (isset($turno->fecha_hora_egreso))? $turno->fecha_hora_egreso->format('d/m/Y H:i') :'' !!}</td>
       <td>{!! $turno->tiempo_atencion !!}</td>
       <td>{!! (isset($turno->operador->name))? $turno->operador->name :'' !!}</td>
-
-      @if ($turno->cliente->es_afiliado == TRUE)
-        <td class="text-center"><a href="{!! url('turnos_admin.es_afiliado', [$turno->id]) !!}" title="¿Es afiliado?"><i class="fa fa-check-square-o fa-2x" aria-hidden="true"></i></a></td>
-      @else
-        <td class="text-center"><a href="{!! url('turnos_admin.es_afiliado', [$turno->id]) !!}" title="¿Es afiliado?"><i class="fa fa-square-o fa-2x" aria-hidden="true"></i></a></td>
-      @endif
-
       <td class="text-center"><a href="{!! url('turnos_admin.terminar_turno', [$turno->id]) !!}" title="Teminar turno"><i class="fa fa-check fa-2x" aria-hidden="true"></i></a></td>
     </tr>
     @endforeach
@@ -49,7 +41,6 @@
       <th>Fecha Hora egreso</th>
       <th>Tiempo atención</th>
       <th>Operador</th>
-      <th>¿Es afiliado?</th>
     </tr>
   </thead>
   <tbody>
@@ -63,13 +54,6 @@
       <td>{!! (isset($turno->fecha_hora_egreso))? $turno->fecha_hora_egreso->format('d/m/Y  H:i') :'' !!}</td>
       <td>{!! $turno->tiempo_atencion !!}</td>
       <td>{!! (isset($turno->operador->name))? $turno->operador->name :'' !!}</td>
-      <td width="15">
-        @if ($turno->cliente->es_afiliado == TRUE)
-          SI
-        @else
-          NO
-        @endif
-      </td>
     </tr>
     @endforeach
   </tbody>
@@ -86,7 +70,6 @@
       <th>Fecha Hora egreso</th>
       <th>Tiempo atención</th>
       <th>Operador</th>
-      <th>¿Es afiliado?</th>
     </tr>
   </thead>
   <tbody>
@@ -100,13 +83,6 @@
       <td>{!! (isset($turno->fecha_hora_egreso))? $turno->fecha_hora_egreso->format('d/m/Y  H:i') :'' !!}</td>
       <td>{!! $turno->tiempo_atencion !!}</td>
       <td>{!! (isset($turno->operador->name))? $turno->operador->name :'' !!}</td>
-      <td width="15">
-        @if ($turno->cliente->es_afiliado == TRUE)
-          SI
-        @else
-          NO
-        @endif
-      </td>
     </tr>
     @endforeach
   </tbody>

@@ -4,18 +4,6 @@
     <h3>MENÚ PRINCIPAL</h3>
     <ul class="nav side-menu">
       <li><a href="{{ url('/') }}"><i class="fa fa-calendar"></i> Nuevo Turno</a></li>
-      @hasanyrole('ADMINISTRADOR|OPERADOR')
-        <li><a href="{{ url('turnos_admin') }}"><i class="fa fa-bullhorn" aria-hidden="true"></i>Gestión de turnos</a></li>
-      @endhasanyrole
-    </ul>
-    <ul class="nav side-menu">
-      @hasanyrole('ADMINISTRADOR|OPERADOR')
-      <li><a><i class="fa fa-file-text" aria-hidden="true"></i>Reportes <span class="fa fa-chevron-down"></span></a>
-        <ul class="nav child_menu">
-          <li><a href="{{ url('reporte.operador') }}">Reporte de operadores</a></li>
-        </ul>
-      </li>
-      @endhasanyrole
     </ul>
     <ul class="nav side-menu">
       @hasrole('ADMINISTRADOR')
