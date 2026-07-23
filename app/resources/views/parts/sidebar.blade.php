@@ -3,6 +3,9 @@
   <div class="menu_section">
     <h3>MENÚ PRINCIPAL</h3>
     <ul class="nav side-menu">
+      @hasanyrole('ADMINISTRADOR|OPERADOR')
+      <li><a href="{{ url('/home') }}"><i class="fa fa-tachometer"></i> Panel de Control</a></li>
+      @endhasanyrole
       <li><a href="{{ url('/') }}"><i class="fa fa-calendar"></i> Nuevo Turno</a></li>
     </ul>
     <ul class="nav side-menu">
