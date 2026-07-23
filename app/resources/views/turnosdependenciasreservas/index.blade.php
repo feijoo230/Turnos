@@ -1,54 +1,82 @@
 @extends('layouts.panel-abm')
 
-@section('title', 'RESERVAS DE TRUNOS POR DEPENDENCIAS')
-@section('subtitle', 'Administración de las reservas de turnos de dependencias.')
+@section('title', 'RESERVAS DE TURNOS')
+@section('subtitle', 'Administración y consulta de turnos reservados por las distintas dependencias')
+
 @section('body')
-    <div class="row">
-      <div class="col-md-12 col-sm-12 col-xs-12">
-        <div class="x_panel">
-          <div class="x_title">
-              {!! Form::open(['route' => 'turnosdependenciasreservas.index', 'method' => 'get']) !!}
-                <div class="form-row">
-                  <div class="form-group col-md-3">
-                    <label for="inputEmail4">Código turno</label>
-                    {!! Form::text('codigo_turno', (isset($codigo_turno)? $codigo_turno : null), ['class' => 'form-control col-md-7 col-xs-12', 'placeholder' => 'Código turno']) !!}
-                  </div>
-                  <div class="form-group col-md-3">
-                    <label for="inputEmail4">Fecha turno</label>
-                    {!! Form::text('fecha_turno', (isset($fecha_turno)? $fecha_turno : null), ['class' => 'form-control', 'placeholder' => 'dd/mm/aaaa']) !!}
-                  </div>
-                  <div class="form-group col-md-3">
-                    <label for="dependencia_id">Dependencia</label>
-                    {!! Form::select('dependencia_id', $dependencias, (isset($dependencia_id)? $dependencia_id : null), ['class' => 'form-control', 'placeholder' => 'Seleccione una dependencia']) !!}
-                  </div>
-                  <div class="form-group col-md-3">
-                    <label for="tramite_id">Trámite</label>
-                    {!! Form::select('tramite_id', $tramites, (isset($tramite_id)? $tramite_id : null), ['class' => 'form-control', 'placeholder' => 'Seleccione un trámite']) !!}
-                  </div>
-                </div>
-                <div class="form-group">
-                  <div class="col-md-12 col-sm-12 col-xs-12">
-                    {{ Form::submit('Buscar', array('class' => 'btn btn-primary pull-right')) }}
-              </form>
-              {!! Form::open(['route' => 'turnosdependenciasreservas.print', 'method' => 'post']) !!}
-                {!! Form::hidden('codigo_turno', (isset($codigo_turno)? $codigo_turno : null)) !!}
-                {!! Form::hidden('fecha_turno', (isset($fecha_turno)? $fecha_turno : null)) !!}
-                <button id="btn-delete-selected" type="button" class="btn btn-danger pull-right" style="display:none; margin-left: 5px;">Eliminar Seleccionados</button>
-                <a href="{{ route('turnosdependenciasreservas.export') }}" class="btn btn-success pull-right"><i class="fa fa-file-excel-o"></i> Exportar</a>
-                {{ Form::submit('Imprimir', array('class' => 'btn btn-secundary pull-right')) }}
-              </form>
-                  </div>
-                </div>
-              <br>
-            <div class="clearfix"></div>
+<div class="row">
+  <div class="col-md-12 col-sm-12 col-xs-12">
+    <div class="x_panel">
+      <div class="x_title">
+        <h2><i class="fa fa-calendar-check-o text-primary"></i> Filtros de Búsqueda de Reservas</h2>
+        <div class="clearfix"></div>
+      </div>
+      <div class="x_content">
+        {!! Form::open(['route' => 'turnosdependenciasreservas.index', 'method' => 'get', 'class' => 'form-horizontal']) !!}
+          <div class="row">
+            <div class="col-md-3 col-sm-6 col-xs-12 form-group">
+              <label for="codigo_turno"><i class="fa fa-barcode"></i> Código de Turno</label>
+              {!! Form::text('codigo_turno', (isset($codigo_turno)? $codigo_turno : null), ['class' => 'form-control', 'placeholder' => 'Ej: TUR-1234']) !!}
+            </div>
+            
+            <div class="col-md-3 col-sm-6 col-xs-12 form-group">
+              <label for="fecha_turno"><i class="fa fa-calendar"></i> Fecha del Turno</label>
+              {!! Form::text('fecha_turno', (isset($fecha_turno)? $fecha_turno : null), ['class' => 'form-control', 'placeholder' => 'DD/MM/AAAA']) !!}
+            </div>
+
+            <div class="col-md-3 col-sm-6 col-xs-12 form-group">
+              <label for="dependencia_id"><i class="fa fa-building-o"></i> Dependencia</label>
+              {!! Form::select('dependencia_id', [null => '--- Todas las dependencias ---'] + (is_array($dependencias)? $dependencias : $dependencias->toArray()), (isset($dependencia_id)? $dependencia_id : null), ['class' => 'form-control']) !!}
+            </div>
+
+            <div class="col-md-3 col-sm-6 col-xs-12 form-group">
+              <label for="tramite_id"><i class="fa fa-list-alt"></i> Trámite</label>
+              {!! Form::select('tramite_id', [null => '--- Todos los trámites ---'] + (is_array($tramites)? $tramites : $tramites->toArray()), (isset($tramite_id)? $tramite_id : null), ['class' => 'form-control']) !!}
+            </div>
           </div>
-          <div class="x_content">
-            @include('turnosdependenciasreservas.table')
-            <div class="text-center">{{ $reservas->appends(['codigo_turno' => $codigo_turno, 'fecha_turno' => $fecha_turno, 'dependencia_id' => $dependencia_id, 'tramite_id' => $tramite_id])->links() }}</div>
+
+          <div class="row" style="margin-top: 10px;">
+            <div class="col-md-12 text-right">
+              <button type="submit" class="btn btn-primary"><i class="fa fa-search"></i> Buscar Reservas</button>
+              <a href="{{ route('turnosdependenciasreservas.index') }}" class="btn btn-default"><i class="fa fa-refresh"></i> Limpiar Filtros</a>
+            </div>
           </div>
-        </div>
+        {!! Form::close() !!}
       </div>
     </div>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-md-12 col-sm-12 col-xs-12">
+    <div class="x_panel">
+      <div class="x_title d-flex justify-content-between align-items-center">
+        <h2><i class="fa fa-list"></i> Listado de Reservas Encontradas</h2>
+        <div class="title_right text-right">
+          <div class="btn-group pull-right">
+            <button id="btn-delete-selected" type="button" class="btn btn-danger" style="display:none; margin-right: 5px;">
+              <i class="fa fa-trash"></i> Eliminar Seleccionados
+            </button>
+            <a href="{{ route('turnosdependenciasreservas.export') }}" class="btn btn-success" style="margin-right: 5px;">
+              <i class="fa fa-file-excel-o"></i> Exportar a Excel
+            </a>
+            {!! Form::open(['route' => 'turnosdependenciasreservas.print', 'method' => 'post', 'style' => 'display:inline;']) !!}
+              {!! Form::hidden('codigo_turno', (isset($codigo_turno)? $codigo_turno : null)) !!}
+              {!! Form::hidden('fecha_turno', (isset($fecha_turno)? $fecha_turno : null)) !!}
+              <button type="submit" class="btn btn-default"><i class="fa fa-print"></i> Imprimir Listado</button>
+            {!! Form::close() !!}
+          </div>
+        </div>
+        <div class="clearfix"></div>
+      </div>
+      <div class="x_content">
+        @include('turnosdependenciasreservas.table')
+        <div class="text-center">{{ $reservas->appends(['codigo_turno' => $codigo_turno, 'fecha_turno' => $fecha_turno, 'dependencia_id' => $dependencia_id, 'tramite_id' => $tramite_id])->links() }}</div>
+      </div>
+    </div>
+  </div>
+</div>
+
 @section('script')
 <script>
 $(function () {
@@ -109,14 +137,13 @@ $(function () {
         }
     });
 
-    // 1. Cuando se muestra el modal, guardar la URL en el propio botón de confirmación
+    // Modal de confirmación de eliminación individual
     $('#deleteModal').on('show.bs.modal', function (event) {
         var button = $(event.relatedTarget);
         var url = button.data('url');
         $('#deleteConfirmBtn').data('url', url); 
     });
 
-    // 2. Manejar el clic en el botón de confirmación de eliminación individual
     $('#deleteConfirmBtn').on('click', function (e) {
         e.preventDefault(); 
         var deleteUrl = $(this).data('url');
