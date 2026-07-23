@@ -40,7 +40,7 @@ Route::get('getdirecciones','frontend\TramitesController@getDirecciones')->name(
 Route::get('gettramites/{id}','frontend\TramitesController@getTramites')->name('gettramites');//valid
 
   
-Route::group(['middleware' => 'auth'], function(){
+Route::group(['middleware' => ['auth', 'role:ADMINISTRADOR|OPERADOR']], function(){
 
   Route::post('feriados/import', 'FeriadosController@import')->name('feriados.import');
   Route::get('feriados.export', 'FeriadosController@export')->name('feriados.export');
@@ -51,7 +51,7 @@ Route::group(['middleware' => 'auth'], function(){
   Route::post('turnosdependenciasreservas.massDestroy', 'TurnosDependenciasReservasController@massDestroy')->name('turnosdependenciasreservas.massDestroy');
   Route::resource('turnosdependenciasreservas', 'TurnosDependenciasReservasController');//Valido
   Route::post('turnosdependenciasreservas.buscar', 'TurnosDependenciasReservasController@buscar')->name('turnosdependenciasreservas.buscar');//Valido
- Route::post('turnosdependenciasreservas.print', 'TurnosDependenciasReservasController@print')->name('turnosdependenciasreservas.print');//Valido
+  Route::post('turnosdependenciasreservas.print', 'TurnosDependenciasReservasController@print')->name('turnosdependenciasreservas.print');//Valido
 
   Route::resource('tramites', 'TramitesDigitalesController');//Valido
   Route::post('tramites.buscar', 'TramitesDigitalesController@buscar')->name('tramites.buscar');//Valido
@@ -64,7 +64,7 @@ Route::group(['middleware' => 'auth'], function(){
   Route::post('listado.operadores','ReporteOperadorController@listado_operadores');
   Route::post('listado.imprimir_listado','ReporteOperadorController@imprimir_listado');
 
-	Route::resource('permisos', 'PermisosController');
+  Route::resource('permisos', 'PermisosController');
   Route::resource('roles', 'RolesController');
   Route::resource('rolespermisos','RolesPermisosController');
   Route::resource('dependencias','DependenciasController');
@@ -74,15 +74,10 @@ Route::group(['middleware' => 'auth'], function(){
   
   Route::get('usuariosdependencias.index/{id_usuario}','UsuariosDependenciasController@index');//Valido
   Route::post('usuariosdependencias.guardar','UsuariosDependenciasController@guardar');//Valido
-   Route::resource('mesashabilitadas', 'MesasHabilitadasController');//Valido
+  Route::resource('mesashabilitadas', 'MesasHabilitadasController');//Valido
 
   Route::get('usuariosroles.index/{id_usuario}','UsuariosRolesController@index');
   Route::post('usuariosroles.guardar','UsuariosRolesController@guardar');
-
-  Route::get('usuarios.mi_perfil','UsuariosController@mi_perfil');
-  Route::post('usuarios.update_perfil','UsuariosController@update_perfil');
-  Route::get('usuarios.edit_password/{usuario_id}','UsuariosController@cambiarPassword');
-  Route::post('usuarios.store_password','UsuariosController@storePassword');
 
   Route::resource('tramitesdependencias', 'TramitesDependenciasController');
   Route::resource('turnostramites', 'TurnosTramitesController');
@@ -98,6 +93,14 @@ Route::group(['middleware' => 'auth'], function(){
   Route::get('turnos_admin.llamar_siguiente', 'TurnosController@llamar_siguiente')->name('turnos_admin.llamar_siguiente');
   Route::get('turnos_admin.terminar_turno/{id_turno}', 'TurnosController@terminar_turno')->name('turnos_admin.terminar_turno');
   Route::get('turnos_admin.es_afiliado/{id_turno}', 'TurnosController@es_afiliado')->name('turnos_admin.es_afiliado');
+});
+
+Route::group(['middleware' => 'auth'], function(){
+  Route::get('mis-turnos', 'frontend\TramitesController@misTurnos')->name('mis-turnos');
+  Route::get('usuarios.mi_perfil','UsuariosController@mi_perfil');
+  Route::post('usuarios.update_perfil','UsuariosController@update_perfil');
+  Route::get('usuarios.edit_password/{usuario_id}','UsuariosController@cambiarPassword');
+  Route::post('usuarios.store_password','UsuariosController@storePassword');
 });
 
 Route::get('auth/google', 'Auth\LoginController@redirectToGoogle')->name('google.login');

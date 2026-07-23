@@ -23,6 +23,10 @@ class HomeController extends Controller
      */
     public function index()
     {
+        if (!auth()->user()->hasRole('ADMINISTRADOR') && !auth()->user()->hasRole('OPERADOR')) {
+            return redirect('/');
+        }
+
         return view('home');
     }
 }
