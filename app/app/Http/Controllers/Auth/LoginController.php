@@ -52,6 +52,11 @@ class LoginController extends Controller
      */
     protected function authenticated(Request $request, $user)
     {
+        if (!$user->activo) {
+            Auth::logout();
+            return redirect()->route('login')->withErrors(['email' => 'Tu cuenta está inactiva. Por favor contacta al administrador.']);
+        }
+
         if ($user->hasRole('ADMINISTRADOR') || $user->hasRole('OPERADOR')) {
             return redirect()->intended($this->redirectPath());
         }
@@ -66,27 +71,44 @@ class LoginController extends Controller
 
     public function handleGoogleCallback()
     {
-        $user = Socialite::driver('google')->user();
-        $finduser = User::where('email', $user->email)->first();
-        if($finduser) {
-            Auth::login($finduser);
-        } else {
-            $newUser = User::create([
-                'name' => $user->name,
-                'email' => $user->email,
-                'google_id' => $user->id,
-                'password' => encrypt('12345678')
-            ]);
-            $rol = Rol::where('name','USUARIO')->first();
-            if($rol){
-                $newUser->assignRole($rol->name);
-            }
-            Auth::login($newUser);
+        try {
+            $googleUser = Socialite::driver('google')->user();
+        } catch (\Exception $e) {
+            return redirect()->route('login')->withErrors(['email' => 'Error al autenticar con Google. Por favor intenta de nuevo.']);
         }
 
-        if (Auth::user()->hasRole('ADMINISTRADOR') || Auth::user()->hasRole('OPERADOR')) {
+        $user = User::where('email', $googleUser->email)->first();
+
+        if ($user) {
+            if (!$user->google_id) {
+                $user->google_id = $googleUser->id;
+                $user->save();
+            }
+        } else {
+            $user = User::create([
+                'name' => $googleUser->name,
+                'email' => $googleUser->email,
+                'google_id' => $googleUser->id,
+                'password' => bcrypt(str_random(16)),
+                'activo' => 1
+            ]);
+
+            $rol = Rol::where('name', 'USUARIO')->first();
+            if ($rol) {
+                $user->assignRole($rol->name);
+            }
+        }
+
+        if (!$user->activo) {
+            return redirect()->route('login')->withErrors(['email' => 'Tu cuenta está inactiva. Por favor contacta al administrador.']);
+        }
+
+        Auth::login($user);
+
+        if ($user->hasRole('ADMINISTRADOR') || $user->hasRole('OPERADOR')) {
             return redirect()->intended($this->redirectPath());
         }
+
         return redirect('/');
     }
 }
