@@ -19,14 +19,27 @@ class DependenciasController extends Controller
 
     public function index()
     {
-        $dependencias = Dependencia::defaultOrder()->get()
-            ->toTree();
+        $dependenciasTree = Dependencia::with(['parent', 'tipoDependencia'])->defaultOrder()->get()->toTree();
+
+        $dependenciasList = Dependencia::with(['parent', 'tipoDependencia'])->defaultOrder()->get();
 
         $result = array();
-        Dependencia::tableTreeWithNivel($dependencias, '', $result);
+        Dependencia::tableTreeWithNivel($dependenciasTree, '', $result);
+
+        $stats = [
+            'total' => Dependencia::count(),
+            'unidades_academicas' => Dependencia::where('es_unidad_academica', true)->count(),
+            'subdependencias' => Dependencia::where(function($q) {
+                $q->where('es_unidad_academica', false)->orWhereNull('es_unidad_academica');
+            })->count(),
+            'mesas_activas' => \App\Models\Mesas_Habilitadas::where('activo', true)->count()
+        ];
 
         return view('dependencias.index')
-            ->with('dependencias', $result);
+            ->with('dependencias', $result)
+            ->with('dependenciasTree', $dependenciasTree)
+            ->with('dependenciasList', $dependenciasList)
+            ->with('stats', $stats);
     }
 
     public function create()

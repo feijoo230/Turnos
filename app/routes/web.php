@@ -74,6 +74,7 @@ Route::group(['middleware' => ['auth', 'role:ADMINISTRADOR|OPERADOR']], function
   
   Route::get('usuariosdependencias.index/{id_usuario}','UsuariosDependenciasController@index');//Valido
   Route::post('usuariosdependencias.guardar','UsuariosDependenciasController@guardar');//Valido
+  Route::get('mesashabilitadas/{id}/toggle', 'MesasHabilitadasController@toggle')->name('mesashabilitadas.toggle');
   Route::resource('mesashabilitadas', 'MesasHabilitadasController');//Valido
 
   Route::get('usuariosroles.index/{id_usuario}','UsuariosRolesController@index');

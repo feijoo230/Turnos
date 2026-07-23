@@ -7,7 +7,7 @@
       <div class="x_title d-flex justify-content-between align-items-center">
         <h2>
           <i class="fa fa-tachometer text-primary"></i> 
-          Panel de Control <small>Observatorio - Universidad Nacional de Salta</small>
+          Panel de Control <small>Universidad Nacional de Salta</small>
         </h2>
         <div class="clearfix"></div>
       </div>

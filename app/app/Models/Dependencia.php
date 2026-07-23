@@ -66,6 +66,11 @@ class Dependencia extends Model
         
     ];
 
+    public function tipoDependencia()
+    {
+        return $this->belongsTo(Tipo_Dependencia::class, 'tipo_dependencia_id', 'id');
+    }
+
     public function usuarios()
     {
         return $this->belongsToMany(Usuario::class, 'usuarios_dependencias', 'dependencia_id', 'usuario_id');
@@ -86,12 +91,20 @@ class Dependencia extends Model
         return $this->attributes['nombre'];        
     }
 
+    public function getStringPathAttribute()
+    {
+        $path = [];
+        $current = $this;
+        while ($current) {
+            array_unshift($path, $current->nombre);
+            $current = $current->parent;
+        }
+        return implode(' > ', $path);
+    }
+
     public function stringPath()
     {
-       if ($this->stringPath) return $this->name;
-
-       $parent = $this->parent;
-       return $this->stringPath = $parent ? $parent->stringPath().' > '.$this->name : $this->name;
+        return $this->string_path;
     }
 
     public function arrayTree()

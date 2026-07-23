@@ -17,26 +17,58 @@ class MesasHabilitadasController extends Controller
 
     public function index()
     {
-        $mesashabilitadas = Mesas_Habilitadas::get();
+        $mesashabilitadas = Mesas_Habilitadas::with(['dependencia.parent', 'dependencia.tipoDependencia'])->get();
+
+        $stats = [
+            'total' => $mesashabilitadas->count(),
+            'activas' => $mesashabilitadas->where('activo', 1)->count(),
+            'inactivas' => $mesashabilitadas->where('activo', 0)->count(),
+            'total_dependencias' => Dependencia::count()
+        ];
 
         return view('mesashabilitadas.index')
-            ->with('mesashabilitadas', $mesashabilitadas);
+            ->with('mesashabilitadas', $mesashabilitadas)
+            ->with('stats', $stats);
+    }
+
+    public function toggle($id)
+    {
+        $mesahabilitada = Mesas_Habilitadas::find($id);
+
+        if ($mesahabilitada) {
+            $mesahabilitada->activo = $mesahabilitada->activo ? 0 : 1;
+            $mesahabilitada->save();
+        }
+
+        return redirect(route('mesashabilitadas.index'));
     }
 
     public function show($id)
     {
-        $mesahabilitada =Mesas_Habilitadas::find($id);
+        $mesahabilitada = Mesas_Habilitadas::with(['dependencia.parent'])->find($id);
 
-        if (empty($rol)) {
-            return 'ERROR!';
+        if (empty($mesahabilitada)) {
+            return redirect(route('mesashabilitadas.index'));
         }
 
-        return view('mesashabilitadas.show')->with('rol', $rol);
+        return view('mesashabilitadas.show')->with('mesahabilitada', $mesahabilitada);
     }
 
     public function create()
     {
-        $dependencias = Dependencia::whereNotIn('id', DB::table('mesas_habilitadas')->where('activo', 1)->pluck('dependencia_id')->toArray())->orderBy('nombre')->pluck('nombre', 'id')->toArray();
+        $dependencias = Dependencia::whereNotIn('id', DB::table('mesas_habilitadas')->where('activo', 1)->pluck('dependencia_id')->toArray())
+            ->orderBy('nombre')
+            ->get()
+            ->mapWithKeys(function ($dep) {
+                return [$dep->id => $dep->string_path];
+            })
+            ->toArray();
+
+        if (empty($dependencias)) {
+            $dependencias = Dependencia::orderBy('nombre')->get()->mapWithKeys(function ($dep) {
+                return [$dep->id => $dep->string_path];
+            })->toArray();
+        }
 
         return view('mesashabilitadas.create')->with(compact('dependencias'));
     }
@@ -60,7 +92,9 @@ class MesasHabilitadasController extends Controller
     {
         $mesahabilitada = Mesas_Habilitadas::find($id);
 
-        $dependencias = Dependencia::whereNotIn('id', DB::table('mesas_habilitadas')->where('activo', 1)->pluck('dependencia_id')->toArray())->orderBy('nombre')->pluck('nombre', 'id')->toArray();
+        $dependencias = Dependencia::orderBy('nombre')->get()->mapWithKeys(function ($dep) {
+            return [$dep->id => $dep->string_path];
+        })->toArray();
 
         return view('mesashabilitadas.edit')->with('mesahabilitada', $mesahabilitada)->with(compact('dependencias'));
     }
@@ -68,7 +102,7 @@ class MesasHabilitadasController extends Controller
     public function update($id, Request $request)
     {
         $mesahabilitada = Mesas_Habilitadas::find($id);
-        $mesahabilitada->activo = $request['activo'];
+        $mesahabilitada->activo = $request->has('activo') ? 1 : 0;
 
         $mesahabilitada->save();
 
@@ -77,10 +111,10 @@ class MesasHabilitadasController extends Controller
 
     public function destroy($id)
     {
-        $mesahabilitada =Mesas_Habilitadas::find($id);
-        $mesahabilitada->activo = 0;
-
-        $mesahabilitada->save();
+        $mesahabilitada = Mesas_Habilitadas::find($id);
+        if ($mesahabilitada) {
+            $mesahabilitada->delete();
+        }
 
         return redirect(route('mesashabilitadas.index'));
     }
