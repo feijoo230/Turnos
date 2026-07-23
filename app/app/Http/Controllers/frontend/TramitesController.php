@@ -549,4 +549,16 @@ class TramitesController extends Controller
 
         return response()->json($disabled_dates);
     }
+
+    public function misTurnos()
+    {
+        $user = auth()->user();
+        $reservas = Turnos_Dependencias_Reservas::with(['turno_horario.turno_tramite.tramite.dependencia'])
+            ->where('email', $user->email)
+            ->orderBy('fecha', 'desc')
+            ->orderBy('hora', 'desc')
+            ->get();
+
+        return view('frontend.mis-turnos', compact('reservas'));
+    }
 }

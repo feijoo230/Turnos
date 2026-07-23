@@ -36,10 +36,18 @@
 
 <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
   <li>
+    <a class="dropdown-item" href="{{ route('mis-turnos') }}">
+      <i class="fas fa-calendar-alt"></i> Mis Turnos
+    </a>
+  </li>
+  @hasanyrole('ADMINISTRADOR|OPERADOR')
+  <li>
     <a class="dropdown-item" href="{{ url('/home') }}">
       <i class="fas fa-tachometer-alt"></i> Panel de Control
     </a>
   </li>
+  @endhasanyrole
+  <li><hr class="dropdown-divider"></li>
   <li>
     <a class="dropdown-item" href="{{ route('logout') }}" 
        onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
