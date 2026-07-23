@@ -65,10 +65,13 @@
                             </div>
                         </div>
                     </form>
-                    <div class="flex items-center justify-end mt-4">
-                        <a href="{{ route('google.login') }}">
-                            <img src="https://developers.google.com/identity/images/btn_google_signin_dark_normal_web.png" style="margin-left: 3em;">
-                        </a>
+                    <div class="form-group row mt-3">
+                        <div class="col-md-8 offset-md-4">
+                            <a href="{{ route('google.login') }}" class="btn btn-primary">
+                                <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="Google" style="width: 18px; margin-right: 8px; margin-bottom: 2px;">
+                                Iniciar sesión con Google
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>
