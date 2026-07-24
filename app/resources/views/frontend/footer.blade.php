@@ -1,18 +1,14 @@
 <!-- Footer -->
-<footer class="footer bg-light" style="padding: 10px 0 10px 0;">
-<div class="container">
-  <div class="row">
-    <div class="col-md-12 col-lg-12 text-center">
-      <h5>{{ config('constants.TITULO_PAGINA', 'Laravel') }}</h5>
-      <h6>UNIVERSIDAD NACIONAL DE SALTA</h6>
+<footer class="footer bg-white border-top py-4 mt-auto">
+  <div class="container text-center">
+    <div class="row align-items-center">
+      <div class="col-md-12">
+        <img src="{{ url('img/logounsa.png') }}" alt="UNSa" style="height: 60px;" class="mb-2">
+        <h6 class="font-weight-bold text-dark mb-0">{{ config('constants.TITULO_PAGINA', 'Mesa de Entradas Virtual') }}</h6>
+        <small class="text-muted">UNIVERSIDAD NACIONAL DE SALTA</small>
+        <hr class="my-3 style-six" style="max-width: 300px; margin: 15px auto;">
+        <p class="small text-muted mb-0">&copy; {{ date('Y') }} Universidad Nacional de Salta &bull; Todos los derechos reservados.</p>
+      </div>
     </div>
   </div>
-  <div class="row">
-    <div class="col-md-12 col-lg-12 text-center">
-      <hr>
-      <img src="{{ url('img/logounsa.png') }}" style="height: 120px;">
-      <p class="copyright">Copyright &copy; 2020 Universidad Nacional de Salta</p>
-    </div>
-  </div>
-</div>
 </footer>

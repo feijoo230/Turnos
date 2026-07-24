@@ -1,58 +1,67 @@
 @extends('layouts.frontend')
 @section('content')
 
-<div class="container">
-	<div class="row justify-content-md-center">
-		<div class="col-md-11">
-			<div class="card box-turno">
-				<div class="card-body">
-					<div class="encabezado">
-					  	<ul class="list-group list-group-horizontal-lg">
-							<li class="list-group-item"><span class="fa-stack"><span class="far fa-circle fa-2x"></span><span class="fa-stack-1x">#1</span></span> Dirección</li>
-							<li class="list-group-item active"><span class="fa-stack"><span class="far fa-circle fa-2x"></span><span class="fa-stack-1x">#2</span></span> Fecha y hora</li>
-							<li class="list-group-item"><span class="fa-stack"><span class="far fa-circle fa-2x"></span><span class="fa-stack-1x">#3</span></span> Confirmación</li>
-						</ul>
-						<p class="titulo">SELECCIONE FECHA Y HORA.</p>
+<div class="row justify-content-center">
+	<div class="col-lg-11 col-xl-10">
+		<div class="card box-turno">
+			<div class="card-body p-4">
+				<!-- Stepper Wizard -->
+				<div class="wizard-steps mb-4">
+					<div class="wizard-step-item">
+						<div class="wizard-step-circle"><i class="fas fa-check text-success"></i></div>
+						<span class="wizard-step-title">1. Selección</span>
 					</div>
+					<div class="wizard-step-item active">
+						<div class="wizard-step-circle"><i class="fas fa-calendar-alt"></i></div>
+						<span class="wizard-step-title">2. Fecha y Hora</span>
+					</div>
+					<div class="wizard-step-item">
+						<div class="wizard-step-circle">3</div>
+						<span class="wizard-step-title">3. Confirmación</span>
+					</div>
+				</div>
 
-					{!! Form::open(['route' => 'tramite.paso3', 'files'=>'true', 'class' => 'form-horizontal text-center', 'method' => 'get']) !!}
-						<div class="row">
-							<div class="col-md-7 col-sm-12">
-								<div class="text-center" style="margin: 0 auto;">
-									<div id="datepicker1" style="color: #000000;"></div>
-								</div>
+				<div class="text-center mb-4">
+					<h4 class="font-weight-bold text-dark mb-1"><i class="fas fa-clock text-success mr-2"></i>Seleccione Fecha y Hora Disponible</h4>
+					<p class="text-muted small mb-0">Seleccione un día marcado en el calendario y elija el horario conveniente.</p>
+				</div>
+
+				{!! Form::open(['route' => 'tramite.paso3', 'files'=>'true', 'class' => 'form-horizontal', 'method' => 'get']) !!}
+					<div class="row align-items-stretch my-3">
+						<div class="col-lg-7 col-md-12 mb-4 mb-lg-0 text-center">
+							<div class="p-4 bg-light rounded-lg border border-light shadow-xs h-100 d-flex flex-column justify-content-center" style="border-radius: 16px;">
+								<h5 class="font-weight-bold text-dark mb-3"><i class="fas fa-calendar-day text-primary mr-2"></i> Calendario de Días Habilitados</h5>
+								<div id="datepicker1" class="d-inline-block w-100"></div>
 							</div>
-							<div class="col-md-5 col-sm-12">
-								<div id="list-horarios" style="color: #000000;">
-									<select name="turno_hora" size="30" class="select list-group overflow-auto text-center shadow-sm" style="max-height: 267px; font-size: 1.1em; margin-bottom: 10px; width: 100%; border: 1px solid #dee2e6; border-radius: 8px;" required="true">
-										
-									</select>
+						</div>
 
+						<div class="col-lg-5 col-md-12 text-center">
+							<div class="p-4 bg-light rounded-lg border border-light shadow-xs h-100 d-flex flex-column justify-content-center" style="border-radius: 16px;">
+								<h5 class="font-weight-bold text-dark mb-3"><i class="fas fa-user-clock text-success mr-2"></i> Horarios Disponibles</h5>
+								<div id="list-horarios" style="min-height: 280px;" class="d-flex align-items-center justify-content-center">
+									<div class="text-muted py-4">
+										<i class="fas fa-mouse-pointer fa-3x mb-3 d-block opacity-50 text-primary"></i>
+										<span class="font-weight-bold d-block" style="font-size: 1rem;">Haga clic en una fecha habilitada del calendario</span>
+										<small class="text-muted">Se desplegarán las franjas horarias disponibles.</small>
+									</div>
 								</div>
 							</div>
 						</div>
-						<!--
-						<div class="row">
-							<ul style="text-align: left;">
-							@foreach($feriados_text as $feriado)
-								<div class="col-md-12 col-sm-12">
-									<li class="small" style="margin: 0px; color: #000000;">{{$feriado->fecha}} {{ $feriado->observacion }}</li>
-								</div>
-							@endforeach
-							</ul>
-						<div></div>
-						-->
-				</div>
-				<div class="card-footer">
-					<div style="text-align: right;">
-					  	<button onclick="location.href='{!! route('tramite.index') !!}'" class="btn btn-secondary pull-right" type="button">Atrás</button>
-					    <button type="submit" class="btn btn-primary">Siguiente</button>
 					</div>
-				</div>
 
-				<input id="turno_fecha" name="turno_fecha" type="hidden">
-					</form>
-				
+					<input id="turno_fecha" name="turno_fecha" type="hidden">
+
+					<hr class="my-4">
+
+					<div class="d-flex justify-content-between align-items-center">
+						<button onclick="location.href='{!! route('tramite.index') !!}'" class="btn btn-outline-secondary font-weight-bold" type="button" style="border-radius: 10px; padding: 10px 22px;">
+							<i class="fas fa-arrow-left mr-1"></i> Volver Paso Anterior
+						</button>
+						<button type="submit" class="btn btn-gradient-primary">
+							Continuar a Confirmación <i class="fas fa-arrow-right ml-1"></i>
+						</button>
+					</div>
+				{!! Form::close() !!}
 			</div>
 		</div>
 	</div>
@@ -73,10 +82,7 @@
 			"_token": "{{ csrf_token() }}"
 		},
 		success: function(data) {
-			console.log("Feriados:", disableddates);
-			console.log("Disabled dates from server:", data);
 			disableddates = disableddates.concat(data);
-			console.log("All disabled dates:", disableddates);
 			initDatepicker();
 		},
 		error: function() {
@@ -111,15 +117,9 @@
 				ajax();
 			},
 			beforeShowDay: function(date) {
-				//inhabilitados los fines de semana
-			   var show = true;
 			   if(date.getDay()==6||date.getDay()==0) return [false];
-			   //inhabilitados los feriados
 			   var string = jQuery.datepicker.formatDate('dd/mm/yy', date);
 			   var isDisabled = disableddates.indexOf(string) != -1;
-			   if (isDisabled) {
-				   console.log("Disabling date:", string);
-			   }
 			   return [ !isDisabled, 'unavailable']
 			},
 			minDate: "<?= $fecha_desde ?>",
@@ -128,6 +128,7 @@
 	}
 
 	function ajax() {
+		$('#list-horarios').html('<div class="py-4 text-center text-primary"><i class="fas fa-spinner fa-spin fa-2x mb-2"></i><p class="small font-weight-bold mb-0">Cargando horarios disponibles...</p></div>');
 		$.ajax({
           url:'{{ route("turnos.loadhorarios") }}',
           data:{
@@ -139,15 +140,8 @@
           success: function (data) {
           	$('#list-horarios').html(data);
           },
-          statusCode: {
-             404: function() {
-                alert('web not found');
-             }
-          },
           error:function(x,xs,xt){
-              //nos dara el error si es que hay alguno
-              window.open(JSON.stringify(x));
-              //alert('error: ' + JSON.stringify(x) +"\n error string: "+ xs + "\n error throwed: " + xt);
+              alert('Ocurrió un error al consultar los horarios. Por favor reintente.');
           }
        });
 	}

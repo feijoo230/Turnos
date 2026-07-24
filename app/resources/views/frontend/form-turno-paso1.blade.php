@@ -1,33 +1,47 @@
 @extends('layouts.frontend')
 @section('content')
 
-<div class="container">
-	<div class="row justify-content-md-center">
-		<div class="col-md-11">
-			<div class="card box-turno box-paso1">
-				<div class="card-body">
-					<div class="encabezado">
-					  	<ul class="list-group list-group-horizontal-lg" >
-							<li class="list-group-item item-active text-center"><span class="fa-stack"><span class="far fa-circle fa-2x"></span><span class="fa-stack-1x">#1</span></span> Dirección</li>
-							<li class="list-group-item"><span class="fa-stack"><span class="far fa-circle fa-2x"></span><span class="fa-stack-1x">#2</span></span> Fecha y hora</li>
-							<li class="list-group-item"><span class="fa-stack"><span class="far fa-circle fa-2x"></span><span class="fa-stack-1x">#3</span></span> Confirmación</li>
-						</ul>
-						<p class="titulo">SELECCIONE UNA DIRECCIÓN Y TRÁMITE.</p>
+<div class="row justify-content-center">
+	<div class="col-lg-10 col-xl-9">
+		<div class="card box-turno">
+			<div class="card-body p-4">
+				<!-- Stepper Wizard -->
+				<div class="wizard-steps mb-4">
+					<div class="wizard-step-item active">
+						<div class="wizard-step-circle"><i class="fas fa-university"></i></div>
+						<span class="wizard-step-title">1. Selección</span>
 					</div>
- 
-					{!! Form::open(['route' => 'tramite.paso2', 'files'=>'true', 'class' => 'form-horizontal text-center', 'method' => 'get']) !!}
-					
-						<div id="app">
-				          <direccion-tramite dep_select_id="{{$dependencia_id}}" ></direccion-tramite>
-				        </div>
-				</div>
-				<div class="card-footer">
-					<div style="text-align: right;">
-						<button type="submit" class="btn btn-primary">Siguiente</button>
+					<div class="wizard-step-item">
+						<div class="wizard-step-circle">2</div>
+						<span class="wizard-step-title">2. Fecha y Hora</span>
+					</div>
+					<div class="wizard-step-item">
+						<div class="wizard-step-circle">3</div>
+						<span class="wizard-step-title">3. Confirmación</span>
 					</div>
 				</div>
-					</form>
 
+				<div class="text-center mb-4">
+					<h4 class="font-weight-bold text-dark mb-1"><i class="fas fa-sitemap text-primary mr-2"></i>Seleccione la Oficina y el Trámite</h4>
+					<p class="text-muted small mb-0">Elija la dependencia académica o administrativa donde desea ser atendido.</p>
+				</div>
+
+				{!! Form::open(['route' => 'tramite.paso2', 'files'=>'true', 'class' => 'form-horizontal text-center', 'method' => 'get']) !!}
+					<div id="app" class="my-3">
+						<direccion-tramite dep_select_id="{{$dependencia_id}}"></direccion-tramite>
+					</div>
+
+					<hr class="my-4">
+
+					<div class="d-flex justify-content-between align-items-center">
+						<a href="{{ url('/') }}" class="btn btn-outline-secondary font-weight-bold" style="border-radius: 10px; padding: 8px 20px;">
+							<i class="fas fa-arrow-left mr-1"></i> Volver
+						</a>
+						<button type="submit" class="btn btn-gradient-primary">
+							Siguiente Paso <i class="fas fa-arrow-right ml-1"></i>
+						</button>
+					</div>
+				{!! Form::close() !!}
 			</div>
 		</div>
 	</div>
