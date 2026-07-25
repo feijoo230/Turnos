@@ -32,6 +32,8 @@ Route::get('tramite.paso2','frontend\TramitesController@paso2')->name('tramite.p
 Route::get('tramite.paso3','frontend\TramitesController@paso3')->name('tramite.paso3');//Valido
 Route::post('tramite.guardar','frontend\TramitesController@guardar')->name('tramite.guardar');//Valido
 Route::get('tramite/confirmacion/{id}', 'frontend\TramitesController@confirmacion')->name('tramite.confirmacion');
+Route::get('reserva/{codigo}/integrantes', 'frontend\TramitesController@cargarIntegrantesForm')->name('tramite.integrantes.form');
+Route::post('reserva/{codigo}/integrantes', 'frontend\TramitesController@guardarIntegrantes')->name('tramite.integrantes.guardar');
 
 Route::get('turno.buscar','frontend\TramitesController@buscar')->name('turno.buscar');//Valid
 
@@ -49,6 +51,7 @@ Route::group(['middleware' => ['auth', 'role:ADMINISTRADOR|OPERADOR']], function
 
   Route::get('turnosdependenciasreservas/export', 'TurnosDependenciasReservasController@export')->name('turnosdependenciasreservas.export');
   Route::post('turnosdependenciasreservas.massDestroy', 'TurnosDependenciasReservasController@massDestroy')->name('turnosdependenciasreservas.massDestroy');
+  Route::post('turnosdependenciasreservas/{id}/estado', 'TurnosDependenciasReservasController@cambiarEstado')->name('turnosdependenciasreservas.cambiarEstado');
   Route::resource('turnosdependenciasreservas', 'TurnosDependenciasReservasController');//Valido
   Route::post('turnosdependenciasreservas.buscar', 'TurnosDependenciasReservasController@buscar')->name('turnosdependenciasreservas.buscar');//Valido
   Route::post('turnosdependenciasreservas.print', 'TurnosDependenciasReservasController@print')->name('turnosdependenciasreservas.print');//Valido

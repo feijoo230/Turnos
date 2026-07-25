@@ -51,8 +51,23 @@ class TramitesDependenciasController extends Controller
     public function store(StoreTramitesDependecia $request)
     {
         $input = $request->all();
-        // Si no se ha configurado 'activo' entonces guardamos el tramite como no activo
-        $input['activo'] = isset($input['activo']); 
+        $input['activo'] = $request->has('activo'); 
+        $modalidad = $request->input('tipo_modalidad', 'individual');
+        $input['tipo_modalidad'] = $modalidad;
+        $input['permite_grupal'] = ($modalidad !== 'individual');
+
+        if ($modalidad === 'individual') {
+            $input['max_personas_reserva'] = 1;
+            $input['min_personas_reserva'] = 1;
+            $input['requiere_institucion'] = false;
+            $input['requiere_nomina'] = false;
+        } else {
+            $input['requiere_institucion'] = $request->has('requiere_institucion');
+            $input['requiere_nomina'] = $request->has('requiere_nomina');
+            $input['max_personas_reserva'] = $request->input('max_personas_reserva', 10);
+            $input['min_personas_reserva'] = $request->input('min_personas_reserva', 1);
+        }
+
         $tramitedependencia = Dependencia_Tramite::create($input);
 
         return redirect(route('tramitesdependencias.index'));
@@ -70,28 +85,44 @@ class TramitesDependenciasController extends Controller
 
     public function update($id, StoreTramitesDependecia $request)
     {
-        $tramitedependencia = Dependencia_Tramite::find($id);
-        $tramitedependencia->nombre = $request['nombre'];
-        $tramitedependencia->dependencia_id = $request['dependencia_id'];
-        $tramitedependencia->activo = isset($request['activo'])? $request['activo'] : 0;
+        $tramitedependencia = Dependencia_Tramite::findOrFail($id);
+        $input = $request->all();
+        $input['activo'] = $request->has('activo'); 
+        $modalidad = $request->input('tipo_modalidad', 'individual');
+        $input['tipo_modalidad'] = $modalidad;
+        $input['permite_grupal'] = ($modalidad !== 'individual');
 
-        $tramitedependencia->save();
+        if ($modalidad === 'individual') {
+            $input['max_personas_reserva'] = 1;
+            $input['min_personas_reserva'] = 1;
+            $input['requiere_institucion'] = false;
+            $input['requiere_nomina'] = false;
+        } else {
+            $input['requiere_institucion'] = $request->has('requiere_institucion');
+            $input['requiere_nomina'] = $request->has('requiere_nomina');
+            $input['max_personas_reserva'] = $request->input('max_personas_reserva', 10);
+            $input['min_personas_reserva'] = $request->input('min_personas_reserva', 1);
+        }
+
+        $tramitedependencia->update($input);
 
         return redirect(route('tramitesdependencias.index'));
     }
 
     public function destroy($id)
     {
-        $tramitedependencia = Dependencia_Tramite::find($id);
+        try {
+            $tramitedependencia = Dependencia_Tramite::find($id);
 
-        if (empty($tramitedependencia)) {
-            Flash::error('Permiso not found');
+            if (empty($tramitedependencia)) {
+                return redirect(route('tramitesdependencias.index'))->with('error', 'Trámite no encontrado');
+            }
 
-            return redirect(route('tramitesdependencias.index'));
+            $tramitedependencia->delete();
+
+            return redirect(route('tramitesdependencias.index'))->with('success', 'Trámite eliminado con éxito.');
+        } catch (\Exception $e) {
+            return redirect(route('tramitesdependencias.index'))->with('error', 'No se puede eliminar el trámite porque posee datos o reservas asociadas.');
         }
-
-        $tramitedependencia->delete();
-
-        return redirect(route('tramitesdependencias.index'));
     }
 }

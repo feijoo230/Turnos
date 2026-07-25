@@ -84,6 +84,20 @@ class TurnosDependenciasReservasController extends Controller
         return redirect(route('turnosdependenciasreservas.index'))->with('success', 'Reserva actualizada con éxito');
     }
 
+    public function cambiarEstado(Request $request, $id)
+    {
+        $reserva = Turnos_Dependencias_Reservas::find($id);
+
+        if (empty($reserva)) {
+            return back()->with('error', 'Reserva no encontrada');
+        }
+
+        $reserva->estado_id = $request->input('estado_id', 1);
+        $reserva->save();
+
+        return back()->with('success', 'El estado de la reserva ha sido actualizado con éxito.');
+    }
+
     public function edit($id)
     {
         $reserva = Turnos_Dependencias_Reservas::with('turno_tramite.tramite.dependencia')->find($id);

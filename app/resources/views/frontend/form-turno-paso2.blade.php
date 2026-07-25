@@ -109,6 +109,8 @@
 	};
 	$.datepicker.setDefaults($.datepicker.regional['es']);
 
+	var diasActivos = <?php echo json_encode($dias_activos ?? []); ?>;
+
 	function initDatepicker() {
 		$("#datepicker1").datepicker({
 			onSelect: function() { 
@@ -117,10 +119,14 @@
 				ajax();
 			},
 			beforeShowDay: function(date) {
-			   if(date.getDay()==6||date.getDay()==0) return [false];
-			   var string = jQuery.datepicker.formatDate('dd/mm/yy', date);
-			   var isDisabled = disableddates.indexOf(string) != -1;
-			   return [ !isDisabled, 'unavailable']
+				var dayMap = {0: 'domingo', 1: 'lunes', 2: 'martes', 3: 'miercoles', 4: 'jueves', 5: 'viernes', 6: 'sabado'};
+				var dayName = dayMap[date.getDay()];
+				if (diasActivos && diasActivos[dayName] === false) {
+					return [false];
+				}
+				var string = jQuery.datepicker.formatDate('dd/mm/yy', date);
+				var isDisabled = disableddates.indexOf(string) != -1;
+				return [ !isDisabled, 'unavailable'];
 			},
 			minDate: "<?= $fecha_desde ?>",
 			maxDate: "<?= $turno_dependencia->fecha_hasta->format('d/m/Y') ?>"

@@ -83,23 +83,43 @@
 						</div>
 					</div>
 
-					@if($turno_reserva->es_grupal)
 					<hr class="my-3">
 					<div class="row">
-						<div class="col-md-6 col-12 mb-2">
+						<div class="col-md-6 col-12 mb-3">
 							<small class="text-muted d-block font-weight-bold text-uppercase" style="font-size: 0.75rem;">Tipo de Reserva</small>
-							<span class="badge badge-info px-3 py-2" style="font-size: 0.9rem;"><i class="fas fa-users mr-1"></i> Reserva Grupal</span>
+							@if($turno_reserva->nombre_institucion)
+								<span class="badge px-3 py-2 text-white font-weight-bold" style="font-size: 0.9rem; background-color: #2563eb; color: #ffffff !important;"><i class="fas fa-university mr-1"></i> Reserva Institucional</span>
+							@elseif($turno_reserva->es_grupal)
+								<span class="badge px-3 py-2 text-white font-weight-bold" style="font-size: 0.9rem; background-color: #0284c7; color: #ffffff !important;"><i class="fas fa-users mr-1"></i> Reserva Grupal</span>
+							@else
+								<span class="badge px-3 py-2 text-white font-weight-bold" style="font-size: 0.9rem; background-color: #475569; color: #ffffff !important;"><i class="fas fa-user mr-1"></i> Reserva Individual</span>
+							@endif
 						</div>
-						<div class="col-md-6 col-12 mb-2">
-							<small class="text-muted d-block font-weight-bold text-uppercase" style="font-size: 0.75rem;">Cantidad de Integrantes</small>
-							<span class="font-weight-bold text-dark">{!! $turno_reserva->cantidad_personas !!} personas</span>
+						<div class="col-md-6 col-12 mb-3">
+							<small class="text-muted d-block font-weight-bold text-uppercase" style="font-size: 0.75rem;">Cantidad de Asistentes</small>
+							<span class="font-weight-bold text-dark" style="font-size: 1rem;">{!! $turno_reserva->cantidad_personas !!} persona(s)</span>
 						</div>
 						@if($turno_reserva->nombre_institucion)
-						<div class="col-12 mt-2">
+						<div class="col-12 mt-1 mb-3">
 							<small class="text-muted d-block font-weight-bold text-uppercase" style="font-size: 0.75rem;">Institución / Colegio</small>
-							<span class="font-weight-bold text-dark">{!! $turno_reserva->nombre_institucion !!}</span>
+							<span class="font-weight-bold text-dark" style="font-size: 1rem;">
+								<i class="fas fa-school text-primary mr-1"></i> {!! $turno_reserva->nombre_institucion !!} @if($turno_reserva->nivel_institucion) ({!! $turno_reserva->nivel_institucion !!}) @endif
+							</span>
 						</div>
 						@endif
+					</div>
+
+					@if($turno_reserva->es_grupal || $turno_reserva->nombre_institucion)
+					<div class="alert alert-info mt-2 mb-0 border-0 shadow-xs text-left" style="border-radius: 10px; background: #e0f2fe; color: #0369a1;">
+						<div class="d-flex align-items-center justify-content-between flex-wrap" style="gap: 10px;">
+							<div>
+								<strong class="d-block"><i class="fas fa-file-excel mr-1"></i> ¿Necesita cargar o modificar la lista de integrantes para el seguro escolar?</strong>
+								<small class="d-block">Puede ingresar en cualquier momento con su código de reserva desde la consulta de turno.</small>
+							</div>
+							<a href="{!! route('tramite.integrantes.form', [$turno_reserva->codigo]) !!}" class="btn btn-info btn-sm font-weight-bold shadow-sm" style="border-radius: 8px;">
+								<i class="fas fa-upload mr-1"></i> Cargar / Ver Integrantes
+							</a>
+						</div>
 					</div>
 					@endif
 				</div>

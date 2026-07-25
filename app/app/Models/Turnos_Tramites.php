@@ -27,7 +27,7 @@ class Turnos_Tramites extends Model
     
     public function tramite()
     {
-        return $this->belongsTo(Dependencia_Tramite::class, 'dependencia_tramite_id', 'id');
+        return $this->belongsTo(Dependencia_Tramite::class, 'dependencia_tramite_id', 'id')->withTrashed();
     }
     public function turnosHorarios()
     {

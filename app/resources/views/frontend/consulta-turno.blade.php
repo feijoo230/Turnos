@@ -23,7 +23,7 @@
 
 				@if (session('turno_reserva_busqueda'))
 					@php($turno_reserva_busqueda = session('turno_reserva_busqueda'))
-					<div id="alert-consulta" class="mt-4 text-left">
+					<div id="alert-consulta" class="mt-4 text-left text-start">
 						<div class="card border-primary shadow-xs" style="border-radius: 12px; border-width: 2px;">
 							<div class="card-header bg-primary text-white font-weight-bold d-flex justify-content-between align-items-center" style="border-radius: 10px 10px 0 0;">
 								<span><i class="fas fa-ticket-alt mr-1"></i> RESERVA ENCONTRADA: {!! $turno_reserva_busqueda->codigo !!}</span>
@@ -37,9 +37,34 @@
 									<p class="mb-1"><strong><i class="fas fa-list-alt text-success mr-1"></i> Trámite:</strong> {!! $turno_reserva_busqueda->turno_tramite->tramite->nombre !!}</p>
 								@endif
 								<p class="mb-1"><strong><i class="fas fa-calendar-check text-info mr-1"></i> Fecha y Hora:</strong> {!! $turno_reserva_busqueda->fecha_hora->format('d/m/Y H:i') !!} hs</p>
-								<p class="mb-1"><strong><i class="fas fa-user text-secondary mr-1"></i> Nombre y Apellido:</strong> {!! $turno_reserva_busqueda->nombre_apellido !!}</p>
+								<p class="mb-1"><strong><i class="fas fa-user text-secondary mr-1"></i> Titular / Responsable:</strong> {!! $turno_reserva_busqueda->nombre_apellido !!}</p>
 								<p class="mb-1"><strong><i class="fas fa-id-card text-secondary mr-1"></i> DNI:</strong> {!! $turno_reserva_busqueda->dni !!}</p>
-								<p class="mb-3"><strong><i class="fas fa-envelope text-secondary mr-1"></i> Email:</strong> {!! $turno_reserva_busqueda->email !!}</p>
+								<p class="mb-2"><strong><i class="fas fa-envelope text-secondary mr-1"></i> Email:</strong> {!! $turno_reserva_busqueda->email !!}</p>
+
+								<div class="mb-3">
+									<strong><i class="fas fa-info-circle text-primary mr-1"></i> Tipo de Reserva:</strong>
+									@if($turno_reserva_busqueda->nombre_institucion)
+										<span class="badge px-3 py-1 text-white font-weight-bold" style="background-color: #2563eb; color: #ffffff !important; font-size: 0.85rem;"><i class="fas fa-university mr-1"></i> Institucional ({!! $turno_reserva_busqueda->nombre_institucion !!})</span>
+									@elseif($turno_reserva_busqueda->es_grupal)
+										<span class="badge px-3 py-1 text-white font-weight-bold" style="background-color: #0284c7; color: #ffffff !important; font-size: 0.85rem;"><i class="fas fa-users mr-1"></i> Grupal ({!! $turno_reserva_busqueda->cantidad_personas !!} personas)</span>
+									@else
+										<span class="badge px-3 py-1 text-white font-weight-bold" style="background-color: #475569; color: #ffffff !important; font-size: 0.85rem;"><i class="fas fa-user mr-1"></i> Individual</span>
+									@endif
+								</div>
+
+								@if($turno_reserva_busqueda->es_grupal || $turno_reserva_busqueda->nombre_institucion)
+									<div class="alert alert-info mb-3 border-0 shadow-xs" style="border-radius: 10px; background: #e0f2fe; color: #0369a1;">
+										<div class="d-flex align-items-center justify-content-between flex-wrap" style="gap: 10px;">
+											<div>
+												<strong class="d-block"><i class="fas fa-file-excel mr-1"></i> Nómina de Asistentes ({!! $turno_reserva_busqueda->integrantes ? $turno_reserva_busqueda->integrantes->count() : 0 !!} cargados de {!! $turno_reserva_busqueda->cantidad_personas !!})</strong>
+												<small class="d-block">Puede cargar o actualizar la nómina en línea o con Excel sin estar logueado.</small>
+											</div>
+											<a href="{!! route('tramite.integrantes.form', [$turno_reserva_busqueda->codigo]) !!}" class="btn btn-info btn-sm font-weight-bold shadow-sm" style="border-radius: 8px;">
+												<i class="fas fa-user-edit mr-1"></i> Cargar / Editar Integrantes
+											</a>
+										</div>
+									</div>
+								@endif
 								
 								<div class="text-center pt-2 border-top">
 									<a href="{!! route('turnos.print', [$turno_reserva_busqueda->id]) !!}" class="btn btn-danger font-weight-bold" style="border-radius: 8px;">

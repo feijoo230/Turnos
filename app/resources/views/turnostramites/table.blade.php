@@ -23,8 +23,17 @@
   <tbody>
   @foreach($turnostramites as $turnostramite)
     <tr>
-      <td>{!! $turnostramite->tramite->dependencia->nombre !!}</td>
-      <td>{!! $turnostramite->tramite->nombre !!}</td>
+      <td>{!! optional(optional($turnostramite->tramite)->dependencia)->nombre ?? '<span class="text-muted">&mdash;</span>' !!}</td>
+      <td>
+        @if ($turnostramite->tramite)
+          {!! $turnostramite->tramite->nombre !!}
+          @if ($turnostramite->tramite->trashed())
+            <span class="label label-danger" style="font-size: 10px; margin-left: 4px;">Eliminado</span>
+          @endif
+        @else
+          <span class="text-muted">&mdash;</span>
+        @endif
+      </td>
       <td>{!! $turnostramite->fecha_desde->format('d/m/Y') !!}</td>
       <td>{!! $turnostramite->fecha_hasta->format('d/m/Y') !!}</td>
       <td>{!! $turnostramite->activo ? 'Si' : 'No' !!}</td>

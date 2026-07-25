@@ -9,22 +9,23 @@
       <th>Personas</th>
       <th>Institución</th>
       <th>Dependencia</th>
-      <th>Acción</th>
+      <th class="text-center">Estado</th>
+      <th class="text-center" style="width: 140px;">Acciones</th>
     </tr>
   </thead>
   <tbody>
   @foreach($reservas as $reserva)
     <tr>
       <td><input type="checkbox" class="select-item" value="{{ $reserva->id }}"></td>
-      <td>{!! $reserva->codigo !!}</td>
-      <td>{!! $reserva->fecha_hora->format('d/m/Y h:i') !!}</td>
+      <td><strong>{!! $reserva->codigo !!}</strong></td>
+      <td>{!! $reserva->fecha_hora->format('d/m/Y H:i') !!} hs</td>
       <td>{!! $reserva->nombre_apellido !!}</td>
       <td>{!! $reserva->dni !!}</td>
       <td>
         @if($reserva->es_grupal)
-          <span class="badge badge-info">{!! $reserva->cantidad_personas !!} (Grupal)</span>
+          <span class="label label-info" style="font-size: 11px;"><i class="fa fa-users"></i> {!! $reserva->cantidad_personas !!} pers.</span>
         @else
-          {!! $reserva->cantidad_personas !!}
+          <span class="text-muted"><i class="fa fa-user"></i> 1</span>
         @endif
       </td>
       <td>{!! $reserva->nombre_institucion ?? '-' !!}</td>
@@ -33,11 +34,37 @@
           {!! $reserva->turno_horario->turno_tramite->tramite->dependencia->nombre !!}
         @endif
       </td>
-      <td>
-          <div class='btn-group'>
-              <a href="{!! route('turnosdependenciasreservas.show', [$reserva->id]) !!}" class='btn btn-default btn-xs'><i class="fa fa-eye"></i></a>
-              <a href="{!! route('turnosdependenciasreservas.edit', [$reserva->id]) !!}" class='btn btn-default btn-xs'><i class="fa fa-edit"></i></a>
-              <a href="#" class="btn btn-danger btn-xs" data-toggle="modal" data-target="#deleteModal" data-id="{{ $reserva->id }}" data-url="{{ route('turnosdependenciasreservas.destroy', $reserva->id) }}"><i class="fa fa-trash"></i></a>
+      <td class="text-center">
+        @if($reserva->estado_id == 1)
+          <span class="label label-warning" style="font-size: 11px; padding: 4px 8px;"><i class="fa fa-clock-o"></i> Pendiente</span>
+        @elseif($reserva->estado_id == 2)
+          <span class="label label-default" style="font-size: 11px; padding: 4px 8px;"><i class="fa fa-check-circle"></i> Finalizado</span>
+        @elseif($reserva->estado_id == 3)
+          <span class="label label-success" style="font-size: 11px; padding: 4px 8px;"><i class="fa fa-check"></i> Confirmado</span>
+        @elseif($reserva->estado_id == 4)
+          <span class="label label-danger" style="font-size: 11px; padding: 4px 8px;"><i class="fa fa-times"></i> Cancelado</span>
+        @else
+          <span class="label label-info" style="font-size: 11px; padding: 4px 8px;">Registrado</span>
+        @endif
+      </td>
+      <td class="text-center" style="white-space: nowrap;">
+          <div style="display: flex; align-items: center; justify-content: center; gap: 4px;">
+              <a href="{!! route('turnosdependenciasreservas.show', [$reserva->id]) !!}" class='btn btn-info btn-xs' title="Ver Detalle e Integrantes" style="margin: 0 2px;"><i class="fa fa-eye"></i></a>
+              <a href="{!! route('turnosdependenciasreservas.edit', [$reserva->id]) !!}" class='btn btn-default btn-xs' title="Editar" style="margin: 0 2px;"><i class="fa fa-edit"></i></a>
+              
+              @if($reserva->estado_id != 3)
+                {!! Form::open(['route' => ['turnosdependenciasreservas.cambiarEstado', $reserva->id], 'method' => 'post', 'style' => 'display:inline-block; margin:0 2px;']) !!}
+                  <input type="hidden" name="estado_id" value="3">
+                  <button type="submit" class="btn btn-success btn-xs" title="Aprobar / Confirmar Reserva"><i class="fa fa-check"></i></button>
+                {!! Form::close() !!}
+              @else
+                {!! Form::open(['route' => ['turnosdependenciasreservas.cambiarEstado', $reserva->id], 'method' => 'post', 'style' => 'display:inline-block; margin:0 2px;']) !!}
+                  <input type="hidden" name="estado_id" value="1">
+                  <button type="submit" class="btn btn-warning btn-xs" title="Volver a Estado Pendiente"><i class="fa fa-undo"></i></button>
+                {!! Form::close() !!}
+              @endif
+
+              <a href="#" class="btn btn-danger btn-xs" data-toggle="modal" data-target="#deleteModal" data-id="{{ $reserva->id }}" data-url="{{ route('turnosdependenciasreservas.destroy', $reserva->id) }}" title="Eliminar" style="margin: 0 2px;"><i class="fa fa-trash"></i></a>
           </div>
       </td>
     </tr>

@@ -104,7 +104,28 @@ class TramitesController extends Controller
 
         $turno_dependencia = $turno_tramite;
 
-        return view('frontend.form-turno-paso2')->with(compact('turno_dependencia', 'turno_fecha', 'turno_hora', 'fecha_desde', 'feriados','feriados_text'));
+        $dias_activos = [
+            'lunes' => false,
+            'martes' => false,
+            'miercoles' => false,
+            'jueves' => false,
+            'viernes' => false,
+            'sabado' => false,
+            'domingo' => false
+        ];
+        foreach ($turno_tramite->turnosHorarios as $h) {
+            if ($h->activo) {
+                if ($h->lunes) $dias_activos['lunes'] = true;
+                if ($h->martes) $dias_activos['martes'] = true;
+                if ($h->miercoles) $dias_activos['miercoles'] = true;
+                if ($h->jueves) $dias_activos['jueves'] = true;
+                if ($h->viernes) $dias_activos['viernes'] = true;
+                if ($h->sabado) $dias_activos['sabado'] = true;
+                if ($h->domingo) $dias_activos['domingo'] = true;
+            }
+        }
+
+        return view('frontend.form-turno-paso2')->with(compact('turno_dependencia', 'turno_fecha', 'turno_hora', 'fecha_desde', 'feriados','feriados_text', 'dias_activos'));
     }
 
     public function paso3(Request $request)
@@ -116,14 +137,16 @@ class TramitesController extends Controller
             $request->session()->put('turno_hora', $input['turno_hora']);
 
             $dependencia_id = $request->session()->get('dependencia_id');
+            $dependencia_tramite_id = $request->session()->get('dependencia_tramite_id');
             $turno_fecha = $request->session()->get('turno_fecha');
             $turno_hora = $request->session()->get('turno_hora');
 
             $dependencia = Dependencia::find($dependencia_id)->toArray();
+            $dependencia_tramite = Dependencia_Tramite::find($dependencia_tramite_id);
 
             $usuario = Auth::user();
 
-            return view('frontend.form-turno-paso3')->with(compact('dependencia', 'turno_fecha', 'turno_hora', 'usuario'));
+            return view('frontend.form-turno-paso3')->with(compact('dependencia', 'dependencia_tramite', 'turno_fecha', 'turno_hora', 'usuario'));
         } catch (\Exception $e) {
             return redirect(route('tramite.index'));
         }
@@ -145,35 +168,57 @@ class TramitesController extends Controller
 
         list($turno_hora, $turno_horario_id) = explode('|', $session_turno_hora);
 
-        // START of the check
+        $dependencia_tramite_id = $request->session()->get('dependencia_tramite_id');
+        $dependencia_tramite = Dependencia_Tramite::find($dependencia_tramite_id);
+
         $turno_horario = \App\Models\Turnos_Horarios::find($turno_horario_id);
         $fecha = Carbon::createFromFormat('d/m/Y', $request->session()->get('turno_fecha'));
 
-        $reservas_sum = Turnos_Dependencias_Reservas::where('turno_horario_id', $turno_horario_id)
-            ->whereDate('fecha', $fecha)
-            ->where('hora', $turno_hora)
-            ->sum('cantidad_personas');
-
+        $isInstitucional = $request->filled('nombre_institucion') || ($dependencia_tramite && ($dependencia_tramite->tipo_modalidad === 'institucional' || $dependencia_tramite->requiere_institucion));
         $solicitadas = (int) $request->input('cantidad_personas', 1);
 
-        // Validación de Cupo
-        if (($reservas_sum + $solicitadas) > $turno_horario->cantidad_turnos) {
-            $disponibles = $turno_horario->cantidad_turnos - $reservas_sum;
-            return back()->withInput()->with('error', "El turno seleccionado no tiene cupo suficiente. Lugares disponibles: {$disponibles}. Usted solicitó: {$solicitadas}.");
+        // Validación de Límite Máximo configurado por el Administrador
+        if ($dependencia_tramite && $dependencia_tramite->max_personas_reserva && $solicitadas > $dependencia_tramite->max_personas_reserva) {
+            return back()->withInput()->with('error', "La cantidad de personas solicitadas ({$solicitadas}) supera el límite máximo permitido para este trámite ({$dependencia_tramite->max_personas_reserva} personas).");
+        }
+
+        // Validación de Límite Mínimo configurado para reservas grupales
+        if ($request->boolean('es_grupal') && $dependencia_tramite && $dependencia_tramite->min_personas_reserva && $solicitadas < $dependencia_tramite->min_personas_reserva) {
+            return back()->withInput()->with('error', "La cantidad de personas solicitadas ({$solicitadas}) es menor al mínimo requerido para esta modalidad ({$dependencia_tramite->min_personas_reserva} personas).");
+        }
+
+        // Validación de Cupo disponible en el Horario
+        if ($isInstitucional) {
+            $reservas_count = Turnos_Dependencias_Reservas::where('turno_horario_id', $turno_horario_id)
+                ->whereDate('fecha', $fecha)
+                ->where('hora', $turno_hora)
+                ->count();
+
+            if ($reservas_count >= $turno_horario->cantidad_turnos) {
+                return back()->withInput()->with('error', "El horario seleccionado ya no posee cupos disponibles para una delegación.");
+            }
+        } else {
+            $reservas_sum = Turnos_Dependencias_Reservas::where('turno_horario_id', $turno_horario_id)
+                ->whereDate('fecha', $fecha)
+                ->where('hora', $turno_hora)
+                ->sum('cantidad_personas');
+
+            if (($reservas_sum + $solicitadas) > $turno_horario->cantidad_turnos) {
+                $disponibles = max(0, $turno_horario->cantidad_turnos - $reservas_sum);
+                return back()->withInput()->with('error', "El turno seleccionado no tiene cupo suficiente. Lugares disponibles: {$disponibles}. Usted solicitó: {$solicitadas}.");
+            }
         }
 
         // Validación de Excel vs Cantidad de Personas
-        if ($request->input('es_grupal')) {
+        if ($request->input('es_grupal') || (isset($dependencia_tramite) && ($dependencia_tramite->tipo_modalidad ?? '') === 'institucional')) {
             if ($request->hasFile('archivo_integrantes')) {
                 $data = Excel::toArray([], $request->file('archivo_integrantes'));
-                // data[0] es la primera hoja. Restamos 1 por el encabezado.
-                $filas_excel = count($data[0]) - 1; 
-
-                if ($filas_excel != $solicitadas) {
-                    return back()->withInput()->with('error', "La cantidad de integrantes en el Excel ({$filas_excel}) no coincide con la cantidad declarada ({$solicitadas}). Por favor, corrija el archivo o el número de personas.");
+                if (isset($data[0]) && count($data[0]) > 1) {
+                    $filas_excel = count($data[0]) - 1;
+                    if ($filas_excel != $solicitadas) {
+                        return back()->withInput()->with('error', "La cantidad de integrantes en el Excel ({$filas_excel}) no coincide con la cantidad declarada ({$solicitadas}). Por favor, corrija el archivo o el número de personas.");
+                    }
                 }
-            } else {
-                return back()->withInput()->with('error', "Debe subir el archivo de integrantes para una reserva grupal.");
             }
         }
         // END of the check
@@ -186,9 +231,13 @@ class TramitesController extends Controller
             'dni' => $input['dni'],
             'celular' => $input['celular'],
             'email' => $input['email'],
-            'es_grupal' => $request->input('es_grupal', false),
+            'es_grupal' => $request->input('es_grupal', false) || (isset($dependencia_tramite) && ($dependencia_tramite->tipo_modalidad ?? '') === 'institucional'),
             'cantidad_personas' => $solicitadas,
             'nombre_institucion' => $request->input('nombre_institucion'),
+            'cargo_responsable' => $request->input('cargo_responsable'),
+            'nivel_institucion' => $request->input('nivel_institucion'),
+            'cantidad_acompanantes' => (int) $request->input('cantidad_acompanantes', 0),
+            'curso_comision' => $request->input('curso_comision'),
             'turno_horario_id' => $turno_horario_id,
             'dependencia_tramite_id' => $request->session()->get('dependencia_tramite_id'),
             'estado_id' => 1,
@@ -284,9 +333,12 @@ class TramitesController extends Controller
 
         $turno_fecha = Carbon::createFromFormat('d/m/Y', $input['turno_fecha']);
 
+        $dependencia_tramite = Dependencia_Tramite::find($turno_tramite->dependencia_tramite_id);
+        $isInstitucional = $dependencia_tramite && ($dependencia_tramite->tipo_modalidad === 'institucional' || $dependencia_tramite->requiere_institucion);
+
         $reservas = Turnos_Dependencias_Reservas::where('dependencia_tramite_id', $turno_tramite->dependencia_tramite_id)
             ->whereDate('fecha', $turno_fecha)
-            ->select('turno_horario_id', 'hora', DB::raw('sum(cantidad_personas) as total'))
+            ->select('turno_horario_id', 'hora', DB::raw('sum(cantidad_personas) as total_personas'), DB::raw('count(*) as total_reservas'))
             ->groupBy('turno_horario_id', 'hora')
             ->get();
         
@@ -322,7 +374,7 @@ class TramitesController extends Controller
                 $slot = $tCurrent->format('H:i:s');
                 
                 $reservas_for_slot = $reservas->where('turno_horario_id', $horario->id)->where('hora', $slot)->first();
-                $reservas_count = $reservas_for_slot ? $reservas_for_slot->total : 0;
+                $reservas_count = $reservas_for_slot ? ($isInstitucional ? $reservas_for_slot->total_reservas : $reservas_for_slot->total_personas) : 0;
 
                 $isPastSlotForToday = $isToday && $tCurrent->isPast();
 
@@ -372,6 +424,8 @@ class TramitesController extends Controller
     {
         $has_turns = false;
         $today = Carbon::today();
+        $dependencia_tramite = Dependencia_Tramite::find($dependencia_tramite_id);
+        $isInstitucional = $dependencia_tramite && ($dependencia_tramite->tipo_modalidad === 'institucional' || $dependencia_tramite->requiere_institucion);
 
         $turno_tramite = Turnos_Tramites::where('dependencia_tramite_id', $dependencia_tramite_id)
             ->where('activo', true)
@@ -398,13 +452,13 @@ class TramitesController extends Controller
             $reservas_all = Turnos_Dependencias_Reservas::where('dependencia_tramite_id', $dependencia_tramite_id)
                 ->whereDate('fecha', '>=', $fecha_desde)
                 ->whereDate('fecha', '<=', $fecha_hasta)
-                ->select(DB::raw('DATE(fecha) as fecha_date'), 'turno_horario_id', 'hora', DB::raw('sum(cantidad_personas) as total'))
+                ->select(DB::raw('DATE(fecha) as fecha_date'), 'turno_horario_id', 'hora', DB::raw('sum(cantidad_personas) as total_personas'), DB::raw('count(*) as total_reservas'))
                 ->groupBy('fecha_date', 'turno_horario_id', 'hora')
                 ->get()
                 ->groupBy('fecha_date');
 
             while ($current_date->lte($fecha_hasta) && !$has_turns) {
-                if ($current_date->isWeekend() || in_array($current_date->format('Y-m-d'), $feriados)) {
+                if (in_array($current_date->format('Y-m-d'), $feriados)) {
                     $current_date->addDay();
                     continue;
                 }
@@ -417,7 +471,7 @@ class TramitesController extends Controller
                         if (!isset($reservas_por_horario_y_hora[$reserva->turno_horario_id])) {
                             $reservas_por_horario_y_hora[$reserva->turno_horario_id] = [];
                         }
-                        $reservas_por_horario_y_hora[$reserva->turno_horario_id][$reserva->hora] = $reserva->total;
+                        $reservas_por_horario_y_hora[$reserva->turno_horario_id][$reserva->hora] = $isInstitucional ? $reserva->total_reservas : $reserva->total_personas;
                     }
                 }
                 
@@ -479,6 +533,8 @@ class TramitesController extends Controller
             return response()->json([]);
         }
 
+        $dependencia_tramite = Dependencia_Tramite::find($turno_tramite->dependencia_tramite_id);
+        $isInstitucional = $dependencia_tramite && ($dependencia_tramite->tipo_modalidad === 'institucional' || $dependencia_tramite->requiere_institucion);
 
         $fecha_desde = $turno_tramite->fecha_desde;
         if (Carbon::today() > $fecha_desde) {
@@ -486,18 +542,16 @@ class TramitesController extends Controller
         }
         $fecha_hasta = $turno_tramite->fecha_hasta;
 
-
         $disabled_dates = [];
         $current_date = $fecha_desde->copy();
 
         $reservas = Turnos_Dependencias_Reservas::where('dependencia_tramite_id', $turno_tramite->dependencia_tramite_id)
             ->whereDate('fecha', '>=', $fecha_desde)
             ->whereDate('fecha', '<=', $fecha_hasta)
-            ->select(DB::raw('DATE(fecha) as fecha_date'), 'hora', DB::raw('sum(cantidad_personas) as total'))
+            ->select(DB::raw('DATE(fecha) as fecha_date'), 'hora', DB::raw('sum(cantidad_personas) as total_personas'), DB::raw('count(*) as total_reservas'))
             ->groupBy('fecha_date', 'hora')
             ->get()
             ->groupBy('fecha_date');
-
 
         while ($current_date <= $fecha_hasta) {
             $aHorarios = [];
@@ -506,7 +560,7 @@ class TramitesController extends Controller
 
             $reservas_por_hora = [];
             if ($reservas_del_dia) {
-                $reservas_por_hora = $reservas_del_dia->pluck('total', 'hora')->toArray();
+                $reservas_por_hora = $reservas_del_dia->pluck($isInstitucional ? 'total_reservas' : 'total_personas', 'hora')->toArray();
             }
 
 
@@ -528,7 +582,7 @@ class TramitesController extends Controller
                 $tCurrent = $tStart->copy();
 
                 while ($tCurrent < $tEnd) {
-                    $slot = $tCurrent->format('H:i');
+                    $slot = $tCurrent->format('H:i:s');
                     $reservas_count = $reservas_por_hora[$slot] ?? 0;
 
 
@@ -560,5 +614,50 @@ class TramitesController extends Controller
             ->get();
 
         return view('frontend.mis-turnos', compact('reservas'));
+    }
+
+    public function cargarIntegrantesForm($codigo)
+    {
+        $reserva = Turnos_Dependencias_Reservas::with(['turno_horario.turno_tramite.tramite.dependencia', 'integrantes'])
+            ->where('codigo', $codigo)
+            ->firstOrFail();
+
+        return view('frontend.cargar-integrantes', compact('reserva'));
+    }
+
+    public function guardarIntegrantes(Request $request, $codigo)
+    {
+        $reserva = Turnos_Dependencias_Reservas::where('codigo', $codigo)->firstOrFail();
+
+        if ($request->hasFile('archivo_integrantes')) {
+            $request->validate([
+                'archivo_integrantes' => 'required|file|mimes:xls,xlsx,csv'
+            ]);
+
+            \App\Models\ReservaIntegrante::where('reserva_id', $reserva->id)->delete();
+            Excel::import(new IntegrantesImport($reserva->id), $request->file('archivo_integrantes'));
+
+            return back()->with('success', 'Nómina de integrantes importada correctamente desde el archivo Excel.');
+        }
+
+        if ($request->has('integrantes_manuales')) {
+            $integrantes = $request->input('integrantes_manuales', []);
+            \App\Models\ReservaIntegrante::where('reserva_id', $reserva->id)->delete();
+
+            foreach ($integrantes as $item) {
+                if (!empty($item['nombre']) || !empty($item['apellido']) || !empty($item['dni'])) {
+                    \App\Models\ReservaIntegrante::create([
+                        'reserva_id' => $reserva->id,
+                        'nombre' => $item['nombre'] ?? '',
+                        'apellido' => $item['apellido'] ?? '',
+                        'dni' => $item['dni'] ?? ''
+                    ]);
+                }
+            }
+
+            return back()->with('success', 'Lista de integrantes actualizada correctamente.');
+        }
+
+        return back()->with('error', 'Seleccione un archivo Excel o cargue al menos un integrante manualmente.');
     }
 }

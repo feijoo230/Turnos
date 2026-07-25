@@ -51,7 +51,8 @@ class TurnosTramitesController extends Controller
         $isAdmin = $usuario->roles->contains(Rol::ADMINISTRADOR);
         
         $query = DB::table('dependencias')
-            ->join('dependencia_tramites', 'dependencia_tramites.dependencia_id', '=', 'dependencias.id');
+            ->join('dependencia_tramites', 'dependencia_tramites.dependencia_id', '=', 'dependencias.id')
+            ->whereNull('dependencia_tramites.deleted_at');
 
         if (!$isAdmin) {
             $query->join('usuarios_dependencias', 'dependencias.id', '=', 'usuarios_dependencias.dependencia_id')
@@ -160,7 +161,8 @@ class TurnosTramitesController extends Controller
         
         
         $query = DB::table('dependencias')
-            ->join('dependencia_tramites', 'dependencia_tramites.dependencia_id', '=', 'dependencias.id');
+            ->join('dependencia_tramites', 'dependencia_tramites.dependencia_id', '=', 'dependencias.id')
+            ->whereNull('dependencia_tramites.deleted_at');
         
         if (!$isAdmin) {
             $query->join('usuarios_dependencias', 'dependencias.id', '=', 'usuarios_dependencias.dependencia_id')

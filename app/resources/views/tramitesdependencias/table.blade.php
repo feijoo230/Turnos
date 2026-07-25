@@ -4,6 +4,7 @@
       <th style="width: 40px;">#</th>
       <th>Nombre del Trámite</th>
       <th>Dependencia / Área</th>
+      <th class="text-center">Modalidad / Capacidad</th>
       <th class="text-center" style="width: 110px;">Estado</th>
       <th class="text-center" style="width: 120px;">Acción</th>
     </tr>
@@ -22,6 +23,14 @@
           {!! $tramitedependencia->dependencia->string_path ?? $tramitedependencia->dependencia->nombre !!}
         @else
           <span class="text-muted">&mdash;</span>
+        @endif
+      </td>
+      <td class="text-center">
+        @if($tramitedependencia->permite_grupal || $tramitedependencia->tipo_modalidad != 'individual')
+          <span class="label label-info"><i class="fa fa-users"></i> {{ ucfirst($tramitedependencia->tipo_modalidad ?? 'Grupal') }}</span>
+          <br><small class="text-muted">Máx: {{ $tramitedependencia->max_personas_reserva ?? 10 }} pers.</small>
+        @else
+          <span class="label label-default"><i class="fa fa-user"></i> Individual</span>
         @endif
       </td>
       <td class="text-center">

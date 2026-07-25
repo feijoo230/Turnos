@@ -51,7 +51,34 @@
     <div class="form-group">
         {!! Form::label('nombre_institucion', 'Institución:', array('class' => 'control-label col-md-3 col-sm-3 col-xs-12')) !!}
         <div style="padding-top: 8px;" class="col-md-6 col-sm-6 col-xs-12">
-            <p>{!! $reserva->nombre_institucion !!}</p>
+            <p><strong>{!! $reserva->nombre_institucion !!}</strong> @if($reserva->nivel_institucion) ({!! $reserva->nivel_institucion !!}) @endif</p>
+        </div>
+    </div>
+    @endif
+
+    @if($reserva->cargo_responsable)
+    <div class="form-group">
+        {!! Form::label('cargo_responsable', 'Cargo del Responsable:', array('class' => 'control-label col-md-3 col-sm-3 col-xs-12')) !!}
+        <div style="padding-top: 8px;" class="col-md-6 col-sm-6 col-xs-12">
+            <p>{!! $reserva->cargo_responsable !!}</p>
+        </div>
+    </div>
+    @endif
+
+    @if($reserva->curso_comision)
+    <div class="form-group">
+        {!! Form::label('curso_comision', 'Curso / Comisión:', array('class' => 'control-label col-md-3 col-sm-3 col-xs-12')) !!}
+        <div style="padding-top: 8px;" class="col-md-6 col-sm-6 col-xs-12">
+            <p>{!! $reserva->curso_comision !!}</p>
+        </div>
+    </div>
+    @endif
+
+    @if($reserva->cantidad_acompanantes)
+    <div class="form-group">
+        {!! Form::label('cantidad_acompanantes', 'Docentes / Acompañantes:', array('class' => 'control-label col-md-3 col-sm-3 col-xs-12')) !!}
+        <div style="padding-top: 8px;" class="col-md-6 col-sm-6 col-xs-12">
+            <p>{!! $reserva->cantidad_acompanantes !!} personas</p>
         </div>
     </div>
     @endif

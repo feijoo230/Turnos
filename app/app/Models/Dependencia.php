@@ -224,16 +224,21 @@ class Dependencia extends Model
                         ->get()
                         ->groupBy('fecha_date');
                     
+                    $diasMap = [
+                        1 => 'lunes', 2 => 'martes', 3 => 'miercoles', 4 => 'jueves', 5 => 'viernes', 6 => 'sabado', 7 => 'domingo'
+                    ];
+
                     for ($current_date = $fecha_desde->copy(); $current_date->lte($fecha_hasta); $current_date->addDay()) {
-                        if ($current_date->isWeekend() || in_array($current_date->format('Y-m-d'), $feriados)) {
+                        if (in_array($current_date->format('Y-m-d'), $feriados)) {
                             continue;
                         }
 
+                        $diaSemana = $diasMap[$current_date->dayOfWeekIso];
                         $reservas_del_dia = $reservas_all->get($current_date->format('Y-m-d'));
                         $isToday = $current_date->isToday();
                         
                         foreach ($turno_tramite->turnosHorarios as $horario) {
-                            if (!$horario->activo) continue;
+                            if (!$horario->activo || !$horario->$diaSemana) continue;
 
                             for ($tCurrent = $current_date->copy()->setTimeFromTimeString($horario->hora_inicio); $tCurrent->lt($current_date->copy()->setTimeFromTimeString($horario->hora_fin)); $tCurrent->addMinutes($horario->duracion_minutos)) {
                                 $slot = $tCurrent->format('H:i:s');
