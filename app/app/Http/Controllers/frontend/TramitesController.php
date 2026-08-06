@@ -210,7 +210,7 @@ class TramitesController extends Controller
         }
 
         // Validación de Excel vs Cantidad de Personas
-        if ($request->input('es_grupal') || (isset($dependencia_tramite) && ($dependencia_tramite->tipo_modalidad ?? '') === 'institucional')) {
+        if ($request->boolean('es_grupal') || (isset($dependencia_tramite) && ($dependencia_tramite->tipo_modalidad ?? '') === 'institucional')) {
             if ($request->hasFile('archivo_integrantes')) {
                 $data = Excel::toArray([], $request->file('archivo_integrantes'));
                 if (isset($data[0]) && count($data[0]) > 1) {
@@ -231,7 +231,7 @@ class TramitesController extends Controller
             'dni' => $input['dni'],
             'celular' => $input['celular'],
             'email' => $input['email'],
-            'es_grupal' => $request->input('es_grupal', false) || (isset($dependencia_tramite) && ($dependencia_tramite->tipo_modalidad ?? '') === 'institucional'),
+            'es_grupal' => $request->boolean('es_grupal') || (isset($dependencia_tramite) && ($dependencia_tramite->tipo_modalidad ?? '') === 'institucional'),
             'cantidad_personas' => $solicitadas,
             'nombre_institucion' => $request->input('nombre_institucion'),
             'cargo_responsable' => $request->input('cargo_responsable'),

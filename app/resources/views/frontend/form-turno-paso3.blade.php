@@ -9,6 +9,15 @@
 	$maxPersonas = isset($dependencia_tramite) && $dependencia_tramite->max_personas_reserva ? $dependencia_tramite->max_personas_reserva : 50;
 	$minPersonas = isset($dependencia_tramite) && $dependencia_tramite->min_personas_reserva ? $dependencia_tramite->min_personas_reserva : 2;
 	$requiereNomina = isset($dependencia_tramite) ? ($dependencia_tramite->requiere_nomina ?? false) : false;
+
+	$activeModalidad = 'individual';
+	if ($isInstitucional) {
+		$activeModalidad = 'institucional';
+	} elseif ($isGrupal) {
+		$activeModalidad = 'grupal';
+	} elseif ($isMixto) {
+		$activeModalidad = 'individual';
+	}
 @endphp
 
 <div class="row justify-content-center">
@@ -91,7 +100,7 @@
 					<!-- =================================================== -->
 					<!-- SECCIÓN FORMULARIO INSTITUCIONAL -->
 					<!-- =================================================== -->
-					<div id="sec-institucional" style="{{ ($isInstitucional && !$isMixto) ? 'display: block;' : 'display: none;' }}">
+					<div id="sec-institucional" style="{{ ($activeModalidad === 'institucional') ? 'display: block;' : 'display: none;' }}">
 						<input type="hidden" name="es_grupal" value="1">
 
 						<div class="p-3 mb-4" style="background: #ffffff; border: 1px solid #cbd5e1; border-radius: 12px; border-left: 4px solid #2563eb !important;">
@@ -209,7 +218,7 @@
 					<!-- =================================================== -->
 					<!-- SECCIÓN FORMULARIO GRUPAL -->
 					<!-- =================================================== -->
-					<div id="sec-grupal" style="{{ ($isGrupal && !$isMixto) ? 'display: block;' : 'display: none;' }}">
+					<div id="sec-grupal" style="{{ ($activeModalidad === 'grupal') ? 'display: block;' : 'display: none;' }}">
 						<input type="hidden" name="es_grupal" value="1">
 
 						<div class="row">
@@ -252,7 +261,7 @@
 					<!-- =================================================== -->
 					<!-- SECCIÓN FORMULARIO INDIVIDUAL -->
 					<!-- =================================================== -->
-					<div id="sec-individual" style="{{ (!$isInstitucional && !$isGrupal) ? 'display: block;' : 'display: none;' }}">
+					<div id="sec-individual" style="{{ ($activeModalidad === 'individual') ? 'display: block;' : 'display: none;' }}">
 						<input type="hidden" name="cantidad_personas" value="1">
 						<input type="hidden" name="es_grupal" value="0">
 
@@ -307,7 +316,6 @@
 @stop
 
 @section('script')
-@if($isMixto)
 <script>
 	function seleccionarModalidadMixto(tipo) {
 		$('.btn-modalidad-mixto').css({
@@ -323,8 +331,8 @@
 				'color': '#ffffff',
 				'border': '2px solid #1d4ed8'
 			});
-			$('#sec-individual').show().find('input, select').prop('disabled', false);
-			$('#sec-grupal, #sec-institucional').hide().find('input, select').prop('disabled', true);
+			$('#sec-individual').show().find('input, select, textarea').prop('disabled', false);
+			$('#sec-grupal, #sec-institucional').hide().find('input, select, textarea').prop('disabled', true);
 			$('#btn-submit-texto').html('<i class="fas fa-check-circle mr-1"></i> Confirmar y Reservar Turno Individual');
 		} else if (tipo === 'grupal') {
 			$('#btn-mixto-grupal').css({
@@ -332,8 +340,8 @@
 				'color': '#ffffff',
 				'border': '2px solid #0369a1'
 			});
-			$('#sec-grupal').show().find('input, select').prop('disabled', false);
-			$('#sec-individual, #sec-institucional').hide().find('input, select').prop('disabled', true);
+			$('#sec-grupal').show().find('input, select, textarea').prop('disabled', false);
+			$('#sec-individual, #sec-institucional').hide().find('input, select, textarea').prop('disabled', true);
 			$('#btn-submit-texto').html('<i class="fas fa-check-circle mr-1"></i> Confirmar Reserva Grupal');
 		} else if (tipo === 'institucional') {
 			$('#btn-mixto-institucional').css({
@@ -341,15 +349,14 @@
 				'color': '#ffffff',
 				'border': '2px solid #15803d'
 			});
-			$('#sec-institucional').show().find('input, select').prop('disabled', false);
-			$('#sec-individual, #sec-grupal').hide().find('input, select').prop('disabled', true);
+			$('#sec-institucional').show().find('input, select, textarea').prop('disabled', false);
+			$('#sec-individual, #sec-grupal').hide().find('input, select, textarea').prop('disabled', true);
 			$('#btn-submit-texto').html('<i class="fas fa-check-circle mr-1"></i> Enviar Solicitud Institucional');
 		}
 	}
 
 	$(document).ready(function() {
-		seleccionarModalidadMixto('individual');
+		seleccionarModalidadMixto('{!! $activeModalidad !!}');
 	});
 </script>
-@endif
 @endsection
