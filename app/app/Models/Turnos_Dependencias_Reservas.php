@@ -37,6 +37,7 @@ class Turnos_Dependencias_Reservas extends Model
         'turno_horario_id',
         'dependencia_tramite_id',
         'estado_id',
+        'motivo_cancelacion',
         'activo'
     ];
 

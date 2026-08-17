@@ -192,6 +192,7 @@ class TramitesController extends Controller
             $reservas_count = Turnos_Dependencias_Reservas::where('turno_horario_id', $turno_horario_id)
                 ->whereDate('fecha', $fecha)
                 ->where('hora', $turno_hora)
+                ->where('estado_id', '!=', 4)
                 ->count();
 
             if ($reservas_count >= $turno_horario->cantidad_turnos) {
@@ -201,6 +202,7 @@ class TramitesController extends Controller
             $reservas_sum = Turnos_Dependencias_Reservas::where('turno_horario_id', $turno_horario_id)
                 ->whereDate('fecha', $fecha)
                 ->where('hora', $turno_hora)
+                ->where('estado_id', '!=', 4)
                 ->sum('cantidad_personas');
 
             if (($reservas_sum + $solicitadas) > $turno_horario->cantidad_turnos) {
@@ -338,6 +340,7 @@ class TramitesController extends Controller
 
         $reservas = Turnos_Dependencias_Reservas::where('dependencia_tramite_id', $turno_tramite->dependencia_tramite_id)
             ->whereDate('fecha', $turno_fecha)
+            ->where('estado_id', '!=', 4)
             ->select('turno_horario_id', 'hora', DB::raw('sum(cantidad_personas) as total_personas'), DB::raw('count(*) as total_reservas'))
             ->groupBy('turno_horario_id', 'hora')
             ->get();
@@ -452,6 +455,7 @@ class TramitesController extends Controller
             $reservas_all = Turnos_Dependencias_Reservas::where('dependencia_tramite_id', $dependencia_tramite_id)
                 ->whereDate('fecha', '>=', $fecha_desde)
                 ->whereDate('fecha', '<=', $fecha_hasta)
+                ->where('estado_id', '!=', 4)
                 ->select(DB::raw('DATE(fecha) as fecha_date'), 'turno_horario_id', 'hora', DB::raw('sum(cantidad_personas) as total_personas'), DB::raw('count(*) as total_reservas'))
                 ->groupBy('fecha_date', 'turno_horario_id', 'hora')
                 ->get()
@@ -548,6 +552,7 @@ class TramitesController extends Controller
         $reservas = Turnos_Dependencias_Reservas::where('dependencia_tramite_id', $turno_tramite->dependencia_tramite_id)
             ->whereDate('fecha', '>=', $fecha_desde)
             ->whereDate('fecha', '<=', $fecha_hasta)
+            ->where('estado_id', '!=', 4)
             ->select(DB::raw('DATE(fecha) as fecha_date'), 'hora', DB::raw('sum(cantidad_personas) as total_personas'), DB::raw('count(*) as total_reservas'))
             ->groupBy('fecha_date', 'hora')
             ->get()
@@ -659,5 +664,43 @@ class TramitesController extends Controller
         }
 
         return back()->with('error', 'Seleccione un archivo Excel o cargue al menos un integrante manualmente.');
+    }
+
+    public function cancelarReserva(Request $request, $codigo)
+    {
+        $request->validate([
+            'motivo_cancelacion' => 'required|string|min:5|max:1000',
+            'dni_cancelacion' => 'nullable|string'
+        ], [
+            'motivo_cancelacion.required' => 'Debe ingresar el motivo de la cancelación.',
+            'motivo_cancelacion.min' => 'El motivo de cancelación debe tener al menos 5 caracteres.'
+        ]);
+
+        $reserva = Turnos_Dependencias_Reservas::where('codigo', $codigo)->firstOrFail();
+
+        if ($request->filled('dni_cancelacion')) {
+            if (trim($reserva->dni) !== trim($request->input('dni_cancelacion'))) {
+                return back()->with('error', 'El número de DNI no coincide con la reserva.');
+            }
+        }
+
+        if ($reserva->estado_id == 4) {
+            return back()->with('error', 'Esta reserva ya se encuentra cancelada.');
+        }
+
+        $reserva->estado_id = 4; // Cancelado
+        $reserva->activo = 0;
+        $reserva->motivo_cancelacion = $request->input('motivo_cancelacion');
+        $reserva->save();
+
+        if (!empty($reserva->email)) {
+            try {
+                Mail::to($reserva->email)->send(new \App\Mail\TurnoCancelado($reserva));
+            } catch (\Exception $e) {
+                Log::error("Error al enviar mail de cancelación para turno {$reserva->codigo}: " . $e->getMessage());
+            }
+        }
+
+        return back()->with('success', "El turno {$reserva->codigo} ha sido cancelado exitosamente y el cupo ha sido re-habilitado.");
     }
 }

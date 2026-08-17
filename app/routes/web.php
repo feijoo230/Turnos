@@ -34,6 +34,7 @@ Route::post('tramite.guardar','frontend\TramitesController@guardar')->name('tram
 Route::get('tramite/confirmacion/{id}', 'frontend\TramitesController@confirmacion')->name('tramite.confirmacion');
 Route::get('reserva/{codigo}/integrantes', 'frontend\TramitesController@cargarIntegrantesForm')->name('tramite.integrantes.form');
 Route::post('reserva/{codigo}/integrantes', 'frontend\TramitesController@guardarIntegrantes')->name('tramite.integrantes.guardar');
+Route::post('reserva/{codigo}/cancelar', 'frontend\TramitesController@cancelarReserva')->name('tramite.cancelar');
 
 Route::get('turno.buscar','frontend\TramitesController@buscar')->name('turno.buscar');//Valid
 
