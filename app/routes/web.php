@@ -52,6 +52,9 @@ Route::group(['middleware' => ['auth', 'role:ADMINISTRADOR|OPERADOR']], function
 
   Route::get('turnosdependenciasreservas/export', 'TurnosDependenciasReservasController@export')->name('turnosdependenciasreservas.export');
   Route::post('turnosdependenciasreservas.massDestroy', 'TurnosDependenciasReservasController@massDestroy')->name('turnosdependenciasreservas.massDestroy');
+  Route::post('turnosdependenciasreservas.cancelacionMasiva', 'TurnosDependenciasReservasController@cancelacionMasiva')->name('turnosdependenciasreservas.cancelacionMasiva');
+  Route::post('turnosdependenciasreservas.storeManual', 'TurnosDependenciasReservasController@storeManual')->name('turnosdependenciasreservas.storeManual');
+  Route::post('turnosdependenciasreservas.loadHorariosAdmin', 'TurnosDependenciasReservasController@loadHorariosAdmin')->name('turnosdependenciasreservas.loadHorariosAdmin');
   Route::post('turnosdependenciasreservas/{id}/estado', 'TurnosDependenciasReservasController@cambiarEstado')->name('turnosdependenciasreservas.cambiarEstado');
   Route::resource('turnosdependenciasreservas', 'TurnosDependenciasReservasController');//Valido
   Route::post('turnosdependenciasreservas.buscar', 'TurnosDependenciasReservasController@buscar')->name('turnosdependenciasreservas.buscar');//Valido

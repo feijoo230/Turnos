@@ -117,6 +117,10 @@
                     <h5 class="list-group-item-heading"><i class="fa fa-calendar-check-o text-success me-2"></i> Reservas de Turnos</h5>
                     <p class="list-group-item-text small text-muted">Gestión de reservas de usuarios y confirmaciones.</p>
                   </a>
+                  <a href="{{ url('turnosdependenciasreservas') }}?abrir_cancelacion=1" class="list-group-item list-group-item-warning">
+                    <h5 class="list-group-item-heading"><i class="fa fa-exclamation-triangle text-warning me-2"></i> Cancelación Masiva</h5>
+                    <p class="list-group-item-text small text-muted">Cancelar agenda completa por inclemencias climáticas o imprevistos.</p>
+                  </a>
                   <a href="{{ route('estadisticas.index') }}" class="list-group-item">
                     <h5 class="list-group-item-heading"><i class="fa fa-area-chart text-info me-2"></i> Estadísticas y Reportes</h5>
                     <p class="list-group-item-text small text-muted">Ver métricas por estado, dependencia y tipo de trámite.</p>
