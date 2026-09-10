@@ -14,12 +14,13 @@ use Illuminate\Support\Facades\Route;
 |
 */
 Auth::routes();
-Route::get('/', 'frontend\TramitesController@index');
-Route::get('inicio', 'frontend\TramitesController@index')->name('inicio');
+Route::get('/', 'frontend\LandingController@index')->name('landing');
+Route::get('inicio', 'frontend\LandingController@index')->name('inicio');
 Route::get('/home', 'HomeController@index');
 Route::get('/homepage', 'HomeController@index');
 //Route::get('/perfil', 'PerfilController@index');
 Route::get('turnos', 'frontend\TramitesController@index')->name('turnos');
+Route::get('solicitar-turno', 'frontend\TramitesController@index')->name('solicitar-turno');
 //Route::get('turnos.dni', 'frontend\TramitesController@solicitarDni');
 Route::post('turnos.guardar','frontend\TramitesController@guardar');
 Route::post('turnos.loadhorarios', 'frontend\TramitesController@loadHorarios')->name('turnos.loadhorarios');

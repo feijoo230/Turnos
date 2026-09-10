@@ -36,6 +36,7 @@ Thumbs.db
 
 # Agent and Graphify tools
 GEMINI.md
+skills-lock.json
 .agents/
 .antigravitycli/
 graphify-out/

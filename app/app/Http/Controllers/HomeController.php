@@ -28,7 +28,7 @@ class HomeController extends Controller
     public function index()
     {
         if (!auth()->user()->hasRole('ADMINISTRADOR') && !auth()->user()->hasRole('OPERADOR')) {
-            return redirect('/');
+            return redirect()->route('mis-turnos');
         }
 
         $hoy = Carbon::today()->format('Y-m-d');

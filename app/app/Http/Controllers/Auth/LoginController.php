@@ -61,7 +61,7 @@ class LoginController extends Controller
             return redirect()->intended($this->redirectPath());
         }
 
-        return redirect('/');
+        return redirect()->route('mis-turnos');
     }
 
     public function redirectToGoogle()
@@ -109,6 +109,6 @@ class LoginController extends Controller
             return redirect()->intended($this->redirectPath());
         }
 
-        return redirect('/');
+        return redirect()->route('mis-turnos');
     }
 }
