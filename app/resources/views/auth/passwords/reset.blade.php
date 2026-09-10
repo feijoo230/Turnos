@@ -3,14 +3,19 @@
 @section('content')
 <div class="login-card">
     <div class="login-header">
-        <img src="{{ asset('img/logounsa.png') }}" alt="UNSa Logo" class="login-logo">
-        <h4 class="login-title">{{ config('constants.NOMBRE_SISTEMA', 'Sistema de Turnos') }}</h4>
-        <p class="login-subtitle mb-0">Establecer Nueva Contraseña</p>
+        <div class="brand-logo-wrap">
+            <img src="{{ asset('img/logounsa.png') }}" alt="UNSa Logo">
+        </div>
+        <div>
+            <span class="badge-eyebrow"><i class="fas fa-university mr-1"></i> CIENCIAS EXACTAS · UNSa</span>
+        </div>
+        <h1 class="login-title"><span>Nueva Clave</span></h1>
+        <p class="login-subtitle">Observatorio Astronómico Dr. Elvio Alanís</p>
     </div>
 
-    <div class="card-body p-4 pt-4">
+    <div class="login-card-body">
         @if ($errors->any())
-            <div class="alert alert-danger p-3 mb-3 small border-0 shadow-xs" style="border-radius: 12px; background-color: #fef2f2; color: #991b1b;">
+            <div class="alert-cosmic-danger">
                 <ul class="mb-0 pl-3">
                     @foreach ($errors->all() as $error)
                         <li>{{ $error }}</li>
@@ -25,23 +30,23 @@
             <input type="hidden" name="token" value="{{ $token }}">
 
             <div class="form-group mb-3">
-                <label for="email" class="small font-weight-bold text-secondary mb-1">
-                    Correo Electrónico *
+                <label for="email" class="form-label-modern">
+                    <i class="fas fa-envelope"></i> Correo Electrónico <span style="color: var(--cosmic-cyan);">*</span>
                 </label>
                 <div class="input-group-modern">
                     <i class="fas fa-envelope input-icon"></i>
-                    <input id="email" type="email" class="form-control-modern @error('email') is-invalid @enderror" name="email" value="{{ $email ?? old('email') }}" required autocomplete="email" autofocus placeholder="usuario@unsa.edu.ar">
+                    <input id="email" type="email" class="form-control-modern @error('email') is-invalid @enderror" name="email" value="{{ $email ?? old('email') }}" required autocomplete="email" autofocus placeholder="ejemplo@unsa.edu.ar">
                 </div>
                 @error('email')
-                    <span class="text-danger small mt-1 d-block font-weight-bold" role="alert">
+                    <span class="small font-weight-bold mt-1 d-block" style="color: #f87171;" role="alert">
                         {{ $message }}
                     </span>
                 @enderror
             </div>
 
             <div class="form-group mb-3">
-                <label for="password" class="small font-weight-bold text-secondary mb-1">
-                    Nueva Contraseña *
+                <label for="password" class="form-label-modern">
+                    <i class="fas fa-lock"></i> Nueva Contraseña <span style="color: var(--cosmic-cyan);">*</span>
                 </label>
                 <div class="input-group-modern">
                     <i class="fas fa-lock input-icon"></i>
@@ -49,15 +54,15 @@
                     <i class="fas fa-eye toggle-password" id="icon-toggle-pass1" onclick="togglePasswordVisibility('password', 'icon-toggle-pass1')" title="Mostrar/ocultar contraseña"></i>
                 </div>
                 @error('password')
-                    <span class="text-danger small mt-1 d-block font-weight-bold" role="alert">
+                    <span class="small font-weight-bold mt-1 d-block" style="color: #f87171;" role="alert">
                         {{ $message }}
                     </span>
                 @enderror
             </div>
 
             <div class="form-group mb-4">
-                <label for="password-confirm" class="small font-weight-bold text-secondary mb-1">
-                    Confirmar Nueva Contraseña *
+                <label for="password-confirm" class="form-label-modern">
+                    <i class="fas fa-check-double"></i> Confirmar Contraseña <span style="color: var(--cosmic-cyan);">*</span>
                 </label>
                 <div class="input-group-modern">
                     <i class="fas fa-check-double input-icon"></i>
@@ -66,16 +71,17 @@
                 </div>
             </div>
 
-            <button type="submit" class="btn btn-gradient-primary mb-3">
+            <button type="submit" class="btn-gradient-primary mb-3">
                 <i class="fas fa-key"></i> Restablecer Contraseña
             </button>
         </form>
 
-        <div class="text-center mt-4 pt-3 border-top" style="border-top-color: #f1f5f9 !important;">
-            <a href="{{ route('login') }}" class="small text-secondary font-weight-bold text-decoration-none d-inline-flex align-items-center" style="gap: 6px;">
+        <div class="text-center mt-4 pt-3" style="border-top: 1px solid rgba(148, 163, 184, 0.12);">
+            <a href="{{ route('login') }}" class="back-to-home">
                 <i class="fas fa-arrow-left"></i> Volver a Iniciar Sesión
             </a>
         </div>
     </div>
 </div>
 @endsection
+
