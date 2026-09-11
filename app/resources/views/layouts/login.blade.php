@@ -20,14 +20,13 @@
 
     <style>
         :root {
-            --cosmic-bg: #070a13;
-            --cosmic-card: rgba(13, 21, 39, 0.82);
-            --cosmic-cyan: #38bdf8;
-            --cosmic-blue: #2563eb;
-            --cosmic-indigo: #6366f1;
-            --text-main: #f8fafc;
-            --text-muted: #94a3b8;
-            --text-subtle: #cbd5e1;
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --accent-blue: #0284c7;
+            --text-main: #334155;
+            --text-muted: #64748b;
+            --text-subtle: #94a3b8;
+            --border-color: #e2e8f0;
             --font-display: 'Outfit', sans-serif;
             --font-body: 'Inter', sans-serif;
         }
@@ -44,15 +43,7 @@
 
         body.login-body {
             font-family: var(--font-body) !important;
-            background-color: var(--cosmic-bg) !important;
-            background-image: 
-                radial-gradient(ellipse at 50% 15%, rgba(56, 189, 248, 0.12) 0%, transparent 60%),
-                radial-gradient(ellipse at 80% 85%, rgba(99, 102, 241, 0.12) 0%, transparent 50%),
-                linear-gradient(180deg, rgba(7, 10, 19, 0.82) 0%, rgba(13, 21, 39, 0.94) 100%),
-                url("{{ asset('img/observatorio/hero-bg.jpg') }}") !important;
-            background-size: cover !important;
-            background-position: center center !important;
-            background-attachment: fixed !important;
+            background-color: var(--bg-color) !important;
             min-height: 100vh;
             display: flex;
             align-items: center;
@@ -60,18 +51,6 @@
             padding: 32px 16px;
             color: var(--text-main);
             position: relative;
-            overflow-x: hidden;
-        }
-
-        /* Starfield Canvas */
-        #starfield-canvas {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 0;
         }
 
         .login-wrapper {
@@ -82,34 +61,24 @@
             margin: 0 auto;
         }
 
-        /* Cosmic Glass Card */
+        /* Card */
         .login-card {
-            background: var(--cosmic-card) !important;
-            backdrop-filter: blur(24px) saturate(180%) !important;
-            -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
-            border-radius: 24px !important;
-            border: 1px solid rgba(255, 255, 255, 0.12) !important;
-            border-top: 1px solid rgba(56, 189, 248, 0.4) !important;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7), 0 0 35px rgba(56, 189, 248, 0.12) !important;
+            background: var(--card-bg) !important;
+            border-radius: 16px !important;
+            border: 1px solid var(--border-color) !important;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05) !important;
             overflow: hidden;
             width: 100%;
-            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-
-        .login-card:hover {
-            box-shadow: 0 30px 60px -10px rgba(0, 0, 0, 0.8), 0 0 45px rgba(56, 189, 248, 0.18) !important;
-            border-color: rgba(56, 189, 248, 0.3) !important;
         }
 
         /* Login Header / Branding */
         .login-header {
             padding: 36px 28px 16px;
             text-align: center;
-            position: relative;
-            background: transparent !important;
+            border-bottom: 1px solid var(--border-color);
+            background: #f1f5f9;
         }
 
-        /* Circular glowing logo wrapper for UNSa */
         .brand-logo-wrap {
             width: 70px;
             height: 70px;
@@ -118,16 +87,10 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 0 25px rgba(56, 189, 248, 0.45), inset 0 0 8px rgba(0, 0, 0, 0.08);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
             padding: 6px;
             margin: 0 auto 16px;
-            border: 2px solid rgba(255, 255, 255, 0.8);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-
-        .brand-logo-wrap:hover {
-            transform: scale(1.05);
-            box-shadow: 0 0 35px rgba(56, 189, 248, 0.7);
+            border: 1px solid var(--border-color);
         }
 
         .brand-logo-wrap img {
@@ -139,38 +102,28 @@
         .badge-eyebrow {
             display: inline-block;
             font-family: var(--font-display);
-            font-size: 0.68rem;
+            font-size: 0.7rem;
             font-weight: 700;
-            letter-spacing: 1.5px;
+            letter-spacing: 1px;
             text-transform: uppercase;
-            color: var(--cosmic-cyan) !important;
-            background: rgba(56, 189, 248, 0.1);
-            border: 1px solid rgba(56, 189, 248, 0.25);
+            color: var(--accent-blue) !important;
+            background: #e0f2fe;
             padding: 4px 12px;
             border-radius: 20px;
-            margin-bottom: 8px;
+            margin-bottom: 12px;
         }
 
         .login-title {
             font-family: var(--font-display) !important;
-            font-size: 1.6rem !important;
+            font-size: 1.5rem !important;
             font-weight: 700 !important;
-            letter-spacing: -0.5px !important;
-            color: #ffffff !important;
+            color: var(--text-main) !important;
             margin: 0 0 4px 0 !important;
-            line-height: 1.2 !important;
-        }
-
-        .login-title span {
-            background: linear-gradient(135deg, #ffffff 0%, #38bdf8 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
         }
 
         .login-subtitle {
-            font-size: 0.88rem !important;
+            font-size: 0.9rem !important;
             color: var(--text-muted) !important;
-            font-weight: 400 !important;
             margin-bottom: 0 !important;
         }
 
@@ -184,20 +137,19 @@
             align-items: center;
             gap: 6px;
             font-family: var(--font-display);
-            font-size: 0.85rem;
+            font-size: 0.9rem;
             font-weight: 600;
-            color: var(--text-subtle) !important;
+            color: var(--text-main) !important;
             margin-bottom: 7px;
         }
 
         .form-label-modern i {
-            color: var(--cosmic-cyan);
-            font-size: 0.85rem;
+            color: var(--text-muted);
         }
 
         .input-group-modern {
             position: relative;
-            margin-bottom: 18px;
+            margin-bottom: 20px;
         }
 
         .input-group-modern .input-icon {
@@ -205,40 +157,27 @@
             left: 16px;
             top: 50%;
             transform: translateY(-50%);
-            color: #64748b;
+            color: #94a3b8;
             font-size: 0.95rem;
             z-index: 10;
-            pointer-events: none;
-            transition: color 0.2s ease;
         }
 
         .form-control-modern {
             width: 100%;
-            border-radius: 12px !important;
-            padding: 13px 44px 13px 44px !important;
-            border: 1px solid rgba(148, 163, 184, 0.22) !important;
+            border-radius: 8px !important;
+            padding: 12px 44px 12px 44px !important;
+            border: 1px solid var(--border-color) !important;
             font-size: 0.95rem !important;
             height: 48px !important;
-            font-family: var(--font-body) !important;
-            background-color: rgba(15, 23, 42, 0.6) !important;
-            color: #ffffff !important;
-            transition: all 0.25s ease !important;
-        }
-
-        .form-control-modern::placeholder {
-            color: #64748b !important;
+            background-color: #ffffff !important;
+            color: var(--text-main) !important;
+            transition: all 0.2s ease !important;
         }
 
         .form-control-modern:focus {
             outline: none !important;
-            background-color: rgba(15, 23, 42, 0.9) !important;
-            border-color: var(--cosmic-cyan) !important;
-            box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2), 0 0 20px rgba(56, 189, 248, 0.15) !important;
-            color: #ffffff !important;
-        }
-
-        .input-group-modern:focus-within .input-icon {
-            color: var(--cosmic-cyan) !important;
+            border-color: var(--accent-blue) !important;
+            box-shadow: 0 0 0 3px #bae6fd !important;
         }
 
         .toggle-password {
@@ -246,25 +185,19 @@
             right: 14px;
             top: 50%;
             transform: translateY(-50%);
-            color: #64748b;
+            color: #94a3b8;
             cursor: pointer;
             z-index: 10;
             padding: 6px;
-            transition: all 0.2s ease;
         }
 
-        .toggle-password:hover {
-            color: var(--cosmic-cyan);
-            transform: translateY(-50%) scale(1.1);
-        }
-
-        /* Checkbox & Forgot Password */
+        /* Meta Row */
         .auth-meta-row {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            margin-bottom: 22px;
-            font-size: 0.85rem;
+            margin-bottom: 24px;
+            font-size: 0.9rem;
         }
 
         .custom-checkbox-wrap {
@@ -272,66 +205,31 @@
             align-items: center;
             gap: 8px;
             cursor: pointer;
-            user-select: none;
-            color: var(--text-muted);
-            transition: color 0.2s ease;
-        }
-
-        .custom-checkbox-wrap:hover {
-            color: var(--text-subtle);
+            color: var(--text-main);
         }
 
         .custom-checkbox-wrap input[type="checkbox"] {
-            appearance: none;
-            -webkit-appearance: none;
-            width: 17px;
-            height: 17px;
-            border: 1.5px solid rgba(148, 163, 184, 0.4);
-            border-radius: 4px;
-            background-color: rgba(15, 23, 42, 0.6);
+            width: 16px;
+            height: 16px;
             cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-            transition: all 0.2s ease;
-            margin: 0;
-        }
-
-        .custom-checkbox-wrap input[type="checkbox"]:checked {
-            background-color: var(--cosmic-cyan);
-            border-color: var(--cosmic-cyan);
-            box-shadow: 0 0 10px rgba(56, 189, 248, 0.4);
-        }
-
-        .custom-checkbox-wrap input[type="checkbox"]:checked::after {
-            content: '✓';
-            font-size: 11px;
-            font-weight: 900;
-            color: #070a13;
-            position: absolute;
         }
 
         .link-cosmic {
-            color: var(--cosmic-cyan) !important;
-            font-weight: 600 !important;
+            color: var(--accent-blue) !important;
+            font-weight: 500 !important;
             text-decoration: none !important;
-            transition: all 0.2s ease;
         }
-
         .link-cosmic:hover {
-            color: #7dd3fc !important;
             text-decoration: underline !important;
         }
 
         /* Buttons */
         .btn-gradient-primary {
-            background: linear-gradient(135deg, #0284c7 0%, #2563eb 100%) !important;
+            background: var(--accent-blue) !important;
             color: #ffffff !important;
             border: none !important;
-            border-radius: 12px !important;
-            padding: 13px !important;
-            font-family: var(--font-display) !important;
+            border-radius: 8px !important;
+            padding: 12px !important;
             font-weight: 600 !important;
             font-size: 1rem !important;
             width: 100%;
@@ -340,150 +238,98 @@
             align-items: center;
             justify-content: center;
             gap: 10px;
-            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
-            box-shadow: 0 8px 25px rgba(37, 99, 235, 0.4) !important;
+            transition: background 0.2s ease !important;
         }
 
         .btn-gradient-primary:hover {
-            box-shadow: 0 12px 30px rgba(56, 189, 248, 0.45) !important;
-            transform: translateY(-2px);
-            color: #ffffff !important;
+            background: #0369a1 !important;
         }
 
-        .btn-gradient-primary:active {
-            transform: translateY(0);
-        }
-
-        /* Modern Divider */
         .auth-divider {
             display: flex;
             align-items: center;
             text-align: center;
-            margin: 22px 0 20px;
+            margin: 24px 0;
         }
-
-        .auth-divider::before,
-        .auth-divider::after {
+        .auth-divider::before, .auth-divider::after {
             content: '';
             flex: 1;
-            border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+            border-bottom: 1px solid var(--border-color);
         }
-
         .auth-divider span {
             padding: 0 12px;
-            font-family: var(--font-display);
-            font-size: 0.72rem;
-            font-weight: 700;
-            letter-spacing: 1px;
-            color: #64748b;
+            font-size: 0.8rem;
+            color: var(--text-muted);
             text-transform: uppercase;
         }
 
-        /* Google OAuth Button */
         .btn-google {
             background: #ffffff !important;
-            color: #1e293b !important;
-            border: 1px solid rgba(255, 255, 255, 0.9) !important;
-            border-radius: 12px !important;
+            color: var(--text-main) !important;
+            border: 1px solid var(--border-color) !important;
+            border-radius: 8px !important;
             padding: 12px !important;
-            font-family: var(--font-display) !important;
-            font-weight: 600 !important;
-            font-size: 0.95rem !important;
+            font-weight: 500 !important;
             width: 100%;
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 12px;
-            transition: all 0.25s ease !important;
             text-decoration: none !important;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.25) !important;
+            transition: background 0.2s ease !important;
         }
-
         .btn-google:hover {
-            background: #f8fafc !important;
-            color: #0f172a !important;
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(255, 255, 255, 0.2) !important;
+            background: #f1f5f9 !important;
             text-decoration: none !important;
         }
 
-        /* Back to Home Link */
         .back-to-home {
             color: var(--text-muted) !important;
-            font-size: 0.88rem;
-            font-weight: 500;
+            font-size: 0.9rem;
             text-decoration: none !important;
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            transition: all 0.2s ease;
         }
-
         .back-to-home:hover {
-            color: var(--cosmic-cyan) !important;
-            transform: translateX(-3px);
+            color: var(--accent-blue) !important;
         }
 
-        /* Badges Footer */
         .auth-roles-footer {
             display: flex;
             justify-content: center;
             gap: 8px;
             flex-wrap: wrap;
-            margin-top: 20px;
+            margin-top: 24px;
         }
-
         .role-pill {
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-            font-size: 0.72rem;
-            font-weight: 500;
-            color: #94a3b8;
-            background: rgba(255, 255, 255, 0.04);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            padding: 4px 10px;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            padding: 4px 12px;
             border-radius: 12px;
         }
 
-        .role-pill i {
-            color: var(--cosmic-cyan);
-            font-size: 0.7rem;
-        }
-
-        /* Alerts */
         .alert-cosmic-danger {
-            background: rgba(239, 68, 68, 0.12) !important;
-            border: 1px solid rgba(239, 68, 68, 0.3) !important;
-            color: #fca5a5 !important;
-            border-radius: 12px !important;
+            background: #fef2f2 !important;
+            border: 1px solid #fecaca !important;
+            color: #dc2626 !important;
+            border-radius: 8px !important;
             padding: 12px 14px !important;
             font-size: 0.85rem !important;
-            margin-bottom: 18px !important;
-        }
-
-        .alert-cosmic-success {
-            background: rgba(16, 185, 129, 0.12) !important;
-            border: 1px solid rgba(16, 185, 129, 0.3) !important;
-            color: #6ee7b7 !important;
-            border-radius: 12px !important;
-            padding: 12px 14px !important;
-            font-size: 0.85rem !important;
-            margin-bottom: 18px !important;
+            margin-bottom: 20px !important;
         }
     </style>
 </head>
 <body class="login-body">
-    <!-- Starfield background canvas -->
-    <canvas id="starfield-canvas"></canvas>
-        
     <div class="login-wrapper">
         @yield('content')
 
         <div class="auth-roles-footer">
             <span class="role-pill"><i class="fas fa-id-card"></i> Visitantes</span>
-            <span class="role-pill"><i class="fas fa-graduation-cap"></i> Escuelas / Alumnos</span>
-            <span class="role-pill"><i class="fas fa-user-shield"></i> Operadores UNSa</span>
+            <span class="role-pill"><i class="fas fa-graduation-cap"></i> Escuelas</span>
+            <span class="role-pill"><i class="fas fa-user-shield"></i> Operadores</span>
         </div>
     </div>
 
@@ -491,7 +337,6 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="{{ asset('js/appl.js') }}"></script>
     <script>
-        // Password toggle function
         function togglePasswordVisibility(fieldId, iconId) {
             const field = document.getElementById(fieldId);
             const icon = document.getElementById(iconId);
@@ -507,64 +352,6 @@
                 }
             }
         }
-
-        // Lightweight Starfield Canvas
-        (function() {
-            const canvas = document.getElementById('starfield-canvas');
-            if (!canvas) return;
-            const ctx = canvas.getContext('2d');
-            let width, height;
-            const stars = [];
-            const numStars = 65;
-
-            function resize() {
-                width = canvas.width = window.innerWidth;
-                height = canvas.height = window.innerHeight;
-            }
-
-            function initStars() {
-                stars.length = 0;
-                for (let i = 0; i < numStars; i++) {
-                    stars.push({
-                        x: Math.random() * width,
-                        y: Math.random() * height,
-                        radius: Math.random() * 1.4 + 0.4,
-                        alpha: Math.random() * 0.7 + 0.2,
-                        speed: Math.random() * 0.008 + 0.003,
-                        dir: Math.random() > 0.5 ? 1 : -1
-                    });
-                }
-            }
-
-            function animate() {
-                ctx.clearRect(0, 0, width, height);
-                for (let star of stars) {
-                    star.alpha += star.speed * star.dir;
-                    if (star.alpha > 0.95) {
-                        star.alpha = 0.95;
-                        star.dir = -1;
-                    } else if (star.alpha < 0.15) {
-                        star.alpha = 0.15;
-                        star.dir = 1;
-                    }
-
-                    ctx.beginPath();
-                    ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
-                    ctx.fillStyle = `rgba(255, 255, 255, ${star.alpha})`;
-                    ctx.fill();
-                }
-                requestAnimationFrame(animate);
-            }
-
-            window.addEventListener('resize', () => {
-                resize();
-                initStars();
-            });
-
-            resize();
-            initStars();
-            animate();
-        })();
     </script>
 </body>
 </html>

@@ -32,14 +32,14 @@
 
             <div class="form-group mb-3">
                 <label for="email" class="form-label-modern">
-                    <i class="fas fa-envelope"></i> Correo Electrónico <span style="color: var(--cosmic-cyan);">*</span>
+                    <i class="fas fa-envelope"></i> Correo Electrónico <span style="color: #dc2626;">*</span>
                 </label>
                 <div class="input-group-modern">
                     <i class="fas fa-envelope input-icon"></i>
                     <input id="email" type="email" class="form-control-modern @error('email') is-invalid @enderror" name="email" value="{{ old('email') }}" required autocomplete="email" placeholder="ejemplo@unsa.edu.ar" autofocus>
                 </div>
                 @error('email')
-                    <span class="small font-weight-bold mt-1 d-block" style="color: #f87171;" role="alert">
+                    <span class="small font-weight-bold mt-1 d-block" style="color: #dc2626;" role="alert">
                         {{ $message }}
                     </span>
                 @enderror
@@ -47,7 +47,7 @@
 
             <div class="form-group mb-3">
                 <label for="password" class="form-label-modern">
-                    <i class="fas fa-lock"></i> Contraseña <span style="color: var(--cosmic-cyan);">*</span>
+                    <i class="fas fa-lock"></i> Contraseña <span style="color: #dc2626;">*</span>
                 </label>
                 <div class="input-group-modern">
                     <i class="fas fa-lock input-icon"></i>
@@ -55,7 +55,7 @@
                     <i class="fas fa-eye toggle-password" id="icon-toggle-pass" onclick="togglePasswordVisibility('password', 'icon-toggle-pass')" title="Mostrar/ocultar contraseña"></i>
                 </div>
                 @error('password')
-                    <span class="small font-weight-bold mt-1 d-block" style="color: #f87171;" role="alert">
+                    <span class="small font-weight-bold mt-1 d-block" style="color: #dc2626;" role="alert">
                         {{ $message }}
                     </span>
                 @enderror

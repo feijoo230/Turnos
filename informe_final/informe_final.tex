@@ -1,15 +1,23 @@
-\documentclass[12pt,a4paper]{report}
+\documentclass[11pt,a4paper]{extreport}
 \usepackage[utf8]{inputenc}
 \usepackage[spanish]{babel}
 \usepackage{graphicx}
 \usepackage{hyperref}
+\hypersetup{
+    hidelinks
+}
 \usepackage{geometry}
 \usepackage{titlesec}
+% Formato de capítulos en una sola línea: "1. Introducción" en lugar de "Capítulo 1 \n Introducción"
+\titleformat{\chapter}[hang]{\bfseries\Huge}{\thechapter.}{0.5em}{}
+\titlespacing*{\chapter}{0pt}{0pt}{20pt}
 \usepackage{enumitem}
 \usepackage{tocbibind}
 \usepackage{xcolor}
 \usepackage{listings}
+\usepackage{setspace}
 
+\onehalfspacing % Interlineado 1.5 para mayor legibilidad
 \geometry{top=2.5cm, bottom=2.5cm, left=3cm, right=2.5cm}
 
 % Configuración de ruta para imágenes
@@ -63,7 +71,7 @@
     \vspace{2cm}
     {\itshape\Large Seminario Técnico Profesional \par}
     \vspace{2cm}
-    {\Large \textbf{Autor:} Juan Martin Feijoo \par}
+    {\Large \textbf{Autor:} Juan Martin Feijoó \par}
     {\Large \textbf{DNI:} 42.035.443 \par}
     \vfill
     {\Large Salta, Argentina \par}

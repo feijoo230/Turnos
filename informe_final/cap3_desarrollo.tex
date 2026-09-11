@@ -1,7 +1,7 @@
 \chapter{Desarrollo e Implementación}
 
-\section{Configuración del Entorno de Ejecución (Docker)}
-Para asegurar un entorno de desarrollo consistente y facilitar el despliegue del sistema en la infraestructura de la UNSa, se ha optado por la contenerización mediante \textbf{Docker} y \textbf{Docker Compose}. Esta metodología permite aislar la aplicación de las particularidades del sistema operativo anfitrión, empaquetando todas las dependencias necesarias.
+\section{Configuración del Entorno de Desarrollo Local (Docker)}
+Para asegurar un entorno de desarrollo consistente, aislado y reproducible en la fase de programación, se optó por la contenerización mediante \textbf{Docker} y \textbf{Docker Compose}. Esta metodología permite aislar la aplicación de las particularidades del sistema operativo local (Windows/Linux), empaquetando todas las dependencias del stack Laravel.
 
 La arquitectura de servicios definida en el archivo \texttt{docker-compose.yml} consta de tres contenedores principales interconectados:
 

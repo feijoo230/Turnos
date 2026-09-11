@@ -1,72 +1,46 @@
 \chapter{Despliegue y Puesta en Producción}
 \label{cap:despliegue}
 
-Una etapa fundamental en el ciclo de vida del desarrollo de software es la transición del entorno de desarrollo local al entorno de producción. En este capítulo se documentan las decisiones técnicas, la configuración del servidor y los procesos realizados para que Kong Tienda Online quede accesible al público, así como el proceso de transferencia del sistema a los usuarios finales.
+Una etapa fundamental en el ciclo de vida del desarrollo de software es la transición del entorno de desarrollo local al entorno de producción. En este capítulo se documentan las decisiones técnicas, la configuración del servidor y los procesos realizados para que el sistema de \textbf{Turnos Académicos} del Observatorio Alanis quede accesible a la comunidad universitaria, así como el proceso de transferencia del sistema a los usuarios finales.
 
 \section{Preparación para Producción}
 
 Antes de trasladar el código al servidor, fue necesario realizar ajustes de optimización y seguridad propios del entorno de producción. Entre las tareas destacadas se encuentran:
 
 \begin{itemize}
-    \item \textbf{Gestión de dependencias:} Instalación exclusiva de paquetes requeridos para producción, omitiendo herramientas de desarrollo (ej. ejecutando \texttt{composer install --optimize-autoloader --no-dev}).
-    \item \textbf{Compilación de Assets:} Los archivos de \textit{frontend} (Tailwind CSS, JavaScript) fueron compilados y minimizados para reducir tiempos de carga mediante la ejecución de Vite/NPM.
-    \item \textbf{Caché de configuración:} Se generaron cachés de rutas, vistas y configuración de Laravel para acelerar los tiempos de respuesta del framework.
+    \item \textbf{Gestión de dependencias:} Instalación exclusiva de paquetes requeridos para producción, omitiendo herramientas de desarrollo (ejecutando \texttt{composer install --optimize-autoloader --no-dev}).
+    \item \textbf{Compilación de Assets:} Los archivos de \textit{frontend} y componentes de Vue.js fueron compilados y minimizados para optimizar los tiempos de carga en los navegadores de los usuarios.
+    \item \textbf{Caché de configuración:} Se generaron cachés de rutas, vistas y configuración de Laravel (\texttt{config:cache}, \texttt{route:cache}) para acelerar los tiempos de respuesta del framework.
+    \item \textbf{Ajustes de Seguridad (\texttt{.env}):} Desactivación del modo depuración (\texttt{APP\_DEBUG=false}), configuración de la clave de encriptación de la aplicación (\texttt{APP\_KEY}) y establecimiento de las credenciales de conexión a la base de datos de producción.
 \end{itemize}
 
 \section{Entorno de Servidor y Despliegue (Deploy)}
 
-% TODO: Completa aquí con los detalles reales de tu servidor. Ejemplos:
-% - ¿Usaste un VPS (DigitalOcean, AWS), hosting compartido (Hostinger, cPanel) o PaaS?
-% - ¿Qué servidor web usaste? (Apache, Nginx).
-% - ¿Qué herramientas utilizaste para subir los archivos? (Git, FTP, SSH).
+El despliegue de la aplicación se llevó a cabo en la infraestructura provista por la Facultad de Ciencias Exactas de la Universidad Nacional de Salta (\textbf{UNSa}), asignada al subdominio \texttt{observatorioalanis.exa.unsa.edu.ar}.
 
-El despliegue de la aplicación se llevó a cabo en un servidor % [MENCIONAR TIPO DE SERVIDOR]
-que cumple con los requisitos tecnológicos del stack TALL. La configuración del entorno consistió en:
+La configuración del entorno y el procedimiento de despliegue consistió en:
 
 \begin{enumerate}
-    \item \textbf{Configuración del Servidor Web y PHP:} Se habilitaron los módulos necesarios (como OpenSSL, PDO, Mbstring) y se configuró el \textit{Virtual Host} para apuntar al directorio \texttt{public} de Laravel, impidiendo el acceso directo a los archivos de configuración.
-    \item \textbf{Base de Datos:} Se configuró el motor MySQL y se ejecutaron las migraciones correspondientes (\texttt{php artisan migrate}) para recrear la estructura relacional en producción.
-    \item \textbf{Variables de Entorno (\texttt{.env}):} Se establecieron de forma segura las credenciales de la base de datos, las claves de las APIs (Mercado Pago / Niubiz) y los datos del servidor de correo electrónico (SMTP).
+    \item \textbf{Infraestructura y Hosting Institucional:} El sistema se aloja en el entorno de hosting compartido administrado por la Supervisión de RED de la facultad mediante la plataforma \textbf{Usermin / cPanel}.
+    \item \textbf{Transferencia de Archivos (FTP):} Se utilizó un cliente FTP (\textit{FileZilla}) para transferir los archivos de la aplicación a la carpeta asignada (\texttt{public\_html/}), configurando el directorio raíz del servidor web hacia el directorio \texttt{public} de Laravel para proteger la estructura del framework y los archivos de configuración.
+    \item \textbf{Servidor de Base de Datos (MariaDB):} La persistencia de datos en producción se gestiona sobre un servidor **MariaDB** proporcionado por la facultad. El esquema relacional y la carga inicial de tablas (dependencias, trámites y estructura de usuarios) se realizaron mediante la importación del archivo estructurado de base de datos desde el módulo MySQL de Usermin.
+    \item \textbf{Configuración del Servidor de Correo (SMTP):} Se establecieron los parámetros SMTP necesarios para el envío automático de comprobantes y notificaciones de confirmación de turnos a los correos de los usuarios.
 \end{enumerate}
 
-% [INSERTA CAPTURA DE PANTALLA AQUÍ]
-% Sugerencia: Una captura de la terminal haciendo el deploy, o del panel de control de tu hosting.
-\begin{figure}
-    \centering
-    % \includegraphics[width=0.8\textwidth]{img/deploy_terminal.png}
-    \caption{Proceso de despliegue y ejecución de migraciones en el servidor de producción.}
-    \label{fig:deploy_terminal}
-\end{figure}
+\section{Capacitación y Entrega al Personal}
 
-\section{Capacitación y Entrega al Cliente}
+Para garantizar una transición fluida y el correcto aprovechamiento del sistema por parte del personal del Observatorio Alanis y de la universidad, se realizó un proceso de transferencia de conocimientos y material de apoyo.
 
-Un sistema por más robusto que sea, requiere que los usuarios finales comprendan su funcionamiento para poder sacarle el máximo provecho. Por ello, la entrega del software incluyó un proceso de transferencia de conocimientos.
+\subsection{Material de Soporte y Manuales}
 
-\subsection{Material de Soporte}
-
-Para facilitar la adopción del sistema, se elaboró material de apoyo dirigido principalmente a los usuarios con roles de Administrador y Ventas.
-
-% TODO: Menciona si hiciste un manual en PDF, videos, o una guía rápida.
-Este material incluye instrucciones detalladas sobre:
+Se estructuró una guía de usuario para los administradores y operadores del sistema, contemplando:
 \begin{itemize}
-    \item Cómo dar de alta nuevos productos y gestionar el stock de las variantes.
-    \item El flujo para procesar las órdenes de compra (cambios de estado: de \textit{Pending} a \textit{Shipped}).
-    \item La configuración de portadas (banners) e información de contacto desde el panel.
+    \item Alta y configuración de dependencias, trámites y franjas horarias de atención.
+    \item Gestión del calendario de días no laborables y feriados institucionales.
+    \item Procedimiento para la atención presencial y actualización del estado de los turnos.
+    \item Generación e impresión de reportes de asistencia y estadísticas de visitas al Observatorio.
 \end{itemize}
-
-% [INSERTA CAPTURA DE PANTALLA AQUÍ]
-% Sugerencia: Una captura de la portada de tu manual o un índice del mismo.
-\begin{figure}
-    \centering
-    % \includegraphics[width=0.6\textwidth]{img/manual_portada.jpg}
-    \caption{Portada del Manual de Administrador entregado al cliente.}
-    \label{fig:manual_portada}
-\end{figure}
 
 \subsection{Sesiones de Capacitación}
 
-% TODO: Describe aquí cómo le enseñaste al cliente a usarlo. 
-% ¿Fue presencial? ¿Por videollamada? ¿Fueron los dueños o los empleados?
-Se llevaron a cabo sesiones de capacitación con el personal encargado de la tienda. Durante estas sesiones, se realizó un recorrido completo por el \textit{dashboard} administrativo. 
-
-Uno de los enfoques principales de la capacitación fue el manejo de las variantes de productos y el sistema jerárquico de descuentos, asegurando que los encargados pudieran reflejar correctamente las promociones del negocio físico en la tienda online. La retroalimentación obtenida durante estas pruebas finales fue altamente positiva, logrando una rápida curva de aprendizaje gracias al diseño intuitivo del panel administrativo.
+Se llevaron a cabo jornadas de capacitación dirigidas al personal administrativo encargados de la gestión de agenda del Observatorio Alanis. Durante las sesiones se realizó un recorrido funcional completo por el panel administrativo, capacitando al personal en el control de capacidad de atención ("mesas habilitadas") y resolución de incidencias en la asignación de turnos.
