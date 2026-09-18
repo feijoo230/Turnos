@@ -25,6 +25,7 @@
           <li><a href="{{ url('tramitesdependencias') }}"><i class="fa fa-building-o"></i> Trámites por Dependencia</a></li>
           <li><a href="{{ url('tramites') }}"><i class="fa fa-file-text-o"></i> Trámites Digitales</a></li>
           <li><a href="{{ url('proyectos-extension') }}"><i class="fa fa-folder-open-o"></i> Proyectos de Extensión</a></li>
+          <li><a href="{{ url('investigaciones') }}"><i class="fa fa-book"></i> Investigaciones</a></li>
           <li><a href="{{ url('tipos-evento') }}"><i class="fa fa-tags"></i> Tipos de Eventos</a></li>
         </ul>
       </li>

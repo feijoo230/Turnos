@@ -4,6 +4,8 @@ namespace App\Http\Controllers\frontend;
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Models\ProyectoExtension;
+use App\Models\Investigacion;
 
 class FrontendController extends Controller
 {
@@ -14,12 +16,23 @@ class FrontendController extends Controller
 
     public function proyectos()
     {
-        return view('frontend.observatorio.proyectos');
+        $proyectos = ProyectoExtension::where('activo', true)
+            ->orderBy('orden', 'asc')
+            ->orderBy('id', 'desc')
+            ->get();
+
+        return view('frontend.observatorio.proyectos', compact('proyectos'));
     }
 
     public function investigacion()
     {
-        return view('frontend.observatorio.investigacion');
+        $investigaciones = Investigacion::where('activo', true)
+            ->orderBy('orden', 'asc')
+            ->orderBy('ano', 'desc')
+            ->orderBy('id', 'desc')
+            ->get();
+
+        return view('frontend.observatorio.investigacion', compact('investigaciones'));
     }
 
     public function instalaciones()

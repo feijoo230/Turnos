@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Frontend;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Dependencia;
+use App\Models\ProyectoExtension;
+use App\Models\Investigacion;
 
 class LandingController extends Controller
 {
@@ -13,9 +15,21 @@ class LandingController extends Controller
      */
     public function index()
     {
-        // Se puede consultar si hay dependencias activas o estadísticas si se desea
         $dependencias = Dependencia::getDependenciasConTurnos();
         
-        return view('frontend.landing', compact('dependencias'));
+        $ultimosProyectos = ProyectoExtension::where('activo', true)
+            ->orderBy('orden', 'asc')
+            ->orderBy('id', 'desc')
+            ->take(4)
+            ->get();
+
+        $ultimasInvestigaciones = Investigacion::where('activo', true)
+            ->orderBy('orden', 'asc')
+            ->orderBy('ano', 'desc')
+            ->orderBy('id', 'desc')
+            ->take(3)
+            ->get();
+        
+        return view('frontend.landing', compact('dependencias', 'ultimosProyectos', 'ultimasInvestigaciones'));
     }
 }

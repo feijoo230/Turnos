@@ -96,6 +96,7 @@ Route::group(['middleware' => ['auth', 'role:ADMINISTRADOR|OPERADOR']], function
   Route::resource('tramitesdependencias', 'TramitesDependenciasController');
   Route::resource('turnostramites', 'TurnosTramitesController');
   Route::resource('proyectos-extension', 'ProyectoExtensionController');
+  Route::resource('investigaciones', 'InvestigacionController');
   Route::resource('tipos-evento', 'TipoEventoController');
 
   // Estadísticas y Reportes

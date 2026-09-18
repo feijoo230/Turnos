@@ -127,7 +127,11 @@
                   </a>
                   <a href="{{ url('proyectos-extension') }}" class="list-group-item">
                     <h5 class="list-group-item-heading"><i class="fa fa-folder text-warning me-2"></i> Proyectos de Extensión</h5>
-                    <p class="list-group-item-text small text-muted">Administrar proyectos habilitados para turnos.</p>
+                    <p class="list-group-item-text small text-muted">Administrar proyectos y contenido de la landing page.</p>
+                  </a>
+                  <a href="{{ url('investigaciones') }}" class="list-group-item">
+                    <h5 class="list-group-item-heading"><i class="fa fa-book text-info me-2"></i> Investigaciones y Publicaciones</h5>
+                    <p class="list-group-item-text small text-muted">Gestionar artículos científicos, PDFs y publicaciones.</p>
                   </a>
                   @hasrole('ADMINISTRADOR')
                   <a href="{{ url('usuarios') }}" class="list-group-item">

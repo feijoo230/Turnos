@@ -25,5 +25,6 @@ class DatabaseSeeder extends Seeder
         $this->call(Mesas_HabilitadasTableSeeder::class);
         $this->call(Turnos_Reservas_EstadosSeeder::class);
         $this->call(Dependencias_TramitesSeeder::class);
+        $this->call(ProyectosAndInvestigacionesSeeder::class);
     }
 }
