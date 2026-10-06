@@ -97,6 +97,8 @@ Route::group(['middleware' => ['auth', 'role:ADMINISTRADOR|OPERADOR']], function
   Route::resource('turnostramites', 'TurnosTramitesController');
   Route::resource('proyectos-extension', 'ProyectoExtensionController');
   Route::resource('investigaciones', 'InvestigacionController');
+  Route::resource('equipo-trabajo', 'EquipoController');
+  Route::resource('instalaciones-gestion', 'InstalacionController');
   Route::resource('tipos-evento', 'TipoEventoController');
 
   // Estadísticas y Reportes
@@ -108,6 +110,17 @@ Route::group(['middleware' => ['auth', 'role:ADMINISTRADOR|OPERADOR']], function
   Route::get('turnos_admin.llamar_siguiente', 'TurnosController@llamar_siguiente')->name('turnos_admin.llamar_siguiente');
   Route::get('turnos_admin.terminar_turno/{id_turno}', 'TurnosController@terminar_turno')->name('turnos_admin.terminar_turno');
   Route::get('turnos_admin.es_afiliado/{id_turno}', 'TurnosController@es_afiliado')->name('turnos_admin.es_afiliado');
+});
+
+// Rutas exclusivas para ADMINISTRADOR - Gestión de Plantillas de Correo
+Route::group(['middleware' => ['auth', 'role:ADMINISTRADOR']], function(){
+  Route::get('plantillas-email', 'PlantillasEmailController@index')->name('plantillas-email.index');
+  Route::get('plantillas-email/{id}/edit', 'PlantillasEmailController@edit')->name('plantillas-email.edit');
+  Route::put('plantillas-email/{id}', 'PlantillasEmailController@update')->name('plantillas-email.update');
+  Route::get('plantillas-email/{id}/preview', 'PlantillasEmailController@preview')->name('plantillas-email.preview');
+  Route::post('plantillas-email/{id}/enviar-prueba', 'PlantillasEmailController@enviarPrueba')->name('plantillas-email.enviar-prueba');
+  Route::post('plantillas-email/{id}/restablecer', 'PlantillasEmailController@restablecer')->name('plantillas-email.restablecer');
+  Route::post('plantillas-email/{id}/toggle', 'PlantillasEmailController@toggle')->name('plantillas-email.toggle');
 });
 
 Route::group(['middleware' => 'auth'], function(){

@@ -26,5 +26,7 @@ class DatabaseSeeder extends Seeder
         $this->call(Turnos_Reservas_EstadosSeeder::class);
         $this->call(Dependencias_TramitesSeeder::class);
         $this->call(ProyectosAndInvestigacionesSeeder::class);
+        $this->call(PlantillasEmailSeeder::class);
+        $this->call(EquipoAndInstalacionesSeeder::class);
     }
 }

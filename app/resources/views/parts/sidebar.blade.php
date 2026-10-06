@@ -6,7 +6,8 @@
       @hasanyrole('ADMINISTRADOR|OPERADOR')
       <li><a href="{{ url('/home') }}"><i class="fa fa-tachometer text-primary"></i> Panel de Control</a></li>
       @endhasanyrole
-      <li><a href="{{ url('/') }}" target="_blank"><i class="fa fa-external-link text-info"></i> Portal Solicitud Turnos</a></li>
+      <li><a href="{{ route('turnos') }}" target="_blank"><i class="fa fa-calendar-check-o text-info"></i> Turnos</a></li>
+      <li><a href="{{ route('landing') }}" target="_blank"><i class="fa fa-globe text-success"></i> Landing</a></li>
     </ul>
 
     @hasanyrole('ADMINISTRADOR|OPERADOR')
@@ -26,6 +27,8 @@
           <li><a href="{{ url('tramites') }}"><i class="fa fa-file-text-o"></i> Trámites Digitales</a></li>
           <li><a href="{{ url('proyectos-extension') }}"><i class="fa fa-folder-open-o"></i> Proyectos de Extensión</a></li>
           <li><a href="{{ url('investigaciones') }}"><i class="fa fa-book"></i> Investigaciones</a></li>
+          <li><a href="{{ url('equipo-trabajo') }}"><i class="fa fa-users"></i> Equipo de Trabajo</a></li>
+          <li><a href="{{ url('instalaciones-gestion') }}"><i class="fa fa-university"></i> Instalaciones</a></li>
           <li><a href="{{ url('tipos-evento') }}"><i class="fa fa-tags"></i> Tipos de Eventos</a></li>
         </ul>
       </li>
@@ -51,6 +54,7 @@
           <li><a href="{{ url('dependencias') }}"><i class="fa fa-sitemap"></i> Dependencias</a></li>
           <li><a href="{{ url('mesashabilitadas') }}"><i class="fa fa-desktop"></i> Mesas Habilitadas</a></li>
           <li><a href="{{ url('feriados') }}"><i class="fa fa-calendar-times-o"></i> Feriados</a></li>
+          <li><a href="{{ route('plantillas-email.index') }}"><i class="fa fa-envelope-o"></i> Plantillas de Correo</a></li>
         </ul>
       </li>
     </ul>

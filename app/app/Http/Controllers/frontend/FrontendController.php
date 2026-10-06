@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Models\ProyectoExtension;
 use App\Models\Investigacion;
+use App\Models\MiembroEquipo;
+use App\Models\Instalacion;
 
 class FrontendController extends Controller
 {
@@ -37,11 +39,30 @@ class FrontendController extends Controller
 
     public function instalaciones()
     {
-        return view('frontend.observatorio.instalaciones');
+        $instalaciones = Instalacion::where('activo', true)
+            ->orderBy('orden', 'asc')
+            ->orderBy('id', 'asc')
+            ->get();
+
+        return view('frontend.observatorio.instalaciones', compact('instalaciones'));
     }
 
     public function equipo()
     {
-        return view('frontend.observatorio.equipo');
+        $responsables = MiembroEquipo::with('user')
+            ->where('activo', true)
+            ->where('tipo', 'responsable')
+            ->orderBy('orden', 'asc')
+            ->orderBy('id', 'asc')
+            ->get();
+
+        $colaboradores = MiembroEquipo::with('user')
+            ->where('activo', true)
+            ->where('tipo', 'colaborador')
+            ->orderBy('orden', 'asc')
+            ->orderBy('id', 'asc')
+            ->get();
+
+        return view('frontend.observatorio.equipo', compact('responsables', 'colaboradores'));
     }
 }
