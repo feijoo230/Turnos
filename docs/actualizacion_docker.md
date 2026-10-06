@@ -5,6 +5,7 @@ Esta guía detalla los pasos exactos para actualizar la aplicación en el entorn
 - **Equipo de Trabajo:** ABM completo en el panel administrativo, creación automática de usuarios operadores con rol `OPERADOR` y vinculación a la dependencia del Observatorio.
 - **Instalaciones y Equipamiento:** ABM completo en el panel administrativo con soporte de imágenes y viñetas de características.
 - **Rediseño Frontend:** Vista pública de `/equipo` (con avatares interactivos y cuadrícula balanceada) y `/instalaciones` (con diseño alternado de imágenes).
+- **Métricas y Estadísticas del Observatorio:** Dashboard interactivo adaptado con KPIs de visitantes reales, afluencia escolar, modalidades y gráficos de demanda.
 
 ---
 
