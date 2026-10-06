@@ -1,5 +1,18 @@
 \chapter{Módulos y funcionalidades del sistema}
 
+\section{Portal Público e Interfaz Ciudadana}
+El sistema cuenta con un portal institucional que actúa como la puerta de entrada principal para los usuarios. Este módulo no solo centraliza el acceso a la reserva de turnos, sino que funciona como un espacio de divulgación dinámica.
+
+\begin{itemize}
+    \item \textbf{Visibilidad de Proyectos e Investigaciones:} Se integra un módulo de publicación donde las dependencias pueden cargar de forma dinámica los proyectos de extensión y las investigaciones en curso, permitiendo a la comunidad conocer las actividades antes de reservar un turno.
+\end{itemize}
+
+\begin{figure}[htbp]
+    \centering
+    % \includegraphics[width=0.8\textwidth]{portal_publico}
+    \caption{Placeholder: Captura del Portal Institucional}
+    \label{fig:portal_publico}
+\end{figure}
 \section{Módulo de Gestión de Dependencias y Trámites}
 Este módulo constituye el núcleo administrativo del sistema, permitiendo modelar la estructura orgánica de la UNSa y las actividades del Observatorio.
 
@@ -9,24 +22,61 @@ Este módulo constituye el núcleo administrativo del sistema, permitiendo model
     \item \textbf{Catálogo de Trámites Académicos:} Permite definir actividades con descripciones detalladas, requisitos y estados de activación. Cada trámite se vincula a una o más dependencias, permitiendo una gestión descentralizada.
 \end{itemize}
 
-\section{Módulo de Reserva de Turnos (Interfaz Ciudadana)}
-Diseñado para la simplicidad, este módulo guía al usuario en un flujo lineal procesado por el \texttt{frontend/TramitesController}.
+\section{Módulo de Reserva de Turnos}
+Diseñado para la simplicidad, este módulo guía al usuario en un flujo interactivo procesado por el \texttt{frontend/TramitesController}.
 
 \begin{itemize}
-    \item \textbf{Flujo de Selección:} El solicitante selecciona la Dependencia (ej. Observatorio) y el Trámite (ej. Visita Guiada). El sistema carga dinámicamente los días disponibles mediante una integración con el calendario de feriados.
+    \item \textbf{Flujo de Selección:} El solicitante selecciona la Dependencia (ej. Observatorio) y el Trámite (ej. Visita Guiada). El sistema carga dinámicamente los días disponibles.
+    \item \textbf{Modalidades de Reserva:} El sistema soporta turnos individuales, grupales, institucionales y mixtos. En modalidades que implican contingentes, se habilita la carga pública de integrantes, donde se solicita información de la institución y una lista de los asistentes.
     \item \textbf{Validación Dinámica:} Antes de mostrar un horario como "Libre", el backend verifica en tiempo real la cantidad de reservas existentes contra las mesas habilitadas. 
-    \item \textbf{Gestión de Turnos Grupales:} Una característica distintiva para el Observatorio es la posibilidad de realizar reservas institucionales. El sistema permite cargar la cantidad de integrantes y los datos de la institución solicitante, disparando una lógica de cupos diferente a la individual.
-    \item \textbf{Comprobante y Notificación:} Una vez confirmada la reserva, se genera un archivo PDF único mediante \texttt{Snappy}. Simultáneamente, se utiliza el sistema de \textbf{Mailables} de Laravel (\texttt{NuevoTramite.php}) para enviar una confirmación automática al correo electrónico del usuario.
+    \item \textbf{Comprobante y Notificación:} Una vez confirmada la reserva, se genera un archivo PDF único mediante \texttt{Snappy}. Simultáneamente, se utiliza el sistema de \textbf{Mailables} de Laravel para enviar una confirmación automática.
 \end{itemize}
+
+\begin{figure}[htbp]
+    \centering
+    % \includegraphics[width=0.8\textwidth]{form_reserva_modalidades}
+    \caption{Placeholder: Captura del Formulario de Reserva (Modalidades y carga de integrantes)}
+    \label{fig:form_reserva_modalidades}
+\end{figure}
+
+\section{Módulo de Autogestión de Usuarios ("Mis Turnos")}
+Con el objetivo de descentralizar la carga operativa, se implementó un panel personal para que los ciudadanos gestionen sus citas.
+
+\begin{itemize}
+    \item \textbf{Panel Mis Turnos:} Permite al usuario autenticado visualizar su historial de reservas y sus turnos próximos.
+    \item \textbf{Cancelación y Liberación de Cupos:} El usuario puede cancelar una reserva de forma anticipada especificando un motivo. Esta acción libera instantáneamente el cupo en el sistema, poniéndolo a disposición de otros ciudadanos, y dispara una notificación por correo electrónico.
+\end{itemize}
+
+\begin{figure}[htbp]
+    \centering
+    % \includegraphics[width=0.8\textwidth]{mis_turnos}
+    \caption{Placeholder: Captura de pantalla del panel 'Mis Turnos' y proceso de cancelación}
+    \label{fig:mis_turnos}
+\end{figure}
 
 \section{Módulo de Panel de Operador y Control Diario}
-Este módulo está optimizado para el personal que atiende en el Observatorio, permitiendo un control fluido del flujo de visitantes.
+Este módulo está optimizado para el personal que atiende en el Observatorio, contando con un menú lateral reorganizado para facilitar accesos rápidos.
 
 \begin{itemize}
-    \item \textbf{Gestión de Asistencia:} El operador visualiza el listado de turnos filtrados por su dependencia asignada. Puede marcar el estado del turno como "Atendido", "Pendiente" o "Ausente", manteniendo las estadísticas de atención actualizadas.
-    \item \textbf{Sistema de Pases y Derivaciones:} Implementado en el \texttt{PasesController}, permite derivar un ciudadano o trámite de una dependencia a otra (ej. de una consulta técnica en el Observatorio a un trámite administrativo en la Facultad), registrando el motivo del pase y el usuario de origen y destino para mantener la trazabilidad.
-    \item \textbf{Control de Feriados y Asuetos:} El sistema permite cargar el calendario académico de la UNSa de forma masiva. El administrador puede importar un archivo \textbf{Excel} con los feriados del año, lo que bloquea automáticamente la disponibilidad en todas las dependencias vinculadas, evitando errores humanos en la asignación de turnos.
+    \item \textbf{Dashboard y Métricas:} Al ingresar, el operador visualiza un panel de control con métricas generales de atención y un resumen de las próximas reservas inmediatas.
+    \item \textbf{Gestión de Asistencia y Asignación Manual:} El operador puede marcar el estado del turno (Atendido, Pendiente, Ausente). Adicionalmente, el administrador cuenta con la capacidad de realizar una \textbf{asignación manual de turnos} para casos excepcionales.
+    \item \textbf{Cancelación Masiva por Imprevistos:} Ante problemas técnicos o climáticos (frecuentes en observaciones astronómicas), el administrador puede cancelar un bloque de turnos de manera masiva, registrando el motivo y notificando instantáneamente a todos los afectados.
+    \item \textbf{Sistema de Pases y Derivaciones:} Permite derivar un ciudadano de una dependencia a otra, manteniendo la trazabilidad.
 \end{itemize}
+
+\begin{figure}[htbp]
+    \centering
+    % \includegraphics[width=0.8\textwidth]{dashboard_admin}
+    \caption{Placeholder: Captura del Dashboard Administrativo con métricas}
+    \label{fig:dashboard_admin}
+\end{figure}
+
+\begin{figure}[htbp]
+    \centering
+    % \includegraphics[width=0.8\textwidth]{cancelacion_masiva}
+    \caption{Placeholder: Captura de la interfaz de Cancelación Masiva o Asignación Manual}
+    \label{fig:cancelacion_masiva}
+\end{figure}
 
 \section{Módulo de Reportes y Estadísticas}
 Para facilitar la toma de decisiones institucionales, el sistema provee herramientas de exportación de datos:

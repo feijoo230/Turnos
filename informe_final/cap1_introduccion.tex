@@ -3,9 +3,16 @@
 \section{Descripción general del proyecto}
 El presente trabajo final de carrera documenta el diseño, desarrollo e implementación de un sistema de gestión de turnos académicos. En el ámbito universitario, la coordinación de espacios y servicios especializados, como los laboratorios, bibliotecas, requiere de una organización meticulosa para garantizar que tanto alumnos como docentes y público en general puedan acceder a los recursos de manera equitativa y eficiente.
 
-El sistema de \textbf{Turnos Académicos} surge como una solución tecnológica diseñada específicamente para la \textbf{Universidad Nacional de Salta (UNSa)}, con un enfoque inicial y prioritario para el \textbf{Observatorio Alanis}. El Observatorio, al ser un espacio de divulgación científica y académica, recibe constantes solicitudes de visitas, consultas técnicas y uso de instrumentos, lo que hace indispensable contar con una plataforma que centralice y automatice la reserva de citas.
+El sistema de \textbf{Turnos Académicos} surge como una solución tecnológica diseñada específicamente para la \textbf{Universidad Nacional de Salta (UNSa)}, con un enfoque inicial y prioritario para el \textbf{Observatorio Alanis}. El Observatorio, al ser un espacio de divulgación científica y académica, recibe constantes solicitudes de visitas, consultas técnicas y uso de instrumentos, lo que hace indispensable contar con una plataforma que centralice y automatice la reserva de citas. A través de un portal de acceso público de diseño institucional, se ofrece una arquitectura multi-página que no solo centraliza los turnos, sino que visibiliza los proyectos de extensión e investigación de la dependencia.
 
-Esta plataforma web permite que la interacción entre la comunidad universitaria y el Observatorio se realice de manera fluida y previsible. A diferencia de los métodos tradicionales de consulta por correo o presenciales, este sistema permite la autogestión por parte del usuario, quien puede visualizar la disponibilidad real de horarios para las distintas actividades ofrecidas desde cualquier dispositivo con acceso a internet.
+\begin{figure}[htbp]
+    \centering
+    % \includegraphics[width=0.8\textwidth]{portal_institucional}
+    \caption{Placeholder: Captura del Portal Institucional del Observatorio}
+    \label{fig:portal_institucional}
+\end{figure}
+
+Esta plataforma web permite que la interacción entre la comunidad universitaria y el Observatorio se realice de manera fluida y previsible. A diferencia de los métodos tradicionales de consulta por correo o presenciales, este sistema permite la autogestión completa por parte del usuario, quien puede visualizar la disponibilidad real de horarios, registrar sus reservas y gestionar la cancelación de sus propios turnos a través de un panel personalizado (``Mis Turnos''), todo desde cualquier dispositivo con acceso a internet.
 
 Desde el punto de vista administrativo, el sistema provee herramientas robustas para que los gestores del Observatorio y otras dependencias universitarias puedan configurar su capacidad de atención (definida como "mesas habilitadas" o puestos de atención), administrar los tipos de \textbf{trámites} o actividades ofrecidas y gestionar un calendario de feriados o días sin actividad académica. Esta granularidad asegura que el sistema sea adaptable a las particularidades del calendario universitario de la UNSa.
 
@@ -40,19 +47,22 @@ El proyecto abarca el ciclo completo de la gestión de un turno, desde su concep
 
 \textbf{Funcionalidades para el Usuario:}
 \begin{itemize}
-    \item Navegación por el catálogo de dependencias y trámites disponibles.
+    \item Exploración del portal público institucional con visualización de proyectos de extensión e investigaciones.
+    \item Navegación por el catálogo de dependencias y trámites disponibles, soportando múltiples modalidades de reserva (individual, grupal, institucional y mixta).
     \item Selección de fecha y hora mediante un calendario interactivo.
-    \item Ingreso de datos personales y validación mínima de seguridad.
-    \item Descarga del comprobante del turno en formato PDF.
+    \item Ingreso de datos personales, carga pública de integrantes de contingentes y validación de seguridad con integración de inicio de sesión de Google.
+    \item Autogestión de reservas a través de un panel ``Mis Turnos'', con capacidad de cancelar citas y especificar motivos.
+    \item Descarga del comprobante del turno en formato PDF y recepción de notificaciones por correo electrónico.
 \end{itemize}
 
 \textbf{Funcionalidades para la Administración:}
 \begin{itemize}
     \item Gestión de ABM (Alta, Baja, Modificación) de dependencias, tipos de trámites y usuarios.
-    \item Asociación de trámites a dependencias con configuraciones personalizadas.
+    \item Asociación de trámites a dependencias con configuraciones personalizadas y vistas avanzadas de Mesas Habilitadas.
     \item Configuración de capacidad de atención por franjas horarias.
+    \item Asignación manual de turnos y cancelación masiva por imprevistos.
     \item Gestión de feriados nacionales, provinciales o institucionales.
-    \item Monitoreo en tiempo real de los turnos del día.
+    \item Monitoreo en tiempo real de los turnos del día a través de un Dashboard con accesos rápidos y métricas.
     \item Reportes básicos de gestión y estadísticas de atención.
 \end{itemize}
 

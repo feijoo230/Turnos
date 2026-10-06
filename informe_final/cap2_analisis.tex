@@ -5,9 +5,10 @@ A continuación, se presentan los principales requerimientos funcionales del Sis
 
 \textbf{Gestión de usuarios, roles y autenticación}
 \begin{enumerate}
-    \item El sistema debe permitir el inicio de sesión de usuarios administradores u operadores de forma segura mediante formularios web o autenticación institucíonal de Google.
-    \item El sistema debe disponer de un esquema de Roles y Permisos (RBAC) para limitar las acciones del usuario según su perfil (ej. Administrador General, Operador de Dependencia, Administrador del Observatorio).
-    \item El sistema debe restringir el acceso a los paneles administrativos únicamente a los usuarios autenticados con los permisos adecuados.
+    \item El sistema debe permitir el inicio de sesión de usuarios administradores u operadores de forma segura mediante formularios web o autenticación institucional de Google.
+    \item El sistema debe proveer una autenticación simplificada (vía Google u otro proveedor OAuth) para los ciudadanos que deseen gestionar sus propias reservas.
+    \item El sistema debe disponer de un esquema de Roles y Permisos (RBAC) para limitar las acciones del usuario según su perfil (ej. Administrador General, Operador de Dependencia, Administrador del Observatorio, Usuario Ciudadano).
+    \item El sistema debe restringir el acceso a los paneles administrativos únicamente a los usuarios autenticados con los permisos adecuados, redirigiendo a los usuarios estándar a sus paneles personales.
     \item El sistema debe permitir la asignación de usuarios a dependencias específicas para asegurar la gestión segregada de información.
 \end{enumerate}
 
@@ -22,8 +23,9 @@ A continuación, se presentan los principales requerimientos funcionales del Sis
 \begin{enumerate}[resume]
     \item El sistema debe permitir gestionar un catálogo de trámites y actividades ofrecidas por cada dependencia (ej. "Visita Guiada Nocturna", "Consultas Técnicas de Telescopio", "Trámite de Constancia").
     \item El sistema debe permitir asociar cada trámite a una dependencia específica, configurando su vigencia mediante fechas de inicio y fin.
-    \item El sistema debe soportar modalidades de atención tanto para turnos individuales como para turnos grupales.
-    \item En la modalidad de turno grupal, el sistema debe permitir capturar información adicional como el nombre de la institución solicitante (colegio o entidad) y la cantidad de asistentes.
+    \item El sistema debe soportar múltiples modalidades de atención: individual, grupal, institucional y mixta.
+    \item En modalidades grupales o institucionales, el sistema debe permitir capturar información adicional como el nombre de la institución solicitante y permitir la carga de una nómina de integrantes.
+    \item El sistema debe incluir un módulo de publicación dinámica para dar visibilidad a proyectos de extensión e investigaciones de las diferentes dependencias.
 \end{enumerate}
 
 \textbf{Gestión de disponibilidad, cupos y feriados}
@@ -34,10 +36,12 @@ A continuación, se presentan los principales requerimientos funcionales del Sis
     \item El sistema debe verificar la disponibilidad de cupos en tiempo real antes de confirmar cualquier reserva para evitar la sobreposición de horarios o sobrecupo.
 \end{enumerate}
 
-\textbf{Reserva de turnos y comprobantes}
+\textbf{Reserva, autogestión de turnos y comprobantes}
 \begin{enumerate}[resume]
     \item El sistema debe guiar al usuario en un flujo interactivo y responsivo de reserva en pocos pasos, permitiendo la selección de dependencia, trámite, fecha y hora disponible.
     \item El sistema debe capturar los datos personales y de contacto del solicitante (DNI, Nombre, Apellido, Correo Electrónico, Teléfono/Celular).
+    \item El sistema debe proporcionar a los usuarios ciudadanos un panel personal ("Mis Turnos") donde puedan consultar sus reservas activas y su historial.
+    \item El sistema debe permitir a los usuarios cancelar sus propios turnos de forma anticipada, solicitando un motivo de cancelación y liberando automáticamente los cupos previamente ocupados.
     \item El sistema debe generar un código único de seguimiento para cada reserva confirmada.
     \item El sistema debe generar automáticamente un comprobante digital en formato PDF con los datos completos del turno para que el usuario pueda descargarlo e imprimirlo.
 \end{enumerate}
@@ -53,6 +57,7 @@ A continuación, se presentan los principales requerimientos funcionales del Sis
     \item El sistema debe proveer a los operadores un panel de monitoreo en tiempo real con el listado de los turnos programados para la jornada diaria.
     \item El sistema debe permitir a los operadores buscar y filtrar turnos por fecha, DNI, dependencia, trámite o código de reserva.
     \item El sistema debe permitir a los operadores actualizar el estado de los turnos durante la atención presencial (ej. Pendiente, Atendido, Ausente, Cancelado).
+    \item El sistema debe permitir a los administradores la asignación manual de turnos y la cancelación masiva de reservas (ej. por imprevistos técnicos o climáticos), notificando automáticamente a los afectados.
 \end{enumerate}
 
 \textbf{Dashboard y reportes estadísticos}
@@ -81,15 +86,31 @@ El sistema debe estructurarse siguiendo la arquitectura MVC (Modelo-Vista-Contro
 El diseño de la base de datos y la arquitectura del software deben permitir la incorporación futura de nuevas dependencias universitarias, facultades, institutos o módulos sin requerir modificaciones estructurales en el núcleo del sistema.
 
 \textbf{Portabilidad}
-La aplicación debe ser capaz de ejecutarse en entornos estándar basados en PHP y MySQL/MariaDB, permitiendo tanto el desarrollo local mediante entornos contenerizados (Docker) como el despliegue en servicios de hosting web institucionales (Usermin/cPanel).
+La aplicación debe ser capaz de ejecutarse en entornos estándar basados en PHP y MySQL/MariaDB, permitiendo tanto el desarrollo local mediante entornos coenerizados (Docker) como el despliegue en servicios de hosting web institucionales (Usermin/cPanel).
 
 \section{Casos de uso principales}
 Los flujos principales de interacción del sistema se resumen en los siguientes casos de uso:
+
+\begin{figure}[htbp]
+    \centering
+    % \includegraphics[width=0.8\textwidth]{diagrama_casos_uso}
+    \caption{Placeholder: Diagrama de Casos de Uso General}
+    \label{fig:diagrama_casos_uso}
+\end{figure}
+
 \begin{itemize}
-    \item \textbf{CU1 - Reservar Turno para el Observatorio:} Un estudiante o particular selecciona la dependencia "Observatorio Alanis", elige la actividad, selecciona una fecha con cupo disponible, completa sus datos personales (individuales o grupales), confirma la reserva y descarga su comprobante PDF.
-    \item \textbf{CU2 - Configurar Capacidad y Disponibilidad:} Un administrador del Observatorio accede al panel y ajusta la cantidad de "Mesas Habilitadas" para un día determinado según la disponibilidad de personal técnico y guías.
-    \item \textbf{CU3 - Atención y Control de Turnos en Jornada:} El operador de atención visualiza en tiempo real la lista de turnos del día, filtra por trámite y actualiza el estado a "Atendido" a medida que ingresan los visitantes.
+    \item \textbf{CU1 - Reservar Turno para el Observatorio:} Un estudiante o particular selecciona la dependencia "Observatorio Alanis", elige la actividad, selecciona una fecha con cupo disponible, completa sus datos personales (individuales, institucionales o mixtos), confirma la reserva y descarga su comprobante PDF.
+    \item \textbf{CU2 - Autogestión y Cancelación de Reserva:} El ciudadano ingresa a su panel de "Mis Turnos", visualiza sus reservas próximas y decide cancelar una de ellas, especificando un motivo. El sistema libera el cupo y envía la notificación.
+    \item \textbf{CU3 - Configurar Capacidad y Disponibilidad:} Un administrador del Observatorio accede al panel y ajusta la cantidad de "Mesas Habilitadas" para un día determinado según la disponibilidad de personal técnico y guías.
+    \item \textbf{CU4 - Atención y Control de Turnos en Jornada:} El operador de atención visualiza en tiempo real la lista de turnos del día, filtra por trámite y actualiza el estado a "Atendido" a medida que ingresan los visitantes, o aplica cancelaciones masivas si surge un imprevisto.
 \end{itemize}
+
+\begin{figure}[htbp]
+    \centering
+    % \includegraphics[width=0.8\textwidth]{diagrama_flujo_reserva}
+    \caption{Placeholder: Diagrama de flujo de reserva y autogestión de turnos}
+    \label{fig:diagrama_flujo_reserva}
+\end{figure}
 
 \section{Modelo de datos relacional}
 El modelo de datos relacional garantiza la integridad y flexibilidad del sistema. Sus tablas principales y relaciones son:

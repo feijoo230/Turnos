@@ -4,13 +4,23 @@
 El diseño de la base de datos para el Sistema de Turnos Académicos se fundamenta en un modelo relacional robusto, capaz de soportar la complejidad de una institución como la Universidad Nacional de Salta. El objetivo principal es garantizar la integridad referencial y la consistencia de las reservas, evitando solapamientos y asegurando que cada turno esté vinculado correctamente a una dependencia, un trámite y un solicitante.
 
 \section{Modelo Entidad-Relación}
+A lo largo del ciclo de desarrollo, la base de datos fue sometida a refactorizaciones para eliminar columnas y tablas redundantes (por ejemplo, los antiguos sistemas de afiliación o los accesos duplicados de administración), optimizando el esquema. 
+
 A continuación se describen las entidades principales identificadas en el esquema \texttt{estructura.sql} y sus interacciones dentro del sistema:
+
+\begin{figure}[htbp]
+    \centering
+    % \includegraphics[width=0.8\textwidth]{diagrama_er}
+    \caption{Placeholder: Diagrama Entidad-Relación (DER) del Sistema}
+    \label{fig:diagrama_er}
+\end{figure}
 
 \begin{itemize}
     \item \textbf{Dependencias y Jerarquía:} La tabla \texttt{dependencias} es la columna vertebral del sistema. Utiliza el motor \textit{InnoDB} para soportar claves foráneas. La implementación del patrón \textbf{Nested Set} (\texttt{\_lft}, \texttt{\_rgt}) permite realizar consultas jerárquicas rápidas, fundamental para representar la estructura UNSa $\rightarrow$ Facultad $\rightarrow$ Departamento $\rightarrow$ Observatorio.
     \item \textbf{Gestión de Trámites:} La entidad \texttt{tramites} almacena el catálogo de actividades. La relación con las dependencias se gestiona a través de \texttt{dependencia\_tramites}, permitiendo que una dependencia específica (como el Observatorio) ofrezca un conjunto particular de servicios.
-    \item \textbf{Reservas de Turnos:} La tabla \texttt{dependencia\_turnos\_reservas} centraliza la información de las citas. Almacena datos del solicitante (DNI, Nombre, Email) y metadatos de la reserva (código único, fecha, hora). Además, soporta la distinción entre turnos individuales y grupales (\texttt{es\_grupal}).
-    \item \textbf{Control de Capacidad:} Las tablas \texttt{turnos\_horarios} y \texttt{mesas\_habilitadas} definen la lógica de "stock" de turnos. Mientras que \texttt{turnos\_horarios} define las franjas (ej. de 09:00 a 10:00), \texttt{mesas\_habilitadas} limita cuántas personas pueden ser atendidas simultáneamente en dicha franja.
+    \item \textbf{Reservas de Turnos y Modalidades:} La tabla \texttt{dependencia\_turnos\_reservas} centraliza la información de las citas. Almacena datos del solicitante, código de seguimiento, fecha y hora. Acompañando a esta tabla, se desarrollaron esquemas relacionales para soportar las modalidades (individual, grupal, institucional y mixta), permitiendo almacenar las nóminas de integrantes asociados a una reserva. También se incorporó un registro de motivos de cancelación para auditar las citas anuladas.
+    \item \textbf{Control de Capacidad y Eventos Recurrentes:} Las tablas \texttt{turnos\_horarios} y \texttt{mesas\_habilitadas} definen la lógica de "stock" de turnos. Se ha integrado soporte para eventos recurrentes, facilitando la creación de bloques de disponibilidad periódica para el Observatorio.
+    \item \textbf{Publicaciones Dinámicas:} Se añadieron estructuras para soportar el módulo de publicaciones, almacenando la información e imágenes de los proyectos de extensión y proyectos de investigación exhibidos en el portal público institucional.
 \end{itemize}
 
 \section{Diccionario de Datos y Migraciones}

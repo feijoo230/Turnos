@@ -24,7 +24,16 @@ El proyecto sigue el estándar de \textbf{Laravel 8.x}, organizando el código d
 \end{itemize}
 
 \section{Implementación del Frontend}
-El frontend del Sistema de Turnos Académicos se ha diseñado bajo una premisa de "Simplicidad y Eficiencia".
+El frontend del Sistema de Turnos Académicos ha evolucionado hacia una arquitectura multi-página con un diseño sobrio e institucional, priorizando la claridad de la información y la facilidad de navegación para el ciudadano.
+
+\begin{figure}[htbp]
+    \centering
+    % \includegraphics[width=0.8\textwidth]{login_cosmico}
+    \caption{Placeholder: Captura de pantalla del inicio de sesión con temática cósmica e integración de Google}
+    \label{fig:login_cosmico}
+\end{figure}
+
+Para el inicio de sesión, se implementó una interfaz moderna con ``temática cósmica'', alineada con la identidad visual del Observatorio Alanis. Además de la autenticación tradicional, se integró el acceso mediante cuentas de Google utilizando el paquete \textbf{Laravel Socialite}, agilizando el registro y acceso de los usuarios a su panel de autogestión.
 
 \subsection{Vistas Blade y AdminLTE}
 Para el panel administrativo, se integra la plantilla \textbf{AdminLTE 4 (Beta)}. Esta elección permite disponer de un menú lateral colapsable, tablas dinámicas y una interfaz profesional para el personal del Observatorio. Se han personalizado los componentes de AdminLTE para adaptarlos a la identidad visual de la Facultad de Ciencias Exactas.
@@ -44,4 +53,12 @@ El backend orquestado por Laravel maneja procesos que garantizan la integridad d
     \item \textbf{Validación de Cupos:} En el controlador \texttt{TurnosDependenciasReservasController}, se implementa una lógica que verifica que la cantidad de personas (especialmente en turnos grupales) no exceda la capacidad de la dependencia antes de confirmar la reserva.
     \item \textbf{Gestión de Feriados:} Se integra un motor de búsqueda que cruza la fecha seleccionada con la tabla de feriados para bloquear días de asueto académico o mantenimiento del Observatorio.
     \item \textbf{Generación de Comprobantes:} Mediante el paquete \texttt{laravel-snappy}, se renderiza una vista Blade específica como PDF, incorporando un código de turno único para que el visitante lo presente en su llegada.
+    \item \textbf{Notificaciones por Correo Electrónico:} Mediante el uso de \textbf{Laravel Mailables}, el sistema despacha correos automáticos ante eventos clave, como la confirmación de una nueva reserva, la cancelación de un turno o modificaciones masivas por parte del administrador.
 \end{itemize}
+
+\begin{figure}[htbp]
+    \centering
+    % \includegraphics[width=0.8\textwidth]{codigo_socialite}
+    \caption{Placeholder: Fragmento de código ilustrativo de la integración con Google Socialite o Mailables}
+    \label{fig:codigo_socialite}
+\end{figure}
