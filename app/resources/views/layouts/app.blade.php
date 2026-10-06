@@ -84,6 +84,7 @@
     @section('script')
         <!-- Contenido de la pagina principal. -->      
     @show
+    @yield('scripts')
 </div>
 </body>
 </html>
