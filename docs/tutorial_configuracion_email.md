@@ -59,4 +59,4 @@ php artisan cache:clear
 
 ## 📩 4. Funcionalidades del Sistema que Utlizan Correo
 - **Confirmación de Reserva Manual (`App\Mail\TurnoConfirmado`):** Notificación automática con código `TUR-XXXXXX` al registrar o aprobar un turno.
-- **Cancelación Individual o Masiva (`App\Mail\TurnoCancelado`):** Notificación enviada cuando un turno es cancelado por el ciudadano o masivamente por el administrador por emergencias climáticas.
+- **Cancelación Individual o Masiva (`App\Mail\TurnoCancelado`):** Notificación enviada cuando un turno es cancelado por el usuario o masivamente por el administrador por emergencias climáticas.
