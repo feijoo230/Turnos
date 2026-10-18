@@ -121,7 +121,7 @@
           <div class="form-group">
             <label for="motivo_cancelacion_masiva" class="control-label"><i class="fa fa-commenting"></i> Motivo de la Cancelación *</label>
             <textarea name="motivo_cancelacion" id="motivo_cancelacion_masiva" class="form-control" rows="3" placeholder="Ej: Suspensión de atención presencial por alerta meteorológico e inclemencias climáticas severas." required style="border-radius: 6px;"></textarea>
-            <small class="text-muted">Este motivo se incluirá en el correo electrónico enviado a los ciudadanos afectados.</small>
+            <small class="text-muted">Este motivo se incluirá en el correo electrónico enviado a los usuarios y solicitantes afectados.</small>
           </div>
 
           <div class="checkbox">
