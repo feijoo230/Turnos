@@ -1,19 +1,22 @@
 \chapter{Conclusiones}
-El desarrollo del Sistema de Gestión de Turnos Académicos ha permitido construir una solución tecnológica integral que responde a las necesidades específicas de la Universidad Nacional de Salta y, en particular, de su Observatorio. A lo largo de este proyecto, se ha logrado digitalizar un proceso que anteriormente dependía de métodos manuales o fragmentados, sentando las bases para una gestión institucional más moderna y transparente.
+El desarrollo del Sistema de Gestión de Turnos Académicos ha permitido construir una solución tecnológica integral que responde con precisión a las necesidades operativas y académicas de la Universidad Nacional de Salta y, en particular, del Observatorio Alanis. A lo largo de este proyecto, se logró transformar una gestión que anteriormente dependía de canales fragmentados (consultas presenciales, correos o planillas aisladas) en una plataforma web moderna, resiliente y transparente.
 
 \section{Logros alcanzados}
 \begin{itemize}
-    \item \textbf{Centralización y Orden:} Se logró implementar un motor de reservas capaz de gestionar la jerarquía académica de la UNSa, permitiendo que cada dependencia tenga autonomía sobre sus trámites y capacidades de atención.
-    \item \textbf{Optimización del Observatorio:} La funcionalidad de turnos grupales y el control dinámico de cupos aseguran que las visitas institucionales se realicen de manera organizada, evitando aglomeraciones y mejorando la calidad de la divulgación científica.
-    \item \textbf{Seguridad y Confianza:} El uso de estándares de industria (RBAC, CSRF, Hashing) garantiza la protección de los datos de los solicitantes y la integridad de la administración interna.
+    \item \textbf{Centralización y Flexibilidad Organizacional:} Se implementó un motor de reservas sustentado en una estructura jerárquica multinivel (\textit{Nested Set}), permitiendo que cada facultad, departamento o instituto administre de forma descentralizada sus trámites, puestos de atención y dotación horaria.
+    \item \textbf{Optimización Integral de la Operatoria del Observatorio:} La incorporación de modalidades diferenciadas (individual, grupal, escolar e institucional), la carga diferida de nóminas de delegaciones y el control reactivo de aforo mediante mesas habilitadas garantizan que las visitas guiadas y observaciones astronómicas se desarrollen de manera coordinada, segura y sin sobrecupos.
+    \item \textbf{Resiliencia ante Contingencias:} La funcionalidad de cancelación masiva automatizada con aviso por correo electrónico dota a los coordinadores del Observatorio de una herramienta ágil ante imprevistos técnicos o meteorológicos (cielos cubiertos o lluvias), minimizando las molestias a los visitantes.
+    \item \textbf{Autonomía en Comunicaciones Transaccionales:} El diseño y despliegue del gestor web de plantillas de correo con segmentación por circuitos (\textit{Individual} y \textit{Colegios/Institucional}) y variables dinámicas contextuales permite a las autoridades personalizar las notificaciones institucionales sin requerir modificaciones en el código fuente.
+    \item \textbf{Divulgación Institucional y Vinculación Comunitaria:} La integración de un CMS dinámico y un portal público multi-página con identidad astronómica visibiliza los proyectos de extensión, investigaciones científicas, equipamiento y equipo humano del Observatorio, fortaleciendo el vínculo de la UNSa con la sociedad.
+    \item \textbf{Seguridad y Arquitectura Robusta:} La adopción de estándares consolidados de la industria (control de acceso basado en roles y permisos RBAC, Single Sign-On con Google, protección CSRF y cifrado Bcrypt) asegura la protección integral de los datos personales y la gobernanza administrativa.
 \end{itemize}
 
 \section{Trabajos Futuros}
-A pesar de la robustez de la solución actual, se identifican líneas de mejora que podrían expandir el impacto del sistema:
+A pesar de la madurez y operatividad alcanzada por la plataforma, se identifican líneas de evolución que podrán enriquecer el ecosistema institucional:
 \begin{itemize}
-    \item \textbf{Integración con SIU-Guaraní:} Vincular el sistema con el ecosistema de gestión de alumnos de la universidad para precargar datos de estudiantes de forma automática.
-    \item \textbf{Aplicación Móvil:} Desarrollar una aplicación nativa o PWA que permita a los usuarios gestionar sus turnos y recibir notificaciones \textit{push} en tiempo real.
-    \item \textbf{Módulo de Encuestas:} Incorporar un sistema de feedback post-atención para medir la satisfacción de los visitantes del Observatorio.
+    \item \textbf{Integración con SIU-Guaraní:} Establecer mecanismos de interoperabilidad con el sistema de gestión académica universitario para autenticar y precargar automáticamente la información de los estudiantes regulares de la UNSa.
+    \item \textbf{Aplicación Móvil o PWA:} Desarrollar una aplicación móvil nativa o progresiva (Progressive Web App) con soporte de notificaciones \textit{push} en tiempo real para recordar citas y alertar de reprogramaciones.
+    \item \textbf{Módulo de Encuestas y Calidad de Atención:} Incorporar un mecanismo de retroalimentación posterior a la visita que permita medir el grado de satisfacción de los asistentes y directivos escolares, generando indicadores de calidad para el Observatorio.
 \end{itemize}
 
-Finalmente, la utilización del ecosistema de desarrollo con Laravel 8, Vue.js y Blade ha demostrado ser una elección acertada, permitiendo un desarrollo ágil y escalable que cumple ampliamente con los requerimientos técnicos y funcionales planteados al inicio de este trabajo final de carrera.
+Finalmente, la elección del stack tecnológico basado en PHP, Laravel 8.x, Vue.js 2, MariaDB y contenerización con Docker ha demostrado ser plenamente acertada, permitiendo un desarrollo incremental, mantenible y escalable que satisface con creces los requerimientos técnicos y funcionales formulados para este trabajo final de carrera.

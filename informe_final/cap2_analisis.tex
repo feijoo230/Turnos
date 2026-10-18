@@ -1,130 +1,168 @@
 \chapter{Análisis y diseño del sistema}
 
 \section{Requerimientos funcionales}
-A continuación, se presentan los principales requerimientos funcionales del Sistema de Gestión de Turnos Académicos, organizados por áreas operativas:
+A continuación, se presentan los requerimientos funcionales del Sistema de Gestión de Turnos Académicos, organizados en áreas operativas para abarcar la totalidad de las características desarrolladas:
 
-\textbf{Gestión de usuarios, roles y autenticación}
+\textbf{1. Gestión de usuarios, roles y autenticación}
 \begin{enumerate}
-    \item El sistema debe permitir el inicio de sesión de usuarios administradores u operadores de forma segura mediante formularios web o autenticación institucional de Google.
-    \item El sistema debe proveer una autenticación simplificada (vía Google u otro proveedor OAuth) para los ciudadanos que deseen gestionar sus propias reservas.
-    \item El sistema debe disponer de un esquema de Roles y Permisos (RBAC) para limitar las acciones del usuario según su perfil (ej. Administrador General, Operador de Dependencia, Administrador del Observatorio, Usuario Ciudadano).
-    \item El sistema debe restringir el acceso a los paneles administrativos únicamente a los usuarios autenticados con los permisos adecuados, redirigiendo a los usuarios estándar a sus paneles personales.
-    \item El sistema debe permitir la asignación de usuarios a dependencias específicas para asegurar la gestión segregada de información.
+    \item El sistema debe permitir el inicio de sesión de usuarios administradores u operadores de forma segura mediante formularios web con hashing Bcrypt o autenticación institucional Single Sign-On (SSO) mediante Google Socialite.
+    \item El sistema debe proveer una autenticación simplificada para los usuarios y visitantes que deseen gestionar sus propias reservas.
+    \item El sistema debe implementar un control de acceso basado en roles y permisos (RBAC) mediante \texttt{spatie/laravel-permission}, diferenciando perfiles: Super Administrador, Administrador de Dependencia, Operador y Usuario Regular.
+    \item El sistema debe aplicar un enrutamiento condicional post-autenticación: los usuarios con rol regular deben ser redirigidos automáticamente a su panel personal (``Mis Turnos''), mientras que el personal administrativo debe acceder al panel de gestión operativa.
+    \item El sistema debe permitir la asignación de operadores a dependencias específicas, garantizando la segregación de datos y evitando que operadores de una unidad accedan a registros de otra.
+    \item El sistema debe permitir a los usuarios autenticados gestionar su perfil personal, actualizar sus vías de contacto y cambiar su contraseña de forma segura.
 \end{enumerate}
 
-\textbf{Gestión de la estructura universitaria y dependencias}
+\textbf{2. Gestión de la estructura universitaria y dependencias}
 \begin{enumerate}[resume]
-    \item El sistema debe permitir la organización jerárquica y multinivel de las dependencias institucionales, representando la estructura desde el nivel central universitario y sus facultades hasta unidades e institutos específicos como el Observatorio Alanis.
-    \item El sistema debe permitir la creación, edición, desactivación y eliminación de dependencias y sus respectivos tipos.
-    \item El sistema debe permitir definir la capacidad operativa de cada dependencia mediante la configuración de puestos de atención o "mesas habilitadas".
+    \item El sistema debe modelar la organización jerárquica y multinivel de la UNSa mediante el patrón \textit{Nested Set}, representando la estructura desde el nivel central y facultades hasta institutos, laboratorios y el Observatorio Alanis.
+    \item El sistema debe proveer operaciones de Alta, Baja, Modificación y consulta sobre las dependencias y sus respectivas tipologías.
+    \item El sistema debe permitir asociar trámites a dependencias específicas, regulando la vigencia y condiciones operativas de cada servicio ofrecido.
 \end{enumerate}
 
-\textbf{Gestión del catálogo de trámites y actividades}
+\textbf{3. Gestión del catálogo de trámites y modalidades de atención}
 \begin{enumerate}[resume]
-    \item El sistema debe permitir gestionar un catálogo de trámites y actividades ofrecidas por cada dependencia (ej. "Visita Guiada Nocturna", "Consultas Técnicas de Telescopio", "Trámite de Constancia").
-    \item El sistema debe permitir asociar cada trámite a una dependencia específica, configurando su vigencia mediante fechas de inicio y fin.
-    \item El sistema debe soportar múltiples modalidades de atención: individual, grupal, institucional y mixta.
-    \item En modalidades grupales o institucionales, el sistema debe permitir capturar información adicional como el nombre de la institución solicitante y permitir la carga de una nómina de integrantes.
-    \item El sistema debe incluir un módulo de publicación dinámica para dar visibilidad a proyectos de extensión e investigaciones de las diferentes dependencias.
+    \item El sistema debe administrar un catálogo de trámites académicos y actividades de divulgación (ej. ``Visita Guiada Nocturna'', ``Observación Solar'', ``Certificaciones Académicas''), detallando requisitos, duración e intervalos de franja.
+    \item El sistema debe soportar cuatro modalidades de reserva: individual, grupal, institucional (dirigida a colegios, escuelas primarias y secundarias) y mixta.
+    \item En modalidades institucionales o grupales, el sistema debe registrar información detallada de la entidad: nombre de la institución escolar, nivel educativo, curso/división, cargo de la autoridad solicitante, cantidad total de asistentes y cantidad de docentes acompañantes.
+    \item El sistema debe proveer un formulario público accesible mediante el código alfanumérico de reserva para que los directivos o docentes carguen y actualicen la nómina completa de integrantes previa a la visita.
 \end{enumerate}
 
-\textbf{Gestión de disponibilidad, cupos y feriados}
+\textbf{4. Gestión de capacidad operativa, mesas habilitadas y feriados}
 \begin{enumerate}[resume]
-    \item El sistema debe calcular dinámicamente la disponibilidad horaria en función de las mesas habilitadas y las franjas horarias configuradas para cada trámite.
-    \item El sistema debe permitir la gestión de un calendario de días no laborables y feriados (nacionales, provinciales e institucionales).
-    \item El sistema debe excluir automáticamente del calendario público de reservas los fines de semana y los días declarados como feriados o de asueto académico.
-    \item El sistema debe verificar la disponibilidad de cupos en tiempo real antes de confirmar cualquier reserva para evitar la sobreposición de horarios o sobrecupo.
+    \item El sistema debe gestionar la capacidad de atención mediante ``mesas habilitadas'', representando puestos de atención o guías disponibles por trámite y dependencia.
+    \item El sistema debe proveer un mecanismo de interruptor rápido (\textit{toggle}) en la interfaz para activar o suspender mesas habilitadas en un clic según la dotación de personal disponible en la jornada.
+    \item El sistema debe administrar un calendario de días no laborables y feriados (nacionales, provinciales y asuetos académicos de la UNSa).
+    \item El sistema debe permitir la importación masiva de feriados anuales desde archivos estructurados y la exportación de dicho calendario a formato Excel.
+    \item El sistema debe calcular en tiempo real los cupos disponibles, bloqueando automáticamente fines de semana, feriados y franjas colmadas en el selector público de fechas.
 \end{enumerate}
 
-\textbf{Reserva, autogestión de turnos y comprobantes}
+\textbf{5. Portal institucional público y búsqueda de turnos}
 \begin{enumerate}[resume]
-    \item El sistema debe guiar al usuario en un flujo interactivo y responsivo de reserva en pocos pasos, permitiendo la selección de dependencia, trámite, fecha y hora disponible.
-    \item El sistema debe capturar los datos personales y de contacto del solicitante (DNI, Nombre, Apellido, Correo Electrónico, Teléfono/Celular).
-    \item El sistema debe proporcionar a los usuarios ciudadanos un panel personal ("Mis Turnos") donde puedan consultar sus reservas activas y su historial.
-    \item El sistema debe permitir a los usuarios cancelar sus propios turnos de forma anticipada, solicitando un motivo de cancelación y liberando automáticamente los cupos previamente ocupados.
-    \item El sistema debe generar un código único de seguimiento para cada reserva confirmada.
-    \item El sistema debe generar automáticamente un comprobante digital en formato PDF con los datos completos del turno para que el usuario pueda descargarlo e imprimirlo.
+    \item El sistema debe ofrecer una página de inicio (\textit{landing page}) con diseño institucional moderno, hero visual, accesos rápidos a reservas, tarjetas interactivas de actividades, sección informativa de la comunidad y preguntas frecuentes (FAQ).
+    \item El sistema debe contar con páginas temáticas multi-página para la difusión del Observatorio: reseña histórica, directorio del equipo científico y técnico, catálogo de instalaciones e instrumentos ópticos (telescopios y cúpula), proyectos de extensión e investigaciones en curso.
+    \item El sistema debe proveer un buscador público de turnos sin requerimiento de autenticación, permitiendo verificar el estado de una cita mediante el código alfanumérico o número de DNI.
 \end{enumerate}
 
-\textbf{Notificaciones por correo electrónico}
+\textbf{6. Reserva de turnos, comprobantes y autogestión}
 \begin{enumerate}[resume]
-    \item El sistema debe enviar un correo electrónico de confirmación al usuario de forma automática al registrar exitosamente una reserva de turno.
-    \item El sistema debe enviar notificaciones por correo cuando la administración modifique el estado de un turno (ej. turno atendido, cancelado o reprogramado).
+    \item El sistema debe guiar al usuario a través de un flujo de reserva responsivo en tres pasos: selección de dependencia/trámite, selección reactiva de fecha/horario, e ingreso de datos personales y de la modalidad.
+    \item El sistema debe generar un código alfanumérico único para cada reserva confirmada y emitir automáticamente el comprobante oficial en PDF mediante \texttt{laravel-snappy/wkhtmltopdf}.
+    \item El sistema debe proveer una vía de cancelación pública directa mediante código de reserva, requiriendo la fundamentación del motivo y liberando el cupo inmediatamente.
+    \item El sistema debe proveer el panel ``Mis Turnos'' para usuarios autenticados, presentando el historial discriminado entre turnos próximos y anteriores, descarga de comprobantes y cancelación interactiva.
 \end{enumerate}
 
-\textbf{Panel administrativo, atención y monitoreo}
+\textbf{7. Gestión avanzada de plantillas de correo electrónico (Exclusivo Administrador)}
 \begin{enumerate}[resume]
-    \item El sistema debe proveer a los operadores un panel de monitoreo en tiempo real con el listado de los turnos programados para la jornada diaria.
-    \item El sistema debe permitir a los operadores buscar y filtrar turnos por fecha, DNI, dependencia, trámite o código de reserva.
-    \item El sistema debe permitir a los operadores actualizar el estado de los turnos durante la atención presencial (ej. Pendiente, Atendido, Ausente, Cancelado).
-    \item El sistema debe permitir a los administradores la asignación manual de turnos y la cancelación masiva de reservas (ej. por imprevistos técnicos o climáticos), notificando automáticamente a los afectados.
+    \item El sistema debe incorporar un módulo exclusivo para administradores destinado a la gestión y edición web de plantillas HTML de correo electrónico transaccional.
+    \item El sistema debe segmentar las plantillas por circuito operativo: Circuito Individual (particulares y estudiantes) y Circuito Colegios/Institucional (escuelas y delegaciones).
+    \item El sistema debe soportar plantillas para los eventos críticos del ciclo de vida del turno: solicitud registrada (pendiente), confirmación oficial y cancelación con motivo.
+    \item El sistema debe permitir el uso de variables dinámicas contextuales en el asunto y cuerpo del mensaje (ej. \texttt{\{codigo\}}, \texttt{\{nombre\}}, \texttt{\{institucion\}}, \texttt{\{fecha\}}, \texttt{\{hora\}}, \texttt{\{motivo\_cancelacion\}}).
+    \item El sistema debe ofrecer una función de previsualización en tiempo real renderizada con datos de prueba (\textit{dummy data}) contextualizados según el circuito.
+    \item El sistema debe permitir el envío de correos de prueba hacia casillas reales para verificar la fidelidad del diseño en diferentes clientes de correo.
+    \item El sistema debe proveer la funcionalidad de restablecimiento a valores predeterminados de fábrica y activación/desactivación rápida (\textit{toggle}) por plantilla.
 \end{enumerate}
 
-\textbf{Dashboard y reportes estadísticos}
+\textbf{8. Operatoria diaria, monitoreo y atención presencial}
 \begin{enumerate}[resume]
-    \item El sistema debe presentar en el área administrativa un dashboard con tarjetas e indicadores generales de gestión (total de turnos del día, visitas acumuladas del mes, trámites más demandados).
-    \item El sistema debe mostrar gráficos estadísticos que faciliten el análisis de la afluencia de visitantes al Observatorio Alanis y a otras dependencias.
-    \item El sistema debe permitir la generación y exportación de reportes de gestión y listas de asistencia en formatos estándar (Excel/PDF).
+    \item El sistema debe proveer un Dashboard operativo en tiempo real con indicadores de la jornada (turnos pendientes, atendidos, ausentes, cancelados y estadísticas mensuales).
+    \item El sistema debe ofrecer una bandeja de gestión de reservas con filtros combinados por fecha, trámite, dependencia, estado, DNI y código.
+    \item El sistema debe permitir la actualización de estados de atención en vivo (Pendiente, Atendido, Ausente, Cancelado).
+    \item El sistema debe permitir la asignación manual de turnos por parte de los operadores para contingencias o atenciones presenciales de excepción.
+    \item El sistema debe proveer un módulo de cancelación masiva de turnos por contingencias climáticas (nubosidad o tormentas que impiden la observación) o fallas técnicas, registrando el motivo y notificando automáticamente por correo a todos los afectados.
+    \item El sistema debe permitir la exportación completa de los padrones de turnos a formato Microsoft Excel (\texttt{.xlsx}).
+\end{enumerate}
+
+\textbf{9. Atención en ventanilla, colas y derivaciones}
+\begin{enumerate}[resume]
+    \item El sistema debe proveer una interfaz de mostrador para el llamado secuencial del siguiente turno en espera (\texttt{llamar\_siguiente}) y cierre de atención.
+    \item El sistema debe permitir verificar la condición de afiliado o estudiante regular durante la atención presencial.
+    \item El sistema debe permitir registrar pases y derivaciones formales de solicitantes entre distintas dependencias universitarias, guardando observaciones y trazabilidad cronológica.
+    \item El sistema debe permitir la gestión de trámites digitales especiales, incluyendo la subida y descarga de documentación digitalizada de respaldo.
+\end{enumerate}
+
+\textbf{10. Sistema de Gestión de Contenidos (CMS Institucional)}
+\begin{enumerate}[resume]
+    \item El sistema debe proveer un panel de administración para la publicación y edición de Proyectos de Extensión Universitaria (título, descripción, objetivos, estado, imágenes).
+    \item El sistema debe permitir la gestión de Líneas y Proyectos de Investigación Científica desarrollados en el Observatorio y la facultad.
+    \item El sistema debe administrar el directorio del Equipo de Trabajo, registrando nombres, cargos, biografías académicas y fotografías de astrónomos, docentes y guías.
+    \item El sistema debe gestionar el inventario descriptivo de Instalaciones y Equipamiento Técnico (telescopios reflectores, cúpula, instrumentación solar, aulas).
+    \item El sistema debe permitir la parametrización de Tipos de Eventos y actividades académicas.
+\end{enumerate}
+
+\textbf{11. Estadísticas y reportes de gestión}
+\begin{enumerate}[resume]
+    \item El sistema debe ofrecer un módulo de estadísticas interactivas con gráficos sobre afluencia de visitantes, trámites más solicitados y estados de atención a lo largo del tiempo.
+    \item El sistema debe generar reportes de productividad de operadores, permitiendo consultar la cantidad de turnos atendidos por puesto e imprimir partes diarios de servicio.
 \end{enumerate}
 
 \section{Requerimientos no funcionales}
 Entre los principales requerimientos no funcionales del sistema se destacan:
 
 \textbf{Rendimiento}
-El sistema debe ser capaz de procesar múltiples solicitudes de reserva concurrentes sin degradar significativamente los tiempos de respuesta en el cálculo de disponibilidades horarias ni en el proceso de confirmación de turnos.
+El sistema debe procesar solicitudes concurrentes de reserva y cálculo de disponibilidad sin degradación perceptible, optimizando las consultas mediante indexación en el árbol \textit{Nested Set} y evitando consultas redundantes mediante carga asíncrona por AJAX y componentes Vue.js.
 
-\textbf{Usabilidad}
-La interfaz pública debe ser clara, intuitiva y accesible, permitiendo completar una reserva en pocos pasos. El diseño del panel administrativo debe mantener consistencia visual y adaptarse a cualquier tipo de dispositivo (diseño 100\% responsivo para computadoras, tablets y teléfonos móviles).
+\textbf{Usabilidad y Diseño Responsivo}
+La interfaz pública debe ofrecer una navegación intuitiva, accesible y adaptada a cualquier dispositivo móvil o de escritorio, manteniendo una estética moderna y profesional. El panel administrativo (basado en AdminLTE 4) debe garantizar consistencia visual y ergonomía en el trabajo de los operadores.
 
 \textbf{Seguridad}
-Las contraseñas de los usuarios administradores deben almacenarse mediante mecanismos de encriptación segura (hashing) provistos nativamente por el framework. El acceso a las rutas administrativas debe estar protegido mediante autenticación estricta y autorización basada en roles y permisos (RBAC), evitando la divulgación no autorizada de datos personales.
+Se debe garantizar la protección contra ataques CSRF en todas las peticiones mutables, saneamiento de entradas con FormRequests para prevenir inyecciones SQL y XSS, almacenamiento de contraseñas mediante hashing Bcrypt, y estricta verificación de roles y permisos mediante middlewares y directivas Blade.
 
-\textbf{Mantenibilidad}
-El sistema debe estructurarse siguiendo la arquitectura MVC (Modelo-Vista-Controlador) provista por Laravel. La gestión de la estructura de base de datos se debe realizar mediante migraciones y \textit{seeders}, facilitando el mantenimiento del código y la recreación del entorno.
+\textbf{Mantenibilidad y Modularidad}
+El código debe estructurarse rigurosamente bajo el patrón MVC de Laravel 8.x, aislando la lógica de negocio en controladores especializados, modelos Eloquent con relaciones bien definidas y vistas modulares Blade.
 
-\textbf{Escalabilidad}
-El diseño de la base de datos y la arquitectura del software deben permitir la incorporación futura de nuevas dependencias universitarias, facultades, institutos o módulos sin requerir modificaciones estructurales en el núcleo del sistema.
-
-\textbf{Portabilidad}
-La aplicación debe ser capaz de ejecutarse en entornos estándar basados en PHP y MySQL/MariaDB, permitiendo tanto el desarrollo local mediante entornos coenerizados (Docker) como el despliegue en servicios de hosting web institucionales (Usermin/cPanel).
+\textbf{Escalabilidad y Portabilidad}
+La arquitectura de base de datos relacional y el empaquetado del entorno en contenedores Docker deben permitir tanto la evolución funcional del sistema (incorporación de nuevas facultades o sedes) como su despliegue multiplataforma en entornos locales y servidores de hosting institucional (Usermin/cPanel con MariaDB).
 
 \section{Casos de uso principales}
 Los flujos principales de interacción del sistema se resumen en los siguientes casos de uso:
 
 \begin{figure}[htbp]
     \centering
-    % \includegraphics[width=0.8\textwidth]{diagrama_casos_uso}
-    \caption{Placeholder: Diagrama de Casos de Uso General}
+    \includegraphics[width=0.95\textwidth]{diagrama_casos_uso}
+    \caption{Diagrama de casos de uso general del sistema de turnos}
     \label{fig:diagrama_casos_uso}
 \end{figure}
 
 \begin{itemize}
-    \item \textbf{CU1 - Reservar Turno para el Observatorio:} Un estudiante o particular selecciona la dependencia "Observatorio Alanis", elige la actividad, selecciona una fecha con cupo disponible, completa sus datos personales (individuales, institucionales o mixtos), confirma la reserva y descarga su comprobante PDF.
-    \item \textbf{CU2 - Autogestión y Cancelación de Reserva:} El ciudadano ingresa a su panel de "Mis Turnos", visualiza sus reservas próximas y decide cancelar una de ellas, especificando un motivo. El sistema libera el cupo y envía la notificación.
-    \item \textbf{CU3 - Configurar Capacidad y Disponibilidad:} Un administrador del Observatorio accede al panel y ajusta la cantidad de "Mesas Habilitadas" para un día determinado según la disponibilidad de personal técnico y guías.
-    \item \textbf{CU4 - Atención y Control de Turnos en Jornada:} El operador de atención visualiza en tiempo real la lista de turnos del día, filtra por trámite y actualiza el estado a "Atendido" a medida que ingresan los visitantes, o aplica cancelaciones masivas si surge un imprevisto.
+    \item \textbf{CU1 - Reservar Turno en el Portal Público:} Un particular o coordinador institucional selecciona la dependencia (ej. Observatorio Alanis) y la actividad, elige fecha y hora en el calendario reactivo, completa los datos de la modalidad (individual o grupal/escolar), confirma la reserva y descarga su comprobante PDF oficial.
+    \item \textbf{CU2 - Autogestión y Cancelación en ``Mis Turnos'':} El usuario accede a su cuenta, visualiza sus reservas activas y pasadas, y procede a cancelar una cita indicando el motivo, lo que libera el cupo de forma instantánea y despacha el correo correspondiente.
+    \item \textbf{CU3 - Carga Pública de Nómina de Integrantes de Delegaciones:} El directivo o docente a cargo accede mediante el código de reserva a la interfaz pública de integrantes para cargar o modificar la lista de alumnos y acompañantes previa a la visita.
+    \item \textbf{CU4 - Configurar Capacidad (Mesas Habilitadas) y Feriados:} El administrador ajusta la capacidad diaria de atención utilizando el interruptor rápido (\textit{toggle}) de mesas habilitadas y gestiona los feriados o asuetos mediante importación masiva.
+    \item \textbf{CU5 - Atención Presencial y Llamado en Mostrador:} El operador de ventanilla llama al siguiente turno de la fila física (\texttt{llamar\_siguiente}), valida su condición y actualiza el estado a ``Atendido'' al concluir la visita.
+    \item \textbf{CU6 - Cancelación Masiva por Contingencia Climática:} Ante un cielo nublado o tormenta, el administrador selecciona los turnos de la noche y ejecuta la cancelación masiva, registrando la causal climática y disparando notificaciones automáticas a todos los visitantes registrados.
+    \item \textbf{CU7 - Gestión de Plantillas de Correo Electrónico:} El administrador ingresa al gestor de correos, selecciona el circuito (colegios o individual), edita el cuerpo HTML utilizando variables dinámicas, genera una previsualización con datos de prueba, efectúa un envío de test a su casilla y guarda los cambios.
+    \item \textbf{CU8 - Publicación de Contenidos Institucionales (CMS):} El gestor del Observatorio actualiza los proyectos de extensión, investigaciones científicas, equipamiento del telescopio o fichas del equipo docente para su difusión en el portal público.
+    \item \textbf{CU9 - Derivación y Pase de Trámites:} Un operador transfiere formalmente un solicitante o expediente hacia otra dependencia universitaria, dejando asentadas las actuaciones e historial.
+    \item \textbf{CU10 - Generación de Estadísticas y Partes de Operador:} La administración consulta los gráficos interactivos de afluencia mensual e imprime los partes diarios con la nómina de turnos atendidos por cada operador.
 \end{itemize}
 
 \begin{figure}[htbp]
     \centering
-    % \includegraphics[width=0.8\textwidth]{diagrama_flujo_reserva}
-    \caption{Placeholder: Diagrama de flujo de reserva y autogestión de turnos}
+    \includegraphics[width=0.95\textwidth]{diagrama_flujo_reserva}
+    \caption{Diagrama de flujo del proceso de reserva reactiva y autogestión de turnos}
     \label{fig:diagrama_flujo_reserva}
 \end{figure}
 
 \section{Modelo de datos relacional}
-El modelo de datos relacional garantiza la integridad y flexibilidad del sistema. Sus tablas principales y relaciones son:
+El modelo relacional garantiza la consistencia de datos y la auditabilidad operativa. Sus entidades clave comprenden:
 \begin{itemize}
-    \item \texttt{dependencias}: Almacena la estructura organizacional jerárquica mediante el patrón \textit{Nested Set} (\texttt{\_lft}, \texttt{\_rgt}, \texttt{parent\_id}).
-    \item \texttt{dependencia\_turnos\_reservas}: Centraliza los turnos registrados, almacenando datos del solicitante, código de seguimiento, modalidad (\texttt{es\_grupal}, \texttt{nombre\_institucion}) y estado de la cita.
-    \item \texttt{turnos\_horarios} y \texttt{mesas\_habilitadas}: Definen los bloques horarios por trámite y limitan el cupo simultáneo de atención.
-    \item \texttt{usuarios\_dependencias}: Asocia operadores a dependencias específicas para aplicar el control de acceso a nivel de datos.
+    \item \texttt{dependencias}: Estructura jerárquica modelada mediante \textit{Nested Set} (\texttt{\_lft}, \texttt{\_rgt}, \texttt{parent\_id}).
+    \item \texttt{tramites} y \texttt{dependencia\_tramites}: Catálogo de servicios y su vinculación descentralizada por dependencia.
+    \item \texttt{dependencia\_turnos\_reservas}: Registro central de citas, código de seguimiento, datos del solicitante, modalidad institucional y motivos de cancelación.
+    \item \texttt{reserva\_integrantes}: Nómina de personas que conforman contingentes escolares o grupales vinculados a una reserva.
+    \item \texttt{turnos\_horarios} y \texttt{mesas\_habilitadas}: Parametrización de franjas horarias y puestos activos para el cálculo de aforo.
+    \item \texttt{plantillas\_email}: Registro de plantillas HTML transaccionales, circuitos, eventos, asuntos, variables y estado activo.
+    \item \texttt{feriados}: Días no laborables y asuetos con fechas y descripciones.
+    \item \texttt{pases}: Trazabilidad de derivaciones entre dependencias universitarias.
+    \item \texttt{proyectos\_extension}, \texttt{investigaciones}, \texttt{miembros\_equipo}, \texttt{instalaciones}: Entidades de soporte al módulo CMS de divulgación institucional.
+    \item \texttt{users}, \texttt{roles}, \texttt{permissions}: Esquema de seguridad y autorización granular RBAC.
 \end{itemize}
 
 \section{Arquitectura del sistema}
-La aplicación se asienta sobre la arquitectura \textbf{MVC (Modelo-Vista-Controlador)} de Laravel 8.x:
+La aplicación se implementa sobre el patrón \textbf{MVC (Modelo-Vista-Controlador)} de Laravel 8.x:
 \begin{itemize}
-    \item \textbf{Modelos (Eloquent):} Encapsulan la lógica de datos y relaciones relacionales (1:N, N:M), incluyendo métodos helper para la navegación del árbol de dependencias.
-    \item \textbf{Controladores:} Gestionan la lógica de negocio, procesamiento de formularios de reserva, actualización de cupos y generación de documentos en PDF/Excel.
-    \item \textbf{Middlewares:} Filtran las peticiones HTTP asegurando la autenticación del usuario y la verificación de permisos según su rol asignado.
+    \item \textbf{Modelos (Eloquent):} Encapsulan la lógica de dominio, relaciones relacionales, mutadores, \textit{scopes} y métodos auxiliares para consultas jerárquicas y renderizado de plantillas.
+    \item \textbf{Controladores:} Desacoplados entre el subsistema público (\texttt{frontend}) y el subsistema de administración, encargados de coordinar las reglas de negocio, validaciones y exportaciones.
+    \item \textbf{Middlewares:} Verificación de autenticación, control de roles (\texttt{role:ADMINISTRADOR|OPERADOR}) y redirección condicional de usuarios con rol regular.
 \end{itemize}

@@ -7,8 +7,8 @@ El sistema de \textbf{Turnos Académicos} surge como una solución tecnológica 
 
 \begin{figure}[htbp]
     \centering
-    % \includegraphics[width=0.8\textwidth]{portal_institucional}
-    \caption{Placeholder: Captura del Portal Institucional del Observatorio}
+    \includegraphics[width=0.9\textwidth]{portal_institucional}
+    \caption{Portal institucional público del Observatorio Astronómico Dr. Elvio Alanís de la UNSa}
     \label{fig:portal_institucional}
 \end{figure}
 
@@ -34,36 +34,51 @@ Desarrollar e implementar una plataforma web de gestión de turnos que centralic
 
 \subsection{Objetivos específicos}
 \begin{itemize}
-    \item Diseñar e implementar un catálogo de dependencias y trámites configurables, adaptables a la estructura y necesidades de la institución.
-    \item Desarrollar un flujo de reserva de turnos intuitivo y responsivo, permitiendo la selección de horarios disponibles en tiempo real y la captura de datos del usuario.
-    \item Incorporar un motor de gestión de disponibilidad horaria que organice la capacidad de atención en función de puestos activos, franjas operativas y días no laborables.
-    \item Proveer un panel administrativo integral con herramientas para el control de la operatividad diaria, gestión de catálogo de servicios y monitoreo de turnos.
-    \item Implementar mecanismos de notificación y generación de comprobantes digitales para acompañar el ciclo de vida del turno.
-    \item Documentar el proceso de desarrollo, la arquitectura del sistema y las principales decisiones técnicas en un informe técnico estructurado.
+    \item Diseñar e implementar un portal institucional multi-página para la difusión de actividades científicas, historia, equipamiento y proyectos del Observatorio Alanis y la UNSa.
+    \item Desarrollar un catálogo de dependencias jerárquicas y trámites configurables, adaptables a la estructura multinivel de la universidad.
+    \item Implementar un flujo interactivo y reactivo de reserva de turnos en tres pasos, que soporte modalidades individuales, grupales, institucionales y mixtas con validación de cupos en tiempo real.
+    \item Proveer mecanismos públicos de consulta rápida de turnos y carga de integrantes para delegaciones escolares sin necesidad de registro previo.
+    \item Desarrollar un panel de autogestión (``Mis Turnos'') para los usuarios y solicitantes, facilitando la visualización del historial, descarga de comprobantes oficiales en PDF y cancelación anticipada de reservas.
+    \item Implementar un panel administrativo integral que contemple el monitoreo diario, el llamado de turnos en ventanilla, asignaciones manuales, derivación de pases y cancelaciones masivas ante contingencias climáticas.
+    \item Desarrollar un módulo avanzado de gestión de plantillas de correo electrónico transaccionales con editor web, variables dinámicas, circuitos segmentados (individual y colegios), previsualización y envíos de prueba.
+    \item Incorporar un sistema de gestión de contenidos (CMS) para la administración dinámica de proyectos de extensión, investigaciones, instalaciones técnicas y equipo de trabajo.
+    \item Integrar herramientas de control de capacidad operativa mediante puestos de atención (mesas habilitadas con interruptor rápido) y un calendario de feriados con importación masiva.
+    \item Proveer módulos de estadísticas dinámicas y reportes de productividad de operadores con exportación de datos a hojas de cálculo.
+    \item Asegurar la plataforma mediante control de acceso basado en roles y permisos (RBAC) e integración de Single Sign-On (SSO) con Google.
 \end{itemize}
 
 \section{Alcance del sistema}
-El proyecto abarca el ciclo completo de la gestión de un turno, desde su concepción en la configuración administrativa hasta su conclusión en la atención presencial.
+El proyecto abarca el ciclo integral de la gestión de turnos académicos y la divulgación institucional, estructurado en las siguientes áreas de funcionalidad:
 
-\textbf{Funcionalidades para el Usuario:}
+\textbf{Funcionalidades para el Usuario y la Comunidad:}
 \begin{itemize}
-    \item Exploración del portal público institucional con visualización de proyectos de extensión e investigaciones.
-    \item Navegación por el catálogo de dependencias y trámites disponibles, soportando múltiples modalidades de reserva (individual, grupal, institucional y mixta).
-    \item Selección de fecha y hora mediante un calendario interactivo.
-    \item Ingreso de datos personales, carga pública de integrantes de contingentes y validación de seguridad con integración de inicio de sesión de Google.
-    \item Autogestión de reservas a través de un panel ``Mis Turnos'', con capacidad de cancelar citas y especificar motivos.
-    \item Descarga del comprobante del turno en formato PDF y recepción de notificaciones por correo electrónico.
+    \item \textbf{Portal Institucional Multi-página:} Acceso a la página principal (\textit{landing page}) con diseño institucional moderno, secciones de historia, directorio de equipo científico/técnico, equipamiento e instalaciones ópticas (telescopios y cúpula), catálogo de proyectos de extensión e investigaciones científicas, y sección de preguntas frecuentes (FAQ).
+    \item \textbf{Reserva Guiada de Turnos:} Asistente en tres pasos con selección de dependencia y trámite, calendario reactivo en tiempo real con bloqueo automático de días inhábiles o colmados, y selección de horarios disponibles.
+    \item \textbf{Modalidades de Reserva Diferenciadas:} Soporte nativo para turnos individuales, grupales, institucionales (para escuelas primarias, secundarias, terciarios y delegaciones) y mixtos, capturando datos específicos de la entidad (nivel educativo, curso, autoridades a cargo y acompañantes).
+    \item \textbf{Comprobante Oficial y Notificación Inmediata:} Emisión automática de comprobantes de reserva en formato PDF con código alfanumérico único de seguimiento mediante \texttt{Snappy/wkhtmltopdf}, y despacho de correos electrónicos de confirmación.
+    \item \textbf{Carga Pública de Integrantes de Delegaciones:} Formulario web accesible mediante código de reserva que permite a docentes y directivos registrar y actualizar la nómina completa de alumnos y acompañantes previa a la visita.
+    \item \textbf{Buscador Público de Turnos:} Herramienta de consulta directa por DNI o código de reserva para verificar el estado de la cita sin requerir inicio de sesión.
+    \item \textbf{Cancelación Pública de Turnos:} Procedimiento de anulación directa de la reserva mediante código y registro de motivo, liberando inmediatamente el cupo horario en el sistema.
+    \item \textbf{Panel de Autogestión ``Mis Turnos'':} Portal privado para usuarios autenticados donde se listan sus turnos próximos y turnos históricos, visualización de estados en tiempo real, descarga de comprobantes PDF y cancelación interactiva.
+    \item \textbf{Gestión de Perfil y Acceso Ágil:} Actualización de datos de contacto, cambio seguro de contraseña e inicio de sesión unificado tradicional o mediante cuentas institucionales de Google (OAuth).
 \end{itemize}
 
-\textbf{Funcionalidades para la Administración:}
+\textbf{Funcionalidades para la Administración y Operación:}
 \begin{itemize}
-    \item Gestión de ABM (Alta, Baja, Modificación) de dependencias, tipos de trámites y usuarios.
-    \item Asociación de trámites a dependencias con configuraciones personalizadas y vistas avanzadas de Mesas Habilitadas.
-    \item Configuración de capacidad de atención por franjas horarias.
-    \item Asignación manual de turnos y cancelación masiva por imprevistos.
-    \item Gestión de feriados nacionales, provinciales o institucionales.
-    \item Monitoreo en tiempo real de los turnos del día a través de un Dashboard con accesos rápidos y métricas.
-    \item Reportes básicos de gestión y estadísticas de atención.
+    \item \textbf{Estructura Jerárquica de Dependencias:} Modelado del árbol universitario mediante el patrón \textit{Nested Set} y asignación de operadores a dependencias específicas para una administración descentralizada y segregada.
+    \item \textbf{Catálogo de Trámites y Servicios:} Creación, configuración de requisitos, vigencias temporales y asociación flexible de trámites a dependencias.
+    \item \textbf{Capacidad Operativa y Mesas Habilitadas:} Configuración de puestos de atención o guías disponibles por trámite, incorporando un mecanismo de interruptor rápido (\textit{toggle}) para habilitar o suspender puestos en un clic según el personal presente.
+    \item \textbf{Calendario de Feriados y Asuetos:} Administración completa de días no laborables nacionales, provinciales e institucionales de la UNSa, con funcionalidades de importación masiva desde archivo, exportación a Excel y eliminación en bloque.
+    \item \textbf{Monitoreo Diario y Dashboard en Tiempo Real:} Panel de control con métricas de la jornada (turnos pendientes, confirmados, atendidos, ausentes, cancelados y acumulados mensuales).
+    \item \textbf{Gestión Operativa de Reservas:} Búsqueda multifiltro (por fecha, dependencia, trámite, estado, DNI o código), actualización de estados de atención en vivo, y asignación manual de turnos extraordinarios o presenciales.
+    \item \textbf{Cancelación Masiva por Contingencias:} Módulo para la anulación en bloque de citas ante imprevistos técnicos o factores climáticos adversos (nubosidad o lluvias en observaciones astronómicas), con registro formal del motivo y notificación automática por correo a todos los usuarios afectados.
+    \item \textbf{Atención en Mostrador y Gestión de Colas:} Sistema de llamado dinámico del siguiente turno en espera para ventanillas físicas, finalización de atención y verificación de condición institucional.
+    \item \textbf{Sistema de Pases y Derivaciones:} Registro y seguimiento cronológico de la transferencia formal de solicitantes o trámites entre diferentes dependencias universitarias.
+    \item \textbf{Gestión de Trámites Digitales:} Administración de expedientes y documentación digital con descarga de adjuntos digitalizados.
+    \item \textbf{Gestor de Plantillas de Correo Electrónico (Exclusivo Administrador):} Editor web de plantillas HTML transaccionales con soporte de variables dinámicas, diferenciación por circuitos (\textit{Individual} y \textit{Colegios/Escuelas}), eventos notificables (solicitud, confirmación, cancelación), previsualización en vivo con datos simulados, envíos de prueba a casillas reales, restablecimiento a valores predeterminados y activación condicional.
+    \item \textbf{CMS Institucional del Observatorio:} Administración dinámica de proyectos de extensión universitaria, líneas y programas de investigación científica, perfiles del equipo de trabajo y guías, inventario de instalaciones y equipamiento óptico, y clasificación de eventos.
+    \item \textbf{Estadísticas y Reportes:} Dashboard gráfico de afluencia y distribución de turnos, generación de reportes de rendimiento y partes diarios de operadores, y exportación completa de padrones a formato Excel (\texttt{.xlsx}).
+    \item \textbf{Seguridad y Control de Acceso (RBAC):} Administración granular de usuarios, roles y permisos, aseguramiento de rutas mediante middlewares y directivas Blade.
 \end{itemize}
 
 \section{Tecnologías utilizadas}

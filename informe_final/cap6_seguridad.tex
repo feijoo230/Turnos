@@ -1,30 +1,33 @@
 \chapter{Sistema de Autenticación y Seguridad}
 
 \section{Autenticación de usuarios}
-La seguridad en el acceso al sistema es un pilar fundamental para proteger la información académica y los datos personales de los ciudadanos. Se ha implementado un esquema de autenticación híbrido que combina el método tradicional con tecnologías modernas de Single Sign-On (SSO).
+La seguridad en el acceso al sistema es un pilar fundamental para proteger la información académica y los datos personales de los usuarios y solicitantes. Se ha implementado un esquema de autenticación híbrido que combina el método tradicional con tecnologías modernas de Single Sign-On (SSO).
 
 \begin{itemize}
     \item \textbf{Autenticación Base (Laravel UI):} Se utiliza el andamiaje proporcionado por \texttt{laravel/ui} para gestionar el registro, inicio de sesión y recuperación de contraseñas. Todas las credenciales son almacenadas en la base de datos utilizando algoritmos de hashing seguros (Bcrypt), garantizando que las contraseñas nunca sean legibles en texto plano.
-    \item \textbf{Integración con Google (Laravel Socialite):} Para facilitar el acceso a los usuarios internos de la UNSa, se ha integrado el paquete \textbf{Laravel Socialite}. Esto permite a los administradores y operadores iniciar sesión utilizando sus cuentas institucionales de Google. En la base de datos, la tabla \texttt{users} ha sido extendida con el campo \texttt{google\_id} para vincular de forma segura las cuentas sociales con los perfiles locales del sistema.
+    \item \textbf{Integración con Google (Laravel Socialite):} Para agilizar el acceso de la comunidad universitaria y los visitantes, se integró el paquete \textbf{Laravel Socialite}. Esto permite iniciar sesión utilizando cuentas de Google (particulares o institucionales \texttt{@unsa.edu.ar}). La tabla \texttt{users} vincula de forma segura el identificador único \texttt{google\_id} con el perfil local del usuario.
+    \item \textbf{Redirección Condicional por Perfil:} En \texttt{LoginController} y \texttt{HomeController}, se implementa una lógica de enrutamiento que redirige de forma transparente a los usuarios con rol regular (\texttt{USUARIO}) hacia su panel personal de autogestión (\texttt{route('mis-turnos')}), restringiendo el acceso al panel administrativo (\texttt{/home}) exclusivamente a operadores y administradores.
 \end{itemize}
 
 \section{Gestión de roles y permisos (RBAC)}
-El control de acceso basado en roles (Role-Based Access Control) se ha implementado de manera profunda utilizando el paquete \textbf{Spatie Laravel-Permission}. Este esquema permite una separación clara de funciones:
+El control de acceso basado en roles (Role-Based Access Control) se ha implementado de manera profunda utilizando el paquete \textbf{Spatie Laravel-Permission}. Este esquema permite una separación estricta de funciones:
 
 \begin{itemize}
-    \item \textbf{Super Administrador:} Posee acceso total a todos los módulos del sistema, incluyendo la gestión de usuarios, roles, permisos y la configuración global de la jerarquía de dependencias.
-    \item \textbf{Administrador de Dependencia:} Tiene permisos para configurar los trámites, mesas habilitadas y feriados específicos de su área de competencia (ej. el Observatorio), pero no puede modificar usuarios de otras dependencias.
-    \item \textbf{Operador:} Rol destinado al personal de atención. Sus permisos están restringidos a la visualización de los turnos del día, cambio de estados (Atendido/Ausente) y generación de pases internos.
+    \item \textbf{Super Administrador / Administrador General:} Posee acceso irrestricto a todos los módulos del sistema, incluyendo la parametrización de dependencias, gestión de roles y permisos, auditoría de usuarios y la gestión exclusiva de plantillas de correo electrónico transaccionales (\texttt{PlantillasEmailController}).
+    \item \textbf{Administrador de Dependencia:} Tiene facultades para configurar los trámites, mesas habilitadas, interruptores de servicio y el calendario de feriados correspondientes a su ámbito institucional (ej. el Observatorio Alanis).
+    \item \textbf{Operador de Mostrador y Atención:} Rol asignado al personal que atiende al público presencial. Sus privilegios abarcan la visualización de turnos de la jornada, cambio de estados (Atendido, Ausente), llamado secuencial de turnos en cola (\texttt{llamar\_siguiente}) y emisión de pases y derivaciones internas.
+    \item \textbf{Usuario Regular / Visitante:} Rol predeterminado para el público general, con permisos acotados exclusivamente a su bandeja personal de autogestión (\texttt{mis-turnos}), descarga de comprobantes propios y cancelación anticipada de sus citas.
 \end{itemize}
 
-La protección se aplica tanto a nivel de \textbf{rutas} mediante middlewares (ej. \texttt{middleware(['role:admin'])}) como a nivel de \textbf{vistas} mediante directivas Blade (ej. \texttt{@can('gestionar\_tramites')}), asegurando que la interfaz se adapte dinámicamente a lo que el usuario tiene permitido hacer.
+La protección se aplica tanto a nivel de \textbf{rutas} mediante middlewares agrupados (ej. \texttt{middleware(['role:ADMINISTRADOR|OPERADOR'])}) como a nivel de \textbf{vistas} mediante directivas Blade (ej. \texttt{@can('gestionar\_tramites')}), adaptando la interfaz dinámicamente a los privilegios del usuario autenticado. A nivel de datos, la relación \texttt{usuarios\_dependencias} garantiza la segregación departamental de la información.
 
 \section{Protección de rutas y datos}
 El sistema incorpora múltiples capas de protección nativas de Laravel para mitigar las vulnerabilidades web más comunes:
 
 \begin{itemize}
-    \item \textbf{Prevención de CSRF (Cross-Site Request Forgery):} Todas las peticiones de modificación de datos (POST, PUT, DELETE) requieren un token de seguridad único generado por el servidor, evitando que atacantes externos realicen acciones en nombre del usuario autenticado.
-    \item \textbf{Validación mediante FormRequests:} En lugar de validar los datos directamente en los controladores, se han creado clases de validación específicas. Esto asegura que solo los datos que cumplen con los tipos, formatos y restricciones esperadas (ej. formato de DNI argentino, correos válidos) ingresen a la lógica de negocio.
-    \item \textbf{Protección contra Inyección SQL:} El uso de \textbf{Eloquent ORM} y el constructor de consultas de Laravel garantiza que todos los parámetros sean escapados automáticamente, neutralizando cualquier intento de inyección de código malicioso en la base de datos MySQL.
-    \item \textbf{Seguridad en el Lado del Cliente:} La integración con \textbf{Vue.js} se realiza de manera segura, evitando la exposición de lógica sensible en el frontend y comunicándose siempre a través de rutas API protegidas por los mismos mecanismos de autenticación del sistema.
+    \item \textbf{Prevención de CSRF (Cross-Site Request Forgery):} Todas las peticiones mutables (POST, PUT, DELETE) requieren un token criptográfico generado por la sesión, invalidando cualquier intento de falsificación de peticiones en sitios cruzados.
+    \item \textbf{Validación mediante FormRequests:} Se utilizan clases de validación específicas para sanear y estructurar los datos recibidos (validación de DNI argentino, correos electrónicos válidos, cupos y formatos de fecha) antes de ingresar a la lógica de negocio.
+    \item \textbf{Protección contra Inyección SQL:} El uso de \textbf{Eloquent ORM} y el constructor de consultas parametrizadas de PDO garantiza el escape automático de variables, neutralizando ataques de inyección SQL.
+    \item \textbf{Acceso Público Seguro por Código de Reserva:} En los flujos públicos de carga de integrantes de delegaciones escolares (\texttt{reserva/\{codigo\}/integrantes}) y cancelación directa (\texttt{reserva/\{codigo\}/cancelar}), la seguridad se basa en la no divulgación del código alfanumérico único generado algorítmicamente, permitiendo a los directivos operar sin crear cuentas previas pero impidiendo el acceso a reservas ajenas.
+    \item \textbf{Seguridad en el Lado del Cliente:} Los componentes de \textbf{Vue.js 2} se comunican exclusivamente mediante endpoints protegidos que validan la sesión y los permisos en el servidor, evitando la exposición de reglas críticas de negocio en el navegador.
 \end{itemize}
