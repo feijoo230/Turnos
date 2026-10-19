@@ -1,19 +1,19 @@
 \chapter{Módulos y funcionalidades del sistema}
 
-\section{Portal Institucional y Divulgación Científica (Frontend Público)}
-El sistema dispone de un portal web institucional multi-página que oficia como la puerta de entrada para la comunidad universitaria y el público general. Diseñado bajo una estética moderna con una identidad visual sobria y académica, el portal no solo canaliza la obtención de citas, sino que constituye un espacio centralizado para la difusión de la actividad científica, histórica y de extensión del Observatorio Alanís de la Facultad de Ciencias Exactas (UNSa).
+\section{Portal Web Institucional y Divulgación Científica}
+El sistema dispone de un Portal Web Institucional multi-página que oficia como la puerta de entrada para la comunidad universitaria y el público general. Diseñado bajo una estética moderna con una identidad visual sobria y académica, el portal no solo canaliza la obtención de citas mediante llamadas a la acción directas, sino que constituye un espacio centralizado para la difusión de la actividad científica, histórica y de extensión del Observatorio Alanís de la Facultad de Ciencias Exactas (UNSa).
 
 \begin{figure}[htbp]
     \centering
     \includegraphics[width=0.9\textwidth]{portal_institucional}
-    \caption{Página principal (Landing Page) institucional del Observatorio Alanís}
+    \caption{Portada y página de inicio del Portal Web Institucional del Observatorio Alanís}
     \label{fig:portal_publico}
 \end{figure}
 
 El subsistema público se encuentra articulado a través de los siguientes componentes funcionales:
 
 \begin{itemize}
-    \item \textbf{Página de Inicio (\textit{Landing Page}) Interactiva:} Incorpora un encabezado principal (\textit{Hero}) con llamadas a la acción directas para reservar turnos o consultar proyectos, tarjetas interactivas para las actividades destacadas (``Observaciones Nocturnas'', ``Visitas Escolares'' y ``Divulgación y Charlas''), una sección explicativa del ``Portal del Visitante y Comunidad'', y un acordeón interactivo de Preguntas Frecuentes (FAQ) para orientar al usuario y a la comunidad universitaria.
+    \item \textbf{Página de Inicio y Portada Institucional Interactiva:} Diseñada bajo una arquitectura visual orientada a la difusión y a la acción, incorpora un encabezado principal (\textit{Hero}) con llamadas a la acción directas para reservar turnos o consultar proyectos, tarjetas interactivas para las actividades destacadas (``Observaciones Nocturnas'', ``Visitas Escolares'' y ``Divulgación y Charlas''), una sección explicativa del ``Portal del Visitante y Comunidad'', y un acordeón interactivo de Preguntas Frecuentes (FAQ) para orientar al usuario y a la comunidad universitaria.
     \item \textbf{Barra de Navegación Dinámica:} Detecta el estado de autenticación del usuario. Si es un visitante anónimo, exhibe el acceso ``Mi Portal'' y el botón directo ``Reservar Turno''. En caso de tratarse de un usuario autenticado, despliega un menú interactivo con su nombre de perfil, accesos a ``Mis Turnos'', perfil de contacto y cierre seguro de sesión.
     \item \textbf{Páginas Temáticas Institucionales (\texttt{FrontendController}):}
         \begin{itemize}
@@ -93,7 +93,7 @@ Para las modalidades escolares, los coordinadores o directivos suelen necesitar 
 \subsection{Cancelación Pública Directa}
 A través de la ruta \texttt{reserva/\{codigo\}/cancelar}, cualquier persona puede anular su cita ingresando su código alfanumérico y explicitando obligatoriamente el motivo de cancelación. Al registrarse la anulación, el sistema repone inmediatamente el cupo horario en el calendario y notifica por correo electrónico tanto al usuario como a la dependencia.
 
-\section{Módulo de Autogestión de Turnos (``Mis Turnos'' y Perfil)}
+\section{Módulo de Autogestión de Turnos}
 Para brindar un servicio transparente y moderno, el sistema cuenta con un panel privado de autogestión denominado ``Mis Turnos''.
 
 \begin{figure}[htbp]
@@ -181,9 +181,9 @@ A través del controlador \texttt{TurnosController} (\texttt{turnos\_admin}), el
 \end{itemize}
 
 \section{Módulo de Capacidad Operativa, Mesas Habilitadas y Calendario de Feriados}
-Permite regular con extrema precisión la oferta de turnos y garantizar la correspondencia con los recursos humanos reales y el calendario universitario.
+Permite regular con precisión la oferta de turnos y garantizar la correspondencia con los recursos humanos reales y el calendario universitario.
 
-\subsection{Mesas Habilitadas con Interruptor Rápido (\textit{Toggle})}
+\subsection{Mesas Habilitadas con Interruptor Rápido}
 Cada ``mesa habilitada'' simboliza un puesto físico de atención o un guía docente disponible en el Observatorio.
 
 \begin{figure}[htbp]
@@ -260,7 +260,7 @@ Desarrollado en \texttt{PlantillasEmailController} y reservado exclusivamente pa
     \item \textbf{Interruptor de Estado (\texttt{toggle}):} Suspende temporalmente el despacho de una plantilla específica sin eliminarla.
 \end{itemize}
 
-\section{Módulo de Gestión de Contenidos Institucionales (CMS Académico)}
+\section{Módulo de Gestión de Contenidos Institucionales}
 Para evitar la dependencia técnica en la actualización de contenidos institucionales del Observatorio, se incorporó un gestor de contenidos (CMS) administrable desde el panel de control:
 
 \begin{figure}[htbp]
@@ -307,7 +307,7 @@ Provee herramientas analíticas cuantitativas para la toma de decisiones institu
     \label{fig:reporte_operador}
 \end{figure}
 
-\section{Módulo de Estructura Jerárquica, Usuarios y Seguridad (RBAC)}
+\section{Módulo de Estructura Jerárquica, Usuarios y Seguridad}
 Asegura la coherencia jerárquica universitaria y la estricta protección de los datos:
 
 \begin{figure}[htbp]

@@ -1,4 +1,4 @@
-# Documentación: Landing Page y Despliegue en Producción
+# Documentación: Portal Web Institucional y Despliegue en Producción
 **Observatorio Astronómico Dr. Elvio Alanís**  
 Facultad de Ciencias Exactas — Universidad Nacional de Salta (UNSa)
 
@@ -6,8 +6,8 @@ Facultad de Ciencias Exactas — Universidad Nacional de Salta (UNSa)
 
 ## 1. Arquitectura de la Solución (Opción A)
 
-Se implementó la **Opción A**, integrando la Landing Page oficial directamente dentro del proyecto Laravel:
-- **Ruta Raíz (`/` o `/inicio`):** Carga la Landing Page astronómica moderna y reactiva (`LandingController@index`).
+Se implementó la **Opción A**, integrando el **Portal Web Institucional** oficial directamente dentro del proyecto Laravel:
+- **Ruta Raíz (`/` o `/inicio`):** Carga la portada y página de inicio institucional moderna y reactiva (`LandingController@index`).
 - **Ruta de Turnos (`/turnos` o `/solicitar-turno`):** Conduce directamente al wizard de reserva de turnos (`TramitesController@index`).
 - **Ruta de Consulta (`/turno.buscar`):** Búsqueda directa por DNI o código de reserva sin necesidad de inicio de sesión.
 - **Ruta de Acceso Unificado / Mi Portal (`/login`):** Portal de autenticación tanto para visitantes/usuarios particulares como para operadores y administradores (admite correo/contraseña y Google Social Login).
@@ -19,11 +19,11 @@ Se implementó la **Opción A**, integrando la Landing Page oficial directamente
 ## 2. Archivos Creados y Modificados
 
 1. **Controladores:**
-   - [`app/app/Http/Controllers/frontend/LandingController.php`](file:///c:/Users/feijo/Desktop/Turnos/app/app/Http/Controllers/frontend/LandingController.php): Sirve la landing page.
+   - [`app/app/Http/Controllers/frontend/LandingController.php`](file:///c:/Users/feijo/Desktop/Turnos/app/app/Http/Controllers/frontend/LandingController.php): Sirve la página principal del Portal Institucional.
    - [`app/app/Http/Controllers/Auth/LoginController.php`](file:///c:/Users/feijo/Desktop/Turnos/app/app/Http/Controllers/Auth/LoginController.php): Redirige a los usuarios con rol `USUARIO` directamente a `route('mis-turnos')` tras autenticarse (tanto por login clásico como con Google).
    - [`app/app/Http/Controllers/HomeController.php`](file:///c:/Users/feijo/Desktop/Turnos/app/app/Http/Controllers/HomeController.php): Redirige usuarios sin rol de operador/admin a `route('mis-turnos')`.
 2. **Vistas:**
-   - [`app/resources/views/frontend/landing.blade.php`](file:///c:/Users/feijo/Desktop/Turnos/app/resources/views/frontend/landing.blade.php): Landing page con navbar adaptativo (botón "Mi Portal" cuando es visitante, y menú dropdown con nombre cuando está autenticado), nueva sección de **Portal del Visitante y Comunidad** (turnos anteriores, próximos, comprobantes, comentarios futuros y facturación), FAQ y diseño cósmico.
+   - [`app/resources/views/frontend/landing.blade.php`](file:///c:/Users/feijo/Desktop/Turnos/app/resources/views/frontend/landing.blade.php): Portada institucional con navbar adaptativo (botón "Mi Portal" cuando es visitante, y menú dropdown con nombre cuando está autenticado), sección de **Portal del Visitante y Comunidad**, accesos a turnos, FAQ y diseño cósmico.
    - [`app/resources/views/auth/login.blade.php`](file:///c:/Users/feijo/Desktop/Turnos/app/resources/views/auth/login.blade.php): Actualizado para presentarse como *Portal de Usuarios, Visitantes y Operadores*.
 3. **Rutas:**
    - [`app/routes/web.php`](file:///c:/Users/feijo/Desktop/Turnos/app/routes/web.php): Enrutamiento raíz hacia la landing y turnos en `/turnos`.

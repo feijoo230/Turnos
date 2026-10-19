@@ -9,7 +9,7 @@ La seguridad en el acceso al sistema es un pilar fundamental para proteger la in
     \item \textbf{Redirección Condicional por Perfil:} En \texttt{LoginController} y \texttt{HomeController}, se implementa una lógica de enrutamiento que redirige de forma transparente a los usuarios con rol regular (\texttt{USUARIO}) hacia su panel personal de autogestión (\texttt{route('mis-turnos')}), restringiendo el acceso al panel administrativo (\texttt{/home}) exclusivamente a operadores y administradores.
 \end{itemize}
 
-\section{Gestión de roles y permisos (RBAC)}
+\section{Gestión de roles y permisos}
 El control de acceso basado en roles (Role-Based Access Control) se ha implementado de manera profunda utilizando el paquete \textbf{Spatie Laravel-Permission}. Este esquema permite una separación estricta de funciones:
 
 \begin{itemize}
