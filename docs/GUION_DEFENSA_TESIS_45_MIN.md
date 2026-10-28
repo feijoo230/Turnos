@@ -75,7 +75,7 @@
 >
 > 1. **Estructura Jerárquica con Nested Set:** En la tabla `dependencias` no usamos simplemente un `parent_id`, sino el patrón *Nested Set* con columnas `_lft` y `_rgt`. Esto permite que una consulta sobre una facultad recupere en una única operación indexada todas sus sub-dependencias, cátedras o laboratorios sin recursión costosa.
 > 2. **Cálculo de Aforo Dinámico:** El cruce entre `turnos_horarios`, `mesas_habilitadas` y `dependencia_turnos_reservas` permite que la disponibilidad no sea un valor fijo, sino el resultado de contrastar la capacidad teórica de los puestos activos contra la sumatoria de personas reservadas en la franja.
-> 3. **Contingentes Escolares y Carga Diferida:** La relación `dependencia_turnos_reservas` con `reserva_integrantes` permite que un docente reserve el turno institucional y posteriormente complete o modifique la nómina de alumnos mediante un enlace público protegido por código de reserva.
+> 3. **Contingentes Escolares y Carga Diferida:** La relación `dependencia_turnos_reservas` con `dependencia_turnos_reservas_integrantes` permite que un docente reserve el turno institucional y posteriormente complete o modifique la nómina de alumnos mediante un enlace público protegido por código de reserva.
 > 4. **Motor de Plantillas de Email:** La tabla `plantillas_email` desacopla el contenido de las notificaciones del código duro, soportando sustitución léxica de variables como `{codigo}`, `{nombre}`, `{institucion}` y `{fecha}`."
 
 ---
