@@ -16,7 +16,7 @@
       <li><a><i class="fa fa-calendar-check-o text-success"></i> Atención de Turnos <span class="fa fa-chevron-down"></span></a>
         <ul class="nav child_menu">
           <li><a href="{{ url('turnosdependenciasreservas') }}"><i class="fa fa-list-alt"></i> Reservas de Turnos</a></li>
-          <li><a href="{{ url('turnos_admin') }}"><i class="fa fa-bullhorn"></i> Llamador y Atención</a></li>
+          {{-- <li><a href="{{ url('turnos_admin') }}"><i class="fa fa-bullhorn"></i> Llamador y Atención</a></li> --}}
           <li><a href="{{ url('turnostramites') }}"><i class="fa fa-clock-o"></i> Horarios de Atención</a></li>
         </ul>
       </li>
@@ -36,7 +36,7 @@
       <li><a><i class="fa fa-bar-chart text-info"></i> Reportes y Métricas <span class="fa fa-chevron-down"></span></a>
         <ul class="nav child_menu">
           <li><a href="{{ route('estadisticas.index') }}"><i class="fa fa-area-chart"></i> Estadísticas Generales</a></li>
-          <li><a href="{{ url('reporte.operador') }}"><i class="fa fa-user-circle-o"></i> Reportes por Operador</a></li>
+          {{-- <li><a href="{{ url('reporte.operador') }}"><i class="fa fa-user-circle-o"></i> Reportes por Operador</a></li> --}}
         </ul>
       </li>
     </ul>

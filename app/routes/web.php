@@ -73,9 +73,9 @@ Route::group(['middleware' => ['auth', 'role:ADMINISTRADOR|OPERADOR']], function
   Route::resource('pases', 'PasesController');//Valido
   Route::get('pases.listar/{tramite_id}', 'PasesController@listar')->name('pases.listar');//Valido
 
-  Route::get('reporte.operador','ReporteOperadorController@index');
-  Route::post('listado.operadores','ReporteOperadorController@listado_operadores');
-  Route::post('listado.imprimir_listado','ReporteOperadorController@imprimir_listado');
+  // Route::get('reporte.operador','ReporteOperadorController@index');
+  // Route::post('listado.operadores','ReporteOperadorController@listado_operadores');
+  // Route::post('listado.imprimir_listado','ReporteOperadorController@imprimir_listado');
 
   Route::resource('permisos', 'PermisosController');
   Route::resource('roles', 'RolesController');
@@ -106,10 +106,10 @@ Route::group(['middleware' => ['auth', 'role:ADMINISTRADOR|OPERADOR']], function
   Route::get('estadisticas/data', 'EstadisticasController@getData')->name('estadisticas.data');
 
   // Turnos Admin Routes
-  Route::resource('turnos_admin', 'TurnosController');
-  Route::get('turnos_admin.llamar_siguiente', 'TurnosController@llamar_siguiente')->name('turnos_admin.llamar_siguiente');
-  Route::get('turnos_admin.terminar_turno/{id_turno}', 'TurnosController@terminar_turno')->name('turnos_admin.terminar_turno');
-  Route::get('turnos_admin.es_afiliado/{id_turno}', 'TurnosController@es_afiliado')->name('turnos_admin.es_afiliado');
+  // Route::resource('turnos_admin', 'TurnosController');
+  // Route::get('turnos_admin.llamar_siguiente', 'TurnosController@llamar_siguiente')->name('turnos_admin.llamar_siguiente');
+  // Route::get('turnos_admin.terminar_turno/{id_turno}', 'TurnosController@terminar_turno')->name('turnos_admin.terminar_turno');
+  // Route::get('turnos_admin.es_afiliado/{id_turno}', 'TurnosController@es_afiliado')->name('turnos_admin.es_afiliado');
 });
 
 // Rutas exclusivas para ADMINISTRADOR - Gestión de Plantillas de Correo

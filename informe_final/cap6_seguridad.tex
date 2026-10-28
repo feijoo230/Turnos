@@ -16,7 +16,7 @@ El control de acceso basado en roles (Role-Based Access Control) se ha implement
 \begin{itemize}
     \item \textbf{Super Administrador / Administrador General:} Posee acceso irrestricto a todos los módulos del sistema, incluyendo la parametrización de dependencias, gestión de roles y permisos, auditoría de usuarios y la gestión exclusiva de plantillas de correo electrónico transaccionales (\texttt{PlantillasEmailController}).
     \item \textbf{Administrador de Dependencia:} Tiene facultades para configurar los trámites, mesas habilitadas, interruptores de servicio y el calendario de feriados correspondientes a su ámbito institucional (ej. el Observatorio Alanis).
-    \item \textbf{Operador de Mostrador y Atención:} Rol asignado al personal que atiende al público presencial. Sus privilegios abarcan la visualización de turnos de la jornada, cambio de estados (Atendido, Ausente), llamado secuencial de turnos en cola (\texttt{llamar\_siguiente}) y emisión de pases y derivaciones internas.
+    \item \textbf{Operador de Atención:} Rol asignado al personal encargado de la recepción de visitantes y gestión operativa. Sus privilegios abarcan la visualización de reservas de la jornada, actualización de estados de asistencia (Atendido, Ausente, Cancelado), asignación manual de turnos y emisión de pases y derivaciones internas.
     \item \textbf{Usuario Regular / Visitante:} Rol predeterminado para el público general, con permisos acotados exclusivamente a su bandeja personal de autogestión (\texttt{mis-turnos}), descarga de comprobantes propios y cancelación anticipada de sus citas.
 \end{itemize}
 

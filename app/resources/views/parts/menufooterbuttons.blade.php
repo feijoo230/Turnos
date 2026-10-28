@@ -7,8 +7,8 @@
     <a data-toggle="tooltip" data-placement="top" title="Estadísticas" href="{{ route('estadisticas.index') }}">
       <i class="fa fa-area-chart" aria-hidden="true"></i>
     </a>
-    <a data-toggle="tooltip" data-placement="top" title="Gestión de Turnos" href="{{ url('turnos_admin') }}">
-      <i class="fa fa-bullhorn" aria-hidden="true"></i>
+    <a data-toggle="tooltip" data-placement="top" title="Reservas de Turnos" href="{{ url('turnosdependenciasreservas') }}">
+      <i class="fa fa-calendar-check-o" aria-hidden="true"></i>
     </a>
     @endhasanyrole
     <a data-toggle="tooltip" data-placement="top" title="Logout" href="{{ url('/logout') }}"

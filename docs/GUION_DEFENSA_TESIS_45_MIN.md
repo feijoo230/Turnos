@@ -136,7 +136,7 @@
    - *Acción:* Ir a `/plantillas-email`.
    - *Decir:* "El administrador puede seleccionar el circuito Individual o Colegios, editar el cuerpo HTML usando variables dinámicas como `{codigo}` o `{institucion}`, previsualizar en vivo con datos de prueba o enviarse un mail de test a su casilla real."
 7. **Estadísticas y Reportes:**
-   - *Acción:* Mostrar brevemente `/estadisticas` y `/reporte.operador` (exportación a Excel y partes de firmas).
+   - *Acción:* Mostrar brevemente `/estadisticas` (gráficos interactivos de afluencia y distribución de turnos).
 
 ---
 

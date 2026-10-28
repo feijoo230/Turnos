@@ -1,327 +1,304 @@
-%! TeX root = ./informe_final.tex
-\chapter{Módulos y funcionalidades del sistema}
-
-\section{Portal Web Institucional y Divulgación Científica}
-El sistema dispone de un Portal Web Institucional multi-página que oficia como la puerta de entrada para la comunidad universitaria y el público general. Diseñado bajo una estética moderna con una identidad visual sobria y académica, el portal no solo canaliza la obtención de citas mediante llamadas a la acción directas, sino que constituye un espacio centralizado para la difusión de la actividad científica, histórica y de extensión del Observatorio Alanís de la Facultad de Ciencias Exactas (UNSa).
-
-\begin{figure}[htbp]
-    \centering
-    \includegraphics[width=0.9\textwidth]{portal_institucional}
-    \caption{Portada y página de inicio del Portal Web Institucional del Observatorio Alanís}
-    \label{fig:portal_publico}
-\end{figure}
-
-El subsistema público se encuentra articulado a través de los siguientes componentes funcionales:
-
-\begin{itemize}
-    \item \textbf{Página de Inicio y Portada Institucional Interactiva:} Diseñada bajo una arquitectura visual orientada a la difusión y a la acción, incorpora un encabezado principal (\textit{Hero}) con llamadas a la acción directas para reservar turnos o consultar proyectos, tarjetas interactivas para las actividades destacadas (``Observaciones Nocturnas'', ``Visitas Escolares'' y ``Divulgación y Charlas''), una sección explicativa del ``Portal del Visitante y Comunidad'', y un acordeón interactivo de Preguntas Frecuentes (FAQ) para orientar al usuario y a la comunidad universitaria.
-    \item \textbf{Barra de Navegación Dinámica:} Detecta el estado de autenticación del usuario. Si es un visitante anónimo, exhibe el acceso ``Mi Portal'' y el botón directo ``Reservar Turno''. En caso de tratarse de un usuario autenticado, despliega un menú interactivo con su nombre de perfil, accesos a ``Mis Turnos'', perfil de contacto y cierre seguro de sesión.
-    \item \textbf{Páginas Temáticas Institucionales (\texttt{FrontendController}):}
-        \begin{itemize}
-            \item \textit{Historia del Observatorio (\texttt{/historia}):} Recorrido cronológico desde la fundación del Observatorio Alanís en 1988, documentando la construcción de la cúpula, donaciones de instrumental y hitos académicos.
-            \item \textit{Infraestructura y Equipamiento (\texttt{/instalaciones}):} Detalle de los telescopios reflectores y refractores, cúpula astronómica motorizada, instrumental solar y salas audiovisuales para talleres.
-            \item \textit{Directorio del Equipo de Trabajo (\texttt{/equipo}):} Presentación del cuerpo directivo, docentes investigadores, personal técnico y guías de divulgación astronómica.
-            \item \textit{Proyectos de Extensión Universitaria (\texttt{/proyectos}):} Actividades de vinculación con la comunidad salteña, observaciones abiertas en efemérides astronómicas y capacitaciones docentes.
-            \item \textit{Líneas de Investigación (\texttt{/investigacion}):} Programas científicos en astrofísica, física solar y óptica aplicada desarrollados en el ámbito de la facultad.
-        \end{itemize}
-\end{itemize}
-
-\begin{figure}[htbp]
-    \centering
-    \includegraphics[width=0.9\textwidth]{portal_historia}
-    \caption{Sección institucional de Historia y Trayectoria del Observatorio Alanís}
-    \label{fig:portal_historia}
-\end{figure}
-
-\begin{figure}[htbp]
-    \centering
-    \includegraphics[width=0.9\textwidth]{portal_instalaciones}
-    \caption{Catálogo de Infraestructura, Cúpula y Equipamiento Instrumental}
-    \label{fig:portal_instalaciones}
-\end{figure}
-
-\subsection{Buscador Público de Turnos sin Autenticación}
-A fin de brindar la máxima accesibilidad a los solicitantes y visitantes, el sistema implementa en la ruta \texttt{/turno.buscar} una herramienta pública de consulta rápida. El solicitante puede ingresar indistintamente su código alfanumérico único de reserva o su número de Documento Nacional de Identidad (DNI).
-
-\begin{figure}[htbp]
-    \centering
-    \includegraphics[width=0.85\textwidth]{buscador_turnos}
-    \caption{Buscador público de turnos por DNI o código alfanumérico de reserva}
-    \label{fig:buscador_turnos}
-\end{figure}
-
-Al procesar la consulta, el sistema valida la existencia de la cita en la tabla \texttt{dependencia\_turnos\_reservas} y devuelve una tarjeta informativa con el estado actual del turno (Pendiente, Confirmado, Atendido, Cancelado o Ausente), fecha, horario, trámite y un botón directo para la reimpresión o descarga del comprobante oficial en formato PDF.
-
-\section{Módulo de Reserva de Turnos y Modalidades de Atención}
-El proceso de obtención de citas constituye el núcleo operativo de cara a la comunidad. Desarrollado en \texttt{frontend\textbackslash TramitesController}, el asistente de reserva guía al usuario paso a paso a través de un flujo responsivo, ágil y reactivo.
-
-\begin{figure}[htbp]
-    \centering
-    \includegraphics[width=0.9\textwidth]{form_reserva_modalidades}
-    \caption{Asistente interactivo de reserva de turnos (Paso 1: Selección de Dependencia y Trámite)}
-    \label{fig:form_reserva_modalidades}
-\end{figure}
-
-\subsection{Flujo Asistido en Tres Pasos}
-\begin{enumerate}
-    \item \textbf{Paso 1 - Dependencia y Trámite (\texttt{tramite.index}):} El solicitante selecciona la dependencia organizativa dentro del árbol jerárquico universitario (ej. ``Observatorio Alanís''). Mediante peticiones asíncronas AJAX (\texttt{gettramites}), el sistema carga dinámicamente los servicios vigentes y activos asociados a dicha sede.
-    \item \textbf{Paso 2 - Selección Reactiva de Fecha y Horario (\texttt{tramite.paso2}):} Implementado con componentes en \textbf{Vue.js 2}, este paso consulta en tiempo real al backend las fechas inhabilitadas (\texttt{turnos.getdisableddates}) por feriados nacionales, provinciales, asuetos de la UNSa y fines de semana. Al seleccionar una fecha hábil, el método \texttt{turnos.loadhorarios} contrasta los turnos existentes contra la cantidad de \textbf{mesas habilitadas} y despliega únicamente los horarios con cupo disponible, evitando sobre-reservas.
-    \item \textbf{Paso 3 - Formulario de Datos y Modalidades (\texttt{tramite.paso3}):} Captura de la información de contacto (DNI, Nombre, Apellido, Correo Electrónico y Celular) y discriminación de la modalidad de atención.
-\end{enumerate}
-
-\subsection{Soporte Nativo de Cuatro Modalidades de Atención}
-El sistema resuelve las complejidades operativas del Observatorio y las dependencias académicas permitiendo cuatro modalidades diferenciadas:
-\begin{itemize}
-    \item \textbf{Modalidad Individual:} Pensada para trámites personales o visitas particulares de divulgación astronómica.
-    \item \textbf{Modalidad Delegación Escolar e Institucional:} Diseñada específicamente para contingentes de escuelas primarias, secundarias, colegios técnicos o institutos de formación docente. Captura campos esenciales:
-        \begin{itemize}
-            \item Nombre oficial del establecimiento educativo.
-            \item Nivel educativo (Primario, Secundario, Terciario/Universitario).
-            \item Curso, comisión o división (ej. 4to Año ``B'').
-            \item Cargo de la autoridad solicitante (Director, Vicedirector, Docente a cargo).
-            \item Cantidad total de estudiantes y cantidad de docentes acompañantes.
-        \end{itemize}
-    \item \textbf{Modalidad Grupal e Institucional UNSa:} Para delegaciones de cátedras universitarias, congresos o visitas de extensión.
-    \item \textbf{Modalidad Mixta:} Destinada a acuerdos interinstitucionales con cupos compartidos.
-\end{itemize}
-
-\subsection{Código Único, Comprobante Oficial PDF y Notificación Inmediata}
-Al confirmar la solicitud (\texttt{tramite.guardar}), el sistema efectúa una transacción en base de datos generando un código alfanumérico único e irrepetible. Automáticamente se dispara la compilación del comprobante digital en formato PDF mediante la librería \texttt{Snappy} (\texttt{wkhtmltopdf}), que incluye la identidad visual de la UNSa, los datos del turno y recomendaciones de presentación. De forma paralela, el sistema envía un correo electrónico transaccional de confirmación utilizando la plantilla oficial configurada.
-
-\subsection{Carga Pública Diferida de Integrantes de Delegaciones}
-Para las modalidades escolares, los coordinadores o directivos suelen necesitar tiempo para confeccionar la lista de alumnos autorizados. El sistema provee la ruta pública \texttt{reserva/\{codigo\}/integrantes}, a la cual el docente accede simplemente con el código de su turno, sin requerir usuario ni contraseña. En esta interfaz puede cargar, editar y asentar la nómina de estudiantes y docentes con sus números de documento, asegurando el control de aforo y el cumplimiento de las pólizas de seguro escolar.
-
-\subsection{Cancelación Pública Directa}
-A través de la ruta \texttt{reserva/\{codigo\}/cancelar}, cualquier persona puede anular su cita ingresando su código alfanumérico y explicitando obligatoriamente el motivo de cancelación. Al registrarse la anulación, el sistema repone inmediatamente el cupo horario en el calendario y notifica por correo electrónico tanto al usuario como a la dependencia.
-
-\section{Módulo de Autogestión de Turnos}
-Para brindar un servicio transparente y moderno, el sistema cuenta con un panel privado de autogestión denominado ``Mis Turnos''.
-
-\begin{figure}[htbp]
-    \centering
-    \includegraphics[width=0.9\textwidth]{mis_turnos}
-    \caption{Panel de autogestión 'Mis Turnos' para usuarios y visitantes}
-    \label{fig:mis_turnos}
-\end{figure}
-
-\begin{itemize}
-    \item \textbf{Redirección Inteligente:} Todo usuario con rol regular (\texttt{USUARIO}) que inicie sesión es redirigido inmediatamente a la vista \texttt{/mis-turnos}, resguardando el acceso al panel administrativo interno.
-    \item \textbf{Bandeja Histórica y Próximos Turnos:} Grilla organizada cronológicamente donde el usuario puede supervisar el estado de cada una de sus solicitudes (Pendiente, Confirmado, Atendido, Cancelado o Ausente).
-    \item \textbf{Reimpresión de Comprobantes:} Botón de descarga directa para regenerar el comprobante oficial en PDF en cualquier momento.
-    \item \textbf{Cancelación Asistida con Modal:} Ventana emergente que solicita al usuario la fundamentación de la baja, registrando el motivo en base de datos y liberando el horario para la comunidad.
-    \item \textbf{Edición de Perfil (\texttt{usuarios.mi\_perfil}):} Posibilita al usuario actualizar su número de teléfono o celular y cambiar de manera segura su contraseña de acceso utilizando cifrado Bcrypt.
-\end{itemize}
-
-\section{Módulo de Operatoria Diaria, Monitoreo y Atención Presencial}
-Diseñado para los operadores, coordinadores y guías del Observatorio Alanís, este módulo centraliza la administración operativa cotidiana.
-
-\begin{figure}[htbp]
-    \centering
-    \includegraphics[width=0.9\textwidth]{dashboard_admin}
-    \caption{Dashboard administrativo principal con indicadores y métricas de la jornada}
-    \label{fig:dashboard_admin}
-\end{figure}
-
-\subsection{Dashboard Operativo en Tiempo Real}
-La pantalla de inicio administrativa provee un resumen visual de la afluencia diaria mediante tarjetas métricas:
-\begin{itemize}
-    \item Total de turnos asignados para la fecha.
-    \item Turnos pendientes de recepción en mostrador o sala de espera.
-    \item Cantidad de visitantes o grupos atendidos satisfactoriamente.
-    \item Registro de ausencias e inasistencias.
-    \item Turnos cancelados durante la jornada.
-    \item Consolidado acumulado de atenciones del mes en curso.
-\end{itemize}
-
-\subsection{Bandeja Operativa de Reservas y Multifiltro}
-El controlador \texttt{TurnosDependenciasReservasController} provee una grilla integral para auditar y gestionar las citas:
-
-\begin{figure}[htbp]
-    \centering
-    \includegraphics[width=0.9\textwidth]{turnos_reservas}
-    \caption{Bandeja de gestión de turnos y reservas con panel de filtros combinados}
-    \label{fig:turnos_reservas}
-\end{figure}
-
-\begin{itemize}
-    \item \textbf{Filtros Combinados:} Búsqueda simultánea por rango de fechas, trámite específico, dependencia universitaria, estado de la reserva, DNI del titular o código alfanumérico.
-    \item \textbf{Cambio de Estado en Vivo:} Botones de acción para marcar presencias (\textit{Atendido}), inasistencias (\textit{Ausente}) o cancelaciones extraordinarias.
-    \item \textbf{Asignación Manual de Turnos (\texttt{storeManual}):} Permite al operador incorporar turnos de urgencia o presenciales espontáneos en franjas específicas.
-    \item \textbf{Exportación a Hojas de Cálculo (\texttt{turnosdependenciasreservas.export}):} Descarga masiva del padrón de reservas a formato Microsoft Excel (\texttt{.xlsx}) para firmas presenciales o archivo administrativo.
-    \item \textbf{Cancelación Masiva por Contingencias Meteorológicas o Técnicas:} Funcionalidad de vital relevancia para observaciones astronómicas nocturnas. Si las condiciones meteorológicas son adversas (lluvias, alta nubosidad o vientos fuertes) o se produce una falla mecánica en la cúpula, el administrador selecciona los turnos de la noche y ejecuta la anulación masiva. El sistema registra el motivo meteorológico y despacha en bloque los correos electrónicos informando a todos los visitantes con reserva para evitar traslados innecesarios al campus.
-\end{itemize}
-
-\begin{figure}[htbp]
-    \centering
-    \includegraphics[width=0.92\textwidth]{codigo_cancelacion_masiva}
-    \caption{Implementación del método \texttt{cancelacionMasiva} en \texttt{TurnosDependenciasReservasController.php}}
-    \label{fig:codigo_cancelacion}
-\end{figure}
-
-\begin{figure}[htbp]
-    \centering
-    \includegraphics[width=0.92\textwidth]{codigo_disponibilidad_cupos}
-    \caption{Cálculo dinámico de disponibilidad y aforo en \texttt{loadHorariosAdmin}}
-    \label{fig:codigo_disponibilidad}
-\end{figure}
-
-\section{Sistema de Atención en Mostrador y Gestión de Colas Presenciales}
-A través del controlador \texttt{TurnosController} (\texttt{turnos\_admin}), el sistema provee herramientas especializadas para las ventanillas de recepción presencial:
-
-\begin{figure}[htbp]
-    \centering
-    \includegraphics[width=0.85\textwidth]{turnos_admin_mostrador}
-    \caption{Interfaz de atención en mostrador y llamado secuencial de turnos}
-    \label{fig:turnos_admin_mostrador}
-\end{figure}
-
-\begin{itemize}
-    \item \textbf{Llamado Secuencial (\texttt{turnos\_admin.llamar\_siguiente}):} Convoca al siguiente solicitante en cola de espera para la mesa asignada al operador.
-    \item \textbf{Finalización Formal de Atención (\texttt{turnos\_admin.terminar\_turno}):} Registra el cierre de la visita y asienta la hora efectiva de conclusión del servicio.
-    \item \textbf{Verificación de Afiliación o Regularidad (\texttt{turnos\_admin.es\_afiliado}):} Validación rápida en mostrador sobre la condición de alumno regular o personal universitario de la UNSa.
-\end{itemize}
-
-\section{Módulo de Capacidad Operativa, Mesas Habilitadas y Calendario de Feriados}
-Permite regular con precisión la oferta de turnos y garantizar la correspondencia con los recursos humanos reales y el calendario universitario.
-
-\subsection{Mesas Habilitadas con Interruptor Rápido}
-Cada ``mesa habilitada'' simboliza un puesto físico de atención o un guía docente disponible en el Observatorio.
-
-\begin{figure}[htbp]
-    \centering
-    \includegraphics[width=0.9\textwidth]{mesas_habilitadas}
-    \caption{Gestión de mesas habilitadas y puestos de atención con interruptor rápido (\textit{Toggle})}
-    \label{fig:mesas_habilitadas}
-\end{figure}
-
-El sistema implementa la función rápida \texttt{mesashabilitadas.toggle}, que permite activar o pausar puestos de atención mediante un único clic. Si un guía astronómico se ausenta en una jornada, el operador inhabilita su mesa y el motor de reservas recalcula inmediatamente los cupos disponibles para las franjas horarias, evitando sobrecargar a los guías presentes.
-
-\begin{figure}[htbp]
-    \centering
-    \includegraphics[width=0.92\textwidth]{codigo_mesas_toggle}
-    \caption{Lógica del interruptor rápido de mesas habilitadas en \texttt{MesasHabilitadasController.php}}
-    \label{fig:codigo_mesas_toggle}
-\end{figure}
-
-\subsection{Calendario Integral de Feriados y Asuetos de la UNSa}
-En el controlador \texttt{FeriadosController}, se gestiona la agenda de jornadas no laborables:
-
-\begin{figure}[htbp]
-    \centering
-    \includegraphics[width=0.9\textwidth]{feriados_admin}
-    \caption{Módulo de calendario de feriados, asuetos y herramientas de importación/exportación}
-    \label{fig:feriados_admin}
-\end{figure}
-
-\begin{itemize}
-    \item \textbf{Importación Masiva (\texttt{feriados.import}):} Carga en bloque del cronograma anual desde archivos de datos.
-    \item \textbf{Exportación a Excel (\texttt{feriados.export}):} Descarga del calendario oficial de días no laborables.
-    \item \textbf{Eliminación en Lote (\texttt{feriados.massDestroy}):} Herramienta de depuración para calendarios de ciclos lectivos pasados.
-    \item \textbf{Bloqueo Automático:} Al evaluar disponibilidad, el sistema omite de forma desatendida las fechas registradas en esta tabla.
-\end{itemize}
-
-\section{Módulo Administrativo de Gestión de Plantillas de Correo Electrónico}
-Desarrollado en \texttt{PlantillasEmailController} y reservado exclusivamente para el rol \texttt{ADMINISTRADOR}, este módulo otorga total autonomía a las autoridades para redactar y personalizar las notificaciones sin alterar código fuente.
-
-\begin{figure}[htbp]
-    \centering
-    \includegraphics[width=0.9\textwidth]{plantillas_email}
-    \caption{Panel de control de plantillas de correo electrónico transaccionales organizadas por circuitos}
-    \label{fig:plantillas_email}
-\end{figure}
-
-\begin{itemize}
-    \item \textbf{Segmentación por Circuitos Operativos:}
-        \begin{itemize}
-            \item \textit{Circuito Individual:} Textos directos para particulares y estudiantes (solicitud, confirmación, cancelación).
-            \item \textit{Circuito Colegios / Escuelas / Institucional:} Comunicaciones formales dirigidas a directivos, incluyendo membrete institucional, protocolo de visita con menores de edad, datos del establecimiento, curso, cantidad de alumnos y docentes acompañantes.
-        \end{itemize}
-    \item \textbf{Editor Web de Plantillas con Variables Dinámicas:}
-        La interfaz de edición permite modificar el asunto y la estructura HTML del correo, ofreciendo un menú de inserción de 17 variables dinámicas contextuales: \texttt{\{codigo\}}, \texttt{\{nombre\}}, \texttt{\{dni\}}, \texttt{\{email\}}, \texttt{\{celular\}}, \texttt{\{fecha\}}, \texttt{\{hora\}}, \texttt{\{tramite\}}, \texttt{\{dependencia\}}, \texttt{\{motivo\_cancelacion\}}, \texttt{\{institucion\}}, \texttt{\{cargo\}}, \texttt{\{nivel\}}, \texttt{\{curso\}}, \texttt{\{cantidad\_personas\}}, \texttt{\{cantidad\_acompanantes\}} y \texttt{\{sistema\_nombre\}}.
-\end{itemize}
-
-\begin{figure}[htbp]
-    \centering
-    \includegraphics[width=0.9\textwidth]{plantilla_email_editor}
-    \caption{Editor web de plantillas HTML con selector de variables dinámicas y vista previa}
-    \label{fig:plantilla_email_editor}
-\end{figure}
-
-\begin{figure}[htbp]
-    \centering
-    \includegraphics[width=0.92\textwidth]{codigo_motor_plantillas}
-    \caption{Motor de sustitución léxica y renderizado de correos en \texttt{PlantillaEmail.php}}
-    \label{fig:codigo_motor_plantillas}
-\end{figure}
-
-\begin{itemize}
-    \item \textbf{Previsualización en Tiempo Real (\texttt{preview}):} Renderiza instantáneamente el correo con datos simulados realistas (\textit{dummy data}) contextualizados para el circuito seleccionado.
-    \item \textbf{Envío de Prueba Real (\texttt{enviar-prueba}):} Despacha un correo de prueba a la casilla personal del administrador para comprobar tipografías y fidelidad en clientes de correo como Gmail u Outlook.
-    \item \textbf{Restablecimiento a Valores de Fábrica (\texttt{restablecer}):} Permite volver al diseño predeterminado si una edición introduce errores.
-    \item \textbf{Interruptor de Estado (\texttt{toggle}):} Suspende temporalmente el despacho de una plantilla específica sin eliminarla.
-\end{itemize}
-
-\section{Módulo de Gestión de Contenidos Institucionales}
-Para evitar la dependencia técnica en la actualización de contenidos institucionales del Observatorio, se incorporó un gestor de contenidos (CMS) administrable desde el panel de control:
-
-\begin{figure}[htbp]
-    \centering
-    \includegraphics[width=0.9\textwidth]{cms_proyectos}
-    \caption{Panel administrativo para la gestión de Proyectos de Extensión e Investigaciones}
-    \label{fig:cms_proyectos}
-\end{figure}
-
-\begin{figure}[htbp]
-    \centering
-    \includegraphics[width=0.9\textwidth]{cms_instalaciones}
-    \caption{Administración del inventario de Instalaciones Técnicas e Instrumental Óptico}
-    \label{fig:cms_instalaciones}
-\end{figure}
-
-\begin{itemize}
-    \item \textbf{Proyectos de Extensión (\texttt{ProyectoExtensionController}):} Publicación y edición de actividades comunitarias, metas de vinculación, estado y fotografías.
-    \item \textbf{Líneas de Investigación (\texttt{InvestigacionController}):} Administración de programas científicos, directores de proyecto y áreas del conocimiento.
-    \item \textbf{Directorio del Equipo de Trabajo (\texttt{EquipoController}):} ABM de miembros del equipo docente, técnico y guías de divulgación.
-    \item \textbf{Instalaciones y Equipamiento (\texttt{InstalacionController}):} Gestión del catálogo descriptivo de telescopios, cúpula y laboratorios.
-    \item \textbf{Tipología de Eventos (\texttt{TipoEventoController}):} Clasificación de jornadas astronómicas especiales (eclipses, observaciones solares, efemérides).
-\end{itemize}
-
-\section{Módulo de Estadísticas, Rendimiento y Reportes de Gestión}
-Provee herramientas analíticas cuantitativas para la toma de decisiones institucionales y la justificación de presupuestos académicos:
-
-\begin{figure}[htbp]
-    \centering
-    \includegraphics[width=0.9\textwidth]{estadisticas_dashboard}
-    \caption{Dashboard interactivo de estadísticas de atención y distribución de turnos}
-    \label{fig:estadisticas_dashboard}
-\end{figure}
-
-\begin{itemize}
-    \item \textbf{Estadísticas Interactivas (\texttt{EstadisticasController}):} Panel visual (\texttt{estadisticas.index}) alimentado por la API interna JSON (\texttt{estadisticas.data}) con gráficos dinámicos de volumen mensual, trámites más solicitados y distribución porcentual por estado (atendidos vs ausentes).
-    \item \textbf{Reporte de Rendimiento de Operadores (\texttt{ReporteOperadorController}):} Control de desempeño por ventanilla que lista los turnos atendidos por cada operador y genera partes diarios impresos (\texttt{listado.imprimir\_listado}).
-\end{itemize}
-
-\begin{figure}[htbp]
-    \centering
-    \includegraphics[width=0.85\textwidth]{reporte_operador}
-    \caption{Reportes de rendimiento por operador y emisión de partes diarios de atención}
-    \label{fig:reporte_operador}
-\end{figure}
-
-\section{Módulo de Estructura Jerárquica, Usuarios y Seguridad}
-Asegura la coherencia jerárquica universitaria y la estricta protección de los datos:
-
-\begin{figure}[htbp]
-    \centering
-    \includegraphics[width=0.9\textwidth]{roles_permisos}
-    \caption{Panel de administración de Roles y Permisos de Seguridad (RBAC)}
-    \label{fig:roles_permisos}
-\end{figure}
-
-\begin{itemize}
-    \item \textbf{Estructura Jerárquica de Dependencias (\texttt{DependenciasController}):} Modelado del árbol institucional universitario mediante el patrón \textit{Nested Set} (\texttt{\_lft}, \texttt{\_rgt}, \texttt{parent\_id}).
-    \item \textbf{Segregación Departamental (\texttt{UsuariosDependenciasController}):} Vincula cada operador a su dependencia asignada, impidiendo la visualización cruzada de turnos entre distintas facultades o unidades.
-    \item \textbf{Control de Acceso Basado en Roles (RBAC con \texttt{spatie/laravel-permission}):} Gestión granular de roles (\texttt{RolesController}), permisos individuales (\texttt{PermisosController}), asignación de permisos a roles y vinculación de roles a usuarios.
-    \item \textbf{Pases y Derivaciones Inter-Dependencia (\texttt{PasesController}):} Trazabilidad formal del traslado de expedientes y solicitantes entre dependencias de la universidad.
-    \item \textbf{Trámites Digitales y Expedientes (\texttt{TramitesDigitalesController}):} Gestión y descarga de documentación digitalizada de respaldo.
-\end{itemize}
+%! TeX root = ./informe_final.tex
+\chapter{Módulos y funcionalidades del sistema}
+
+\section{Portal Web Institucional y Divulgación Científica}
+El sistema dispone de un Portal Web Institucional multi-página que oficia como la puerta de entrada para la comunidad universitaria y el público general. Diseñado bajo una estética moderna con una identidad visual sobria y académica, el portal no solo canaliza la obtención de citas mediante llamadas a la acción directas, sino que constituye un espacio centralizado para la difusión de la actividad científica, histórica y de extensión del Observatorio Alanís de la Facultad de Ciencias Exactas (UNSa).
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.9\textwidth]{portal_institucional}
+    \caption{Portada y página de inicio del Portal Web Institucional del Observatorio Alanís}
+    \label{fig:portal_publico}
+\end{figure}
+
+El subsistema público se encuentra articulado a través de los siguientes componentes funcionales:
+
+\begin{itemize}
+    \item \textbf{Página de Inicio y Portada Institucional Interactiva:} Diseñada bajo una arquitectura visual orientada a la difusión y a la acción, incorpora un encabezado principal (\textit{Hero}) con llamadas a la acción directas para reservar turnos o consultar proyectos, tarjetas interactivas para las actividades destacadas (``Observaciones Nocturnas'', ``Visitas Escolares'' y ``Divulgación y Charlas''), una sección explicativa del ``Portal del Visitante y Comunidad'', y un acordeón interactivo de Preguntas Frecuentes (FAQ) para orientar al usuario y a la comunidad universitaria.
+    \item \textbf{Barra de Navegación Dinámica:} Detecta el estado de autenticación del usuario. Si es un visitante anónimo, exhibe el acceso ``Mi Portal'' y el botón directo ``Reservar Turno''. En caso de tratarse de un usuario autenticado, despliega un menú interactivo con su nombre de perfil, accesos a ``Mis Turnos'', perfil de contacto y cierre seguro de sesión.
+    \item \textbf{Páginas Temáticas Institucionales (\texttt{FrontendController}):}
+        \begin{itemize}
+            \item \textit{Historia del Observatorio (\texttt{/historia}):} Recorrido cronológico desde la fundación del Observatorio Alanís en 1988, documentando la construcción de la cúpula, donaciones de instrumental y hitos académicos.
+            \item \textit{Infraestructura y Equipamiento (\texttt{/instalaciones}):} Detalle de los telescopios reflectores y refractores, cúpula astronómica motorizada, instrumental solar y salas audiovisuales para talleres.
+            \item \textit{Directorio del Equipo de Trabajo (\texttt{/equipo}):} Presentación del cuerpo directivo, docentes investigadores, personal técnico y guías de divulgación astronómica.
+            \item \textit{Proyectos de Extensión Universitaria (\texttt{/proyectos}):} Actividades de vinculación con la comunidad salteña, observaciones abiertas en efemérides astronómicas y capacitaciones docentes.
+            \item \textit{Líneas de Investigación (\texttt{/investigacion}):} Programas científicos en astrofísica, física solar y óptica aplicada desarrollados en el ámbito de la facultad.
+        \end{itemize}
+\end{itemize}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.9\textwidth]{portal_historia}
+    \caption{Sección institucional de Historia y Trayectoria del Observatorio Alanís}
+    \label{fig:portal_historia}
+\end{figure}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.9\textwidth]{portal_instalaciones}
+    \caption{Catálogo de Infraestructura, Cúpula y Equipamiento Instrumental}
+    \label{fig:portal_instalaciones}
+\end{figure}
+
+\subsection{Buscador Público de Turnos sin Autenticación}
+A fin de brindar la máxima accesibilidad a los solicitantes y visitantes, el sistema implementa en la ruta \texttt{/turno.buscar} una herramienta pública de consulta rápida. El solicitante puede ingresar indistintamente su código alfanumérico único de reserva o su número de Documento Nacional de Identidad (DNI).
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.85\textwidth]{buscador_turnos}
+    \caption{Buscador público de turnos por DNI o código alfanumérico de reserva}
+    \label{fig:buscador_turnos}
+\end{figure}
+
+Al procesar la consulta, el sistema valida la existencia de la cita en la tabla \texttt{dependencia\_turnos\_reservas} y devuelve una tarjeta informativa con el estado actual del turno (Pendiente, Confirmado, Atendido, Cancelado o Ausente), fecha, horario, trámite y un botón directo para la reimpresión o descarga del comprobante oficial en formato PDF.
+
+\section{Módulo de Reserva de Turnos y Modalidades de Atención}
+El proceso de obtención de citas constituye el núcleo operativo de cara a la comunidad. Desarrollado en \texttt{frontend\textbackslash TramitesController}, el asistente de reserva guía al usuario paso a paso a través de un flujo responsivo, ágil y reactivo.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.9\textwidth]{form_reserva_modalidades}
+    \caption{Asistente interactivo de reserva de turnos (Paso 1: Selección de Dependencia y Trámite)}
+    \label{fig:form_reserva_modalidades}
+\end{figure}
+
+\subsection{Flujo Asistido en Tres Pasos}
+\begin{enumerate}
+    \item \textbf{Paso 1 - Dependencia y Trámite (\texttt{tramite.index}):} El solicitante selecciona la dependencia organizativa dentro del árbol jerárquico universitario (ej. ``Observatorio Alanís''). Mediante peticiones asíncronas AJAX (\texttt{gettramites}), el sistema carga dinámicamente los servicios vigentes y activos asociados a dicha sede.
+    \item \textbf{Paso 2 - Selección Reactiva de Fecha y Horario (\texttt{tramite.paso2}):} Implementado con componentes en \textbf{Vue.js 2}, este paso consulta en tiempo real al backend las fechas inhabilitadas (\texttt{turnos.getdisableddates}) por feriados nacionales, provinciales, asuetos de la UNSa y fines de semana. Al seleccionar una fecha hábil, el método \texttt{turnos.loadhorarios} contrasta los turnos existentes contra la cantidad de \textbf{mesas habilitadas} y despliega únicamente los horarios con cupo disponible, evitando sobre-reservas.
+    \item \textbf{Paso 3 - Formulario de Datos y Modalidades (\texttt{tramite.paso3}):} Captura de la información de contacto (DNI, Nombre, Apellido, Correo Electrónico y Celular) y discriminación de la modalidad de atención.
+\end{enumerate}
+
+\subsection{Soporte Nativo de Cuatro Modalidades de Atención}
+El sistema resuelve las complejidades operativas del Observatorio y las dependencias académicas permitiendo cuatro modalidades diferenciadas:
+\begin{itemize}
+    \item \textbf{Modalidad Individual:} Pensada para trámites personales o visitas particulares de divulgación astronómica.
+    \item \textbf{Modalidad Delegación Escolar e Institucional:} Diseñada específicamente para contingentes de escuelas primarias, secundarias, colegios técnicos o institutos de formación docente. Captura campos esenciales:
+        \begin{itemize}
+            \item Nombre oficial del establecimiento educativo.
+            \item Nivel educativo (Primario, Secundario, Terciario/Universitario).
+            \item Curso, comisión o división (ej. 4to Año ``B'').
+            \item Cargo de la autoridad solicitante (Director, Vicedirector, Docente a cargo).
+            \item Cantidad total de estudiantes y cantidad de docentes acompañantes.
+        \end{itemize}
+    \item \textbf{Modalidad Grupal e Institucional UNSa:} Para delegaciones de cátedras universitarias, congresos o visitas de extensión.
+    \item \textbf{Modalidad Mixta:} Destinada a acuerdos interinstitucionales con cupos compartidos.
+\end{itemize}
+
+\subsection{Código Único, Comprobante Oficial PDF y Notificación Inmediata}
+Al confirmar la solicitud (\texttt{tramite.guardar}), el sistema efectúa una transacción en base de datos generando un código alfanumérico único e irrepetible. Automáticamente se dispara la compilación del comprobante digital en formato PDF mediante la librería \texttt{Snappy} (\texttt{wkhtmltopdf}), que incluye la identidad visual de la UNSa, los datos del turno y recomendaciones de presentación. De forma paralela, el sistema envía un correo electrónico transaccional de confirmación utilizando la plantilla oficial configurada.
+
+\subsection{Carga Pública Diferida de Integrantes de Delegaciones}
+Para las modalidades escolares, los coordinadores o directivos suelen necesitar tiempo para confeccionar la lista de alumnos autorizados. El sistema provee la ruta pública \texttt{reserva/\{codigo\}/integrantes}, a la cual el docente accede simplemente con el código de su turno, sin requerir usuario ni contraseña. En esta interfaz puede cargar, editar y asentar la nómina de estudiantes y docentes con sus números de documento, asegurando el control de aforo y el cumplimiento de las pólizas de seguro escolar.
+
+\subsection{Cancelación Pública Directa}
+A través de la ruta \texttt{reserva/\{codigo\}/cancelar}, cualquier persona puede anular su cita ingresando su código alfanumérico y explicitando obligatoriamente el motivo de cancelación. Al registrarse la anulación, el sistema repone inmediatamente el cupo horario en el calendario y notifica por correo electrónico tanto al usuario como a la dependencia.
+
+\section{Módulo de Autogestión de Turnos}
+Para brindar un servicio transparente y moderno, el sistema cuenta con un panel privado de autogestión denominado ``Mis Turnos''.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.9\textwidth]{mis_turnos}
+    \caption{Panel de autogestión 'Mis Turnos' para usuarios y visitantes}
+    \label{fig:mis_turnos}
+\end{figure}
+
+\begin{itemize}
+    \item \textbf{Redirección Inteligente:} Todo usuario con rol regular (\texttt{USUARIO}) que inicie sesión es redirigido inmediatamente a la vista \texttt{/mis-turnos}, resguardando el acceso al panel administrativo interno.
+    \item \textbf{Bandeja Histórica y Próximos Turnos:} Grilla organizada cronológicamente donde el usuario puede supervisar el estado de cada una de sus solicitudes (Pendiente, Confirmado, Atendido, Cancelado o Ausente).
+    \item \textbf{Reimpresión de Comprobantes:} Botón de descarga directa para regenerar el comprobante oficial en PDF en cualquier momento.
+    \item \textbf{Cancelación Asistida con Modal:} Ventana emergente que solicita al usuario la fundamentación de la baja, registrando el motivo en base de datos y liberando el horario para la comunidad.
+    \item \textbf{Edición de Perfil (\texttt{usuarios.mi\_perfil}):} Posibilita al usuario actualizar su número de teléfono o celular y cambiar de manera segura su contraseña de acceso utilizando cifrado Bcrypt.
+\end{itemize}
+
+\section{Módulo de Operatoria Diaria, Monitoreo y Atención Presencial}
+Diseñado para los operadores, coordinadores y guías del Observatorio Alanís, este módulo centraliza la administración operativa cotidiana.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.9\textwidth]{dashboard_admin}
+    \caption{Dashboard administrativo principal con indicadores y métricas de la jornada}
+    \label{fig:dashboard_admin}
+\end{figure}
+
+\subsection{Dashboard Operativo en Tiempo Real}
+La pantalla de inicio administrativa provee un resumen visual de la afluencia diaria mediante tarjetas métricas:
+\begin{itemize}
+    \item Total de turnos asignados para la fecha.
+    \item Turnos pendientes y confirmados para la jornada.
+    \item Cantidad de visitantes o grupos atendidos satisfactoriamente.
+    \item Registro de ausencias e inasistencias.
+    \item Turnos cancelados durante la jornada.
+    \item Consolidado acumulado de atenciones del mes en curso.
+\end{itemize}
+
+\subsection{Bandeja Operativa de Reservas y Multifiltro}
+El controlador \texttt{TurnosDependenciasReservasController} provee una grilla integral para auditar y gestionar las citas:
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.9\textwidth]{turnos_reservas}
+    \caption{Bandeja de gestión de turnos y reservas con panel de filtros combinados}
+    \label{fig:turnos_reservas}
+\end{figure}
+
+\begin{itemize}
+    \item \textbf{Filtros Combinados:} Búsqueda simultánea por rango de fechas, trámite específico, dependencia universitaria, estado de la reserva, DNI del titular o código alfanumérico.
+    \item \textbf{Cambio de Estado en Vivo:} Botones de acción para marcar presencias (\textit{Atendido}), inasistencias (\textit{Ausente}) o cancelaciones extraordinarias.
+    \item \textbf{Asignación Manual de Turnos (\texttt{storeManual}):} Permite al operador incorporar turnos de urgencia o presenciales espontáneos en franjas específicas.
+    \item \textbf{Exportación a Hojas de Cálculo (\texttt{turnosdependenciasreservas.export}):} Descarga masiva del padrón de reservas a formato Microsoft Excel (\texttt{.xlsx}) para firmas presenciales o archivo administrativo.
+    \item \textbf{Cancelación Masiva por Contingencias Meteorológicas o Técnicas:} Funcionalidad de vital relevancia para observaciones astronómicas nocturnas. Si las condiciones meteorológicas son adversas (lluvias, alta nubosidad o vientos fuertes) o se produce una falla mecánica en la cúpula, el administrador selecciona los turnos de la noche y ejecuta la anulación masiva. El sistema registra el motivo meteorológico y despacha en bloque los correos electrónicos informando a todos los visitantes con reserva para evitar traslados innecesarios al campus.
+\end{itemize}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.92\textwidth]{codigo_cancelacion_masiva}
+    \caption{Implementación del método \texttt{cancelacionMasiva} en \texttt{TurnosDependenciasReservasController.php}}
+    \label{fig:codigo_cancelacion}
+\end{figure}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.92\textwidth]{codigo_disponibilidad_cupos}
+    \caption{Cálculo dinámico de disponibilidad y aforo en \texttt{loadHorariosAdmin}}
+    \label{fig:codigo_disponibilidad}
+\end{figure}
+
+\section{Módulo de Capacidad Operativa, Mesas Habilitadas y Calendario de Feriados}
+Permite regular con precisión la oferta de turnos y garantizar la correspondencia con los recursos humanos reales y el calendario universitario.
+
+\subsection{Mesas Habilitadas con Interruptor Rápido}
+Cada ``mesa habilitada'' simboliza un puesto físico de atención o un guía docente disponible en el Observatorio.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.9\textwidth]{mesas_habilitadas}
+    \caption{Gestión de mesas habilitadas y puestos de atención con interruptor rápido (\textit{Toggle})}
+    \label{fig:mesas_habilitadas}
+\end{figure}
+
+El sistema implementa la función rápida \texttt{mesashabilitadas.toggle}, que permite activar o pausar puestos de atención mediante un único clic. Si un guía astronómico se ausenta en una jornada, el operador inhabilita su mesa y el motor de reservas recalcula inmediatamente los cupos disponibles para las franjas horarias, evitando sobrecargar a los guías presentes.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.92\textwidth]{codigo_mesas_toggle}
+    \caption{Lógica del interruptor rápido de mesas habilitadas en \texttt{MesasHabilitadasController.php}}
+    \label{fig:codigo_mesas_toggle}
+\end{figure}
+
+\subsection{Calendario Integral de Feriados y Asuetos de la UNSa}
+En el controlador \texttt{FeriadosController}, se gestiona la agenda de jornadas no laborables:
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.9\textwidth]{feriados_admin}
+    \caption{Módulo de calendario de feriados, asuetos y herramientas de importación/exportación}
+    \label{fig:feriados_admin}
+\end{figure}
+
+\begin{itemize}
+    \item \textbf{Importación Masiva (\texttt{feriados.import}):} Carga en bloque del cronograma anual desde archivos de datos.
+    \item \textbf{Exportación a Excel (\texttt{feriados.export}):} Descarga del calendario oficial de días no laborables.
+    \item \textbf{Eliminación en Lote (\texttt{feriados.massDestroy}):} Herramienta de depuración para calendarios de ciclos lectivos pasados.
+    \item \textbf{Bloqueo Automático:} Al evaluar disponibilidad, el sistema omite de forma desatendida las fechas registradas en esta tabla.
+\end{itemize}
+
+\section{Módulo Administrativo de Gestión de Plantillas de Correo Electrónico}
+Desarrollado en \texttt{PlantillasEmailController} y reservado exclusivamente para el rol \texttt{ADMINISTRADOR}, este módulo otorga total autonomía a las autoridades para redactar y personalizar las notificaciones sin alterar código fuente.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.9\textwidth]{plantillas_email}
+    \caption{Panel de control de plantillas de correo electrónico transaccionales organizadas por circuitos}
+    \label{fig:plantillas_email}
+\end{figure}
+
+\begin{itemize}
+    \item \textbf{Segmentación por Circuitos Operativos:}
+        \begin{itemize}
+            \item \textit{Circuito Individual:} Textos directos para particulares y estudiantes (solicitud, confirmación, cancelación).
+            \item \textit{Circuito Colegios / Escuelas / Institucional:} Comunicaciones formales dirigidas a directivos, incluyendo membrete institucional, protocolo de visita con menores de edad, datos del establecimiento, curso, cantidad de alumnos y docentes acompañantes.
+        \end{itemize}
+    \item \textbf{Editor Web de Plantillas con Variables Dinámicas:}
+        La interfaz de edición permite modificar el asunto y la estructura HTML del correo, ofreciendo un menú de inserción de 17 variables dinámicas contextuales: \texttt{\{codigo\}}, \texttt{\{nombre\}}, \texttt{\{dni\}}, \texttt{\{email\}}, \texttt{\{celular\}}, \texttt{\{fecha\}}, \texttt{\{hora\}}, \texttt{\{tramite\}}, \texttt{\{dependencia\}}, \texttt{\{motivo\_cancelacion\}}, \texttt{\{institucion\}}, \texttt{\{cargo\}}, \texttt{\{nivel\}}, \texttt{\{curso\}}, \texttt{\{cantidad\_personas\}}, \texttt{\{cantidad\_acompanantes\}} y \texttt{\{sistema\_nombre\}}.
+\end{itemize}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.9\textwidth]{plantilla_email_editor}
+    \caption{Editor web de plantillas HTML con selector de variables dinámicas y vista previa}
+    \label{fig:plantilla_email_editor}
+\end{figure}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.92\textwidth]{codigo_motor_plantillas}
+    \caption{Motor de sustitución léxica y renderizado de correos en \texttt{PlantillaEmail.php}}
+    \label{fig:codigo_motor_plantillas}
+\end{figure}
+
+\begin{itemize}
+    \item \textbf{Previsualización en Tiempo Real (\texttt{preview}):} Renderiza instantáneamente el correo con datos simulados realistas (\textit{dummy data}) contextualizados para el circuito seleccionado.
+    \item \textbf{Envío de Prueba Real (\texttt{enviar-prueba}):} Despacha un correo de prueba a la casilla personal del administrador para comprobar tipografías y fidelidad en clientes de correo como Gmail u Outlook.
+    \item \textbf{Restablecimiento a Valores de Fábrica (\texttt{restablecer}):} Permite volver al diseño predeterminado si una edición introduce errores.
+    \item \textbf{Interruptor de Estado (\texttt{toggle}):} Suspende temporalmente el despacho de una plantilla específica sin eliminarla.
+\end{itemize}
+
+\section{Módulo de Gestión de Contenidos Institucionales}
+Para evitar la dependencia técnica en la actualización de contenidos institucionales del Observatorio, se incorporó un gestor de contenidos (CMS) administrable desde el panel de control:
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.9\textwidth]{cms_proyectos}
+    \caption{Panel administrativo para la gestión de Proyectos de Extensión e Investigaciones}
+    \label{fig:cms_proyectos}
+\end{figure}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.9\textwidth]{cms_instalaciones}
+    \caption{Administración del inventario de Instalaciones Técnicas e Instrumental Óptico}
+    \label{fig:cms_instalaciones}
+\end{figure}
+
+\begin{itemize}
+    \item \textbf{Proyectos de Extensión (\texttt{ProyectoExtensionController}):} Publicación y edición de actividades comunitarias, metas de vinculación, estado y fotografías.
+    \item \textbf{Líneas de Investigación (\texttt{InvestigacionController}):} Administración de programas científicos, directores de proyecto y áreas del conocimiento.
+    \item \textbf{Directorio del Equipo de Trabajo (\texttt{EquipoController}):} ABM de miembros del equipo docente, técnico y guías de divulgación.
+    \item \textbf{Instalaciones y Equipamiento (\texttt{InstalacionController}):} Gestión del catálogo descriptivo de telescopios, cúpula y laboratorios.
+    \item \textbf{Tipología de Eventos (\texttt{TipoEventoController}):} Clasificación de jornadas astronómicas especiales (eclipses, observaciones solares, efemérides).
+\end{itemize}
+
+\section{Módulo de Estadísticas y Reportes de Gestión}
+Provee herramientas analíticas cuantitativas para la toma de decisiones institucionales y la justificación de presupuestos académicos:
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.9\textwidth]{estadisticas_dashboard}
+    \caption{Dashboard interactivo de estadísticas de atención y distribución de turnos}
+    \label{fig:estadisticas_dashboard}
+\end{figure}
+
+\begin{itemize}
+    \item \textbf{Estadísticas Interactivas (\texttt{EstadisticasController}):} Panel visual (\texttt{estadisticas.index}) alimentado por la API interna JSON (\texttt{estadisticas.data}) con gráficos dinámicos de volumen mensual, trámites más solicitados y distribución porcentual por estado (atendidos, pendientes, cancelados y ausentes).
+    \item \textbf{Exportación e Impresión de Padrones Operativos:} Generación de reportes tabulares filtrados por dependencia, trámite y fecha en formato PDF y hojas de cálculo Microsoft Excel (\texttt{.xlsx}) para auditoría de asistencia y archivo institucional.
+\end{itemize}
+
+\section{Módulo de Estructura Jerárquica, Usuarios y Seguridad}
+Asegura la coherencia jerárquica universitaria y la estricta protección de los datos:
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.9\textwidth]{roles_permisos}
+    \caption{Panel de administración de Roles y Permisos de Seguridad (RBAC)}
+    \label{fig:roles_permisos}
+\end{figure}
+
+\begin{itemize}
+    \item \textbf{Estructura Jerárquica de Dependencias (\texttt{DependenciasController}):} Modelado del árbol institucional universitario mediante el patrón \textit{Nested Set} (\texttt{\_lft}, \texttt{\_rgt}, \texttt{parent\_id}).
+    \item \textbf{Segregación Departamental (\texttt{UsuariosDependenciasController}):} Vincula cada operador a su dependencia asignada, impidiendo la visualización cruzada de turnos entre distintas facultades o unidades.
+    \item \textbf{Control de Acceso Basado en Roles (RBAC con \texttt{spatie/laravel-permission}):} Gestión granular de roles (\texttt{RolesController}), permisos individuales (\texttt{PermisosController}), asignación de permisos a roles y vinculación de roles a usuarios.
+    \item \textbf{Pases y Derivaciones Inter-Dependencia (\texttt{PasesController}):} Trazabilidad formal del traslado de expedientes y solicitantes entre dependencias de la universidad.
+    \item \textbf{Trámites Digitales y Expedientes (\texttt{TramitesDigitalesController}):} Gestión y descarga de documentación digitalizada de respaldo.
+\end{itemize}

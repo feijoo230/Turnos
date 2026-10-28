@@ -27,7 +27,7 @@ El proyecto sigue el estándar de \textbf{Laravel 8.x}, organizando el código d
 Los directorios y componentes principales del proyecto comprenden:
 
 \begin{itemize}
-    \item \texttt{app/Models}: Contiene las entidades Eloquent que representan el dominio académico y operativo: \texttt{Turno.php}, \texttt{Turnos\_Dependencias\_Reservas.php}, \texttt{ReservaIntegrante.php}, \texttt{Dependencia.php}, \texttt{Mesas\_Habilitadas.php}, \texttt{Feriado.php}, \texttt{PlantillaEmail.php}, \texttt{Pases.php}, así como los modelos del CMS institucional (\texttt{ProyectoExtension.php}, \texttt{Investigacion.php}, \texttt{MiembroEquipo.php}, \texttt{Instalacion.php}).
+    \item \texttt{app/Models}: Contiene las entidades Eloquent que representan el dominio académico y operativo: \texttt{Turnos\_Dependencias\_Reservas.php}, \texttt{ReservaIntegrante.php}, \texttt{Dependencia.php}, \texttt{Mesas\_Habilitadas.php}, \texttt{Feriado.php}, \texttt{PlantillaEmail.php}, \texttt{Pases.php}, así como los modelos del CMS institucional (\texttt{ProyectoExtension.php}, \texttt{Investigacion.php}, \texttt{MiembroEquipo.php}, \texttt{Instalacion.php}).
     \item \texttt{app/Http/Controllers}: Agrupa los controladores encargados de procesar las solicitudes y coordinar la interacción entre vistas y modelos.
     \item \texttt{database/migrations}: Historial versionado de la estructura de base de datos, garantizando la reproducción consistente del esquema.
     \item \texttt{resources/views}: Plantillas modulares \textbf{Blade}, organizadas en \textit{layouts} maestros para la interfaz pública, el portal del usuario y el panel administrativo.
@@ -77,7 +77,7 @@ Las rutas del sistema se encuentran agrupadas en \texttt{routes/web.php}, establ
 \begin{itemize}
     \item \textbf{Rutas Públicas:} Inicio, páginas temáticas, asistente de turnos (\texttt{/turnos}), buscador rápido (\texttt{/turno.buscar}), carga de integrantes (\texttt{/reserva/\{codigo\}/integrantes}) y cancelación pública.
     \item \textbf{Rutas de Autogestión de Turnos (\texttt{middleware('auth')}):} Acceso al panel ``Mis Turnos'' (\texttt{/mis-turnos}) y edición de perfil.
-    \item \textbf{Rutas Operativas (\texttt{role:ADMINISTRADOR|OPERADOR}):} Monitoreo diario, bandeja de turnos, atención en mostrador, feriados y mesas habilitadas.
+    \item \textbf{Rutas Operativas (\texttt{role:ADMINISTRADOR|OPERADOR}):} Monitoreo diario, bandeja de reservas de turnos, feriados, estadísticas y mesas habilitadas.
     \item \textbf{Rutas Exclusivas de Administrador (\texttt{role:ADMINISTRADOR}):} Gestor web de plantillas de correo transaccional y circuitos.
 \end{itemize}
 
@@ -93,7 +93,7 @@ Los controladores coordinan la lógica entre las peticiones HTTP, los modelos El
 
 \begin{itemize}
     \item \textbf{Controladores Frontend:} \texttt{LandingController}, \texttt{FrontendController} y \texttt{TramitesController}.
-    \item \textbf{Controladores de Operatoria y Gestión:} \texttt{TurnosDependenciasReservasController}, \texttt{TurnosController}, \texttt{MesasHabilitadasController} y \texttt{PasesController}.
+    \item \textbf{Controladores de Operatoria y Gestión:} \texttt{TurnosDependenciasReservasController}, \texttt{MesasHabilitadasController}, \texttt{EstadisticasController} y \texttt{PasesController}.
     \item \textbf{Controladores de Configuración y Seguridad:} \texttt{PlantillasEmailController}, \texttt{FeriadosController}, \texttt{DependenciasController}, \texttt{UsuariosController}, \texttt{RolesController} y \texttt{PermisosController}.
 \end{itemize}
 
