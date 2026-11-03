@@ -24,7 +24,7 @@ La configuración del entorno y el procedimiento de despliegue consistió en:
 \begin{enumerate}
     \item \textbf{Infraestructura y Hosting Institucional:} El sistema se aloja en el entorno de hosting compartido administrado por la Supervisión de RED de la facultad mediante la plataforma \textbf{Usermin / cPanel}.
     \item \textbf{Transferencia de Archivos (FTP):} Se utilizó un cliente FTP (\textit{FileZilla}) para transferir los archivos de la aplicación a la carpeta asignada (\texttt{public\_html/}), configurando el directorio raíz del servidor web hacia el directorio \texttt{public} de Laravel para proteger la estructura del framework y los archivos de configuración.
-    \item \textbf{Servidor de Base de Datos (MariaDB):} La persistencia de datos en producción se gestiona sobre un servidor **MariaDB** proporcionado por la facultad. El esquema relacional y la carga inicial de tablas (dependencias, trámites y estructura de usuarios) se realizaron mediante la importación del archivo estructurado de base de datos desde el módulo MySQL de Usermin.
+    \item \textbf{Servidor de Base de Datos (MariaDB):} La persistencia de datos en producción se gestiona sobre un servidor \textbf{MariaDB} proporcionado por la facultad. El esquema relacional y la carga inicial de tablas (dependencias, trámites y estructura de usuarios) se realizaron mediante la importación del archivo estructurado de base de datos desde el módulo MySQL de Usermin.
     \item \textbf{Configuración del Servidor de Correo (SMTP):} Se establecieron los parámetros SMTP necesarios para el envío automático de comprobantes y notificaciones de confirmación de turnos a los correos de los usuarios.
 \end{enumerate}
 
