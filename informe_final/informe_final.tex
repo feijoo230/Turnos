@@ -2,6 +2,7 @@
 \usepackage[utf8]{inputenc}
 \usepackage[spanish]{babel}
 \usepackage{graphicx}
+\PassOptionsToPackage{hyphens}{url}
 \usepackage{hyperref}
 \hypersetup{
     hidelinks
@@ -9,17 +10,32 @@
 \usepackage{geometry}
 \usepackage{titlesec}
 % Formato de capítulos en una sola línea: "1. Introducción" en lugar de "Capítulo 1 \n Introducción"
-\titleformat{\chapter}[hang]{\bfseries\Huge}{\thechapter.}{0.5em}{}
+\titleformat{\chapter}[hang]{\bfseries\Huge\raggedright}{\thechapter.}{0.5em}{}
 \titlespacing*{\chapter}{0pt}{0pt}{20pt}
 \usepackage{enumitem}
 \setlist{topsep=4pt, itemsep=2pt, parsep=0pt, partopsep=0pt}
-\usepackage{tocbibind}
+\usepackage[nottoc]{tocbibind}
 \usepackage{xcolor}
 \usepackage{listings}
 \usepackage{setspace}
+\usepackage{float}
 
 \onehalfspacing % Interlineado 1.5 para mayor legibilidad
 \geometry{top=2.5cm, bottom=2.5cm, left=3cm, right=2.5cm}
+
+% Control de saltos de página, líneas viudas/huérfanas y desborde de código en línea
+\widowpenalty=10000
+\clubpenalty=10000
+\emergencystretch=3em
+
+% Parámetros optimizados de figuras flotantes para evitar huecos grandes y páginas sueltas
+\renewcommand{\topfraction}{0.90}
+\renewcommand{\bottomfraction}{0.80}
+\renewcommand{\textfraction}{0.08}
+\renewcommand{\floatpagefraction}{0.75}
+\setcounter{topnumber}{3}
+\setcounter{bottomnumber}{2}
+\setcounter{totalnumber}{4}
 
 % Configuración de ruta para imágenes
 \graphicspath{{img/}}

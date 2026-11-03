@@ -15,16 +15,7 @@ La arquitectura de servicios definida en el archivo \texttt{docker-compose.yml} 
 El uso de redes virtuales (\texttt{turnos\_network}) garantiza una comunicación segura y privada entre los servicios, exponiendo únicamente el puerto 8083 para el acceso externo al sistema.
 
 \section{Estructura general del proyecto}
-El proyecto sigue el estándar de \textbf{Laravel 8.x}, organizando el código de manera que la lógica de negocio esté claramente separada de la presentación y los datos. 
-
-\begin{figure}[htbp]
-    \centering
-    \includegraphics[width=0.55\textwidth]{codigo_tree_proyecto}
-    \caption{Estructura general de directorios del proyecto Laravel}
-    \label{fig:tree_proyecto}
-\end{figure}
-
-Los directorios y componentes principales del proyecto comprenden:
+El proyecto sigue el estándar de \textbf{Laravel 8.x}, organizando el código de manera que la lógica de negocio esté claramente separada de la presentación y los datos. Los directorios y componentes principales del proyecto comprenden:
 
 \begin{itemize}
     \item \texttt{app/Models}: Contiene las entidades Eloquent que representan el dominio académico y operativo: \texttt{Turnos\_Dependencias\_Reservas.php}, \texttt{ReservaIntegrante.php}, \texttt{Dependencia.php}, \texttt{Mesas\_Habilitadas.php}, \texttt{Feriado.php}, \texttt{PlantillaEmail.php}, \texttt{Pases.php}, así como los modelos del CMS institucional (\texttt{ProyectoExtension.php}, \texttt{Investigacion.php}, \texttt{MiembroEquipo.php}, \texttt{Instalacion.php}).
@@ -34,17 +25,24 @@ Los directorios y componentes principales del proyecto comprenden:
     \item \texttt{routes/web.php}: Definición centralizada de todas las rutas HTTP del sistema y sus grupos de middlewares asociados.
 \end{itemize}
 
+\begin{figure}[!htbp]
+    \centering
+    \includegraphics[width=0.44\textwidth]{codigo_tree_proyecto}
+    \caption{Estructura general de directorios del proyecto Laravel}
+    \label{fig:tree_proyecto}
+\end{figure}
+
 \section{Implementación del Frontend}
 El frontend del Sistema de Turnos Académicos ha evolucionado hacia una arquitectura multi-página con un diseño sobrio e institucional, priorizando la claridad de la información y la facilidad de navegación para el visitante y solicitante.
 
-\begin{figure}[htbp]
+Para el inicio de sesión, se implementó una interfaz moderna y limpia, alineada con la identidad visual institucional de la universidad. Además de la autenticación tradicional, se integró el acceso mediante cuentas de Google utilizando el paquete \textbf{Laravel Socialite}, agilizando el registro y acceso de los usuarios a su panel de autogestión.
+
+\begin{figure}[!htbp]
     \centering
-    \includegraphics[width=0.85\textwidth]{login_cosmico}
+    \includegraphics[width=0.78\textwidth]{login_cosmico}
     \caption{Portal de acceso unificado con diseño institucional y autenticación Google Single Sign-On (SSO)}
     \label{fig:login_cosmico}
 \end{figure}
-
-Para el inicio de sesión, se implementó una interfaz moderna y limpia, alineada con la identidad visual institucional de la universidad. Además de la autenticación tradicional, se integró el acceso mediante cuentas de Google utilizando el paquete \textbf{Laravel Socialite}, agilizando el registro y acceso de los usuarios a su panel de autogestión.
 
 \subsection{Vistas Blade y Layouts Principales}
 La interfaz se organiza alrededor de plantillas maestras en Blade que definen elementos comunes (barra de navegación superior, menús laterales dinámicos, encabezados y pies de página institucionales):
@@ -67,9 +65,9 @@ El backend de la aplicación se apoya en los mecanismos nativos de Laravel para 
 \subsection{Rutas y Middlewares}
 Las rutas del sistema se encuentran agrupadas en \texttt{routes/web.php}, estableciendo una clara separación por niveles de acceso y perfiles de usuario mediante middlewares específicos:
 
-\begin{figure}[htbp]
+\begin{figure}[!htbp]
     \centering
-    \includegraphics[width=0.92\textwidth]{codigo_rutas_web}
+    \includegraphics[width=0.88\textwidth]{codigo_rutas_web}
     \caption{Definición de rutas protegidas y filtros de acceso por middleware en \texttt{web.php}}
     \label{fig:codigo_rutas_web}
 \end{figure}
@@ -82,36 +80,36 @@ Las rutas del sistema se encuentran agrupadas en \texttt{routes/web.php}, establ
 \end{itemize}
 
 \subsection{Controladores}
-Los controladores coordinan la lógica entre las peticiones HTTP, los modelos Eloquent y la presentación.
+Los controladores coordinan la lógica entre las peticiones HTTP, los modelos Eloquent y la presentación:
 
-\begin{figure}[htbp]
+\begin{itemize}
+    \item \textbf{Controladores Frontend:} \texttt{LandingController}, \texttt{FrontendController} y \texttt{Tramites\allowbreak Controller}.
+    \item \textbf{Controladores de Operatoria y Gestión:} \texttt{TurnosDependencias\allowbreak ReservasController}, \texttt{MesasHabilitadasController}, \texttt{EstadisticasController} y \texttt{PasesController}.
+    \item \textbf{Controladores de Configuración y Seguridad:} \texttt{PlantillasEmailController}, \texttt{FeriadosController}, \texttt{DependenciasController}, \texttt{Usuarios\allowbreak Controller}, \texttt{RolesController} y \texttt{PermisosController}.
+\end{itemize}
+
+\begin{figure}[!htbp]
     \centering
-    \includegraphics[width=0.55\textwidth]{codigo_tree_controllers}
+    \includegraphics[width=0.44\textwidth]{codigo_tree_controllers}
     \caption{Estructura modular de controladores en \texttt{app/Http/Controllers/}}
     \label{fig:tree_controllers}
 \end{figure}
 
-\begin{itemize}
-    \item \textbf{Controladores Frontend:} \texttt{LandingController}, \texttt{FrontendController} y \texttt{TramitesController}.
-    \item \textbf{Controladores de Operatoria y Gestión:} \texttt{TurnosDependenciasReservasController}, \texttt{MesasHabilitadasController}, \texttt{EstadisticasController} y \texttt{PasesController}.
-    \item \textbf{Controladores de Configuración y Seguridad:} \texttt{PlantillasEmailController}, \texttt{FeriadosController}, \texttt{DependenciasController}, \texttt{UsuariosController}, \texttt{RolesController} y \texttt{PermisosController}.
-\end{itemize}
-
 \subsection{Modelos y Relaciones con Eloquent}
 El dominio de la aplicación se modela mediante entidades Eloquent que encapsulan las relaciones relacionales, mutadores y reglas de integridad.
 
-\begin{figure}[htbp]
+\begin{figure}[!htbp]
     \centering
-    \includegraphics[width=0.55\textwidth]{codigo_tree_models}
+    \includegraphics[width=0.44\textwidth]{codigo_tree_models}
     \caption{Modelos Eloquent del dominio en \texttt{app/Models/}}
     \label{fig:tree_models}
 \end{figure}
 
 Entre las relaciones más complejas, se destaca el uso de relaciones \texttt{hasOneThrough} e interacciones uno a muchos:
 
-\begin{figure}[htbp]
+\begin{figure}[!htbp]
     \centering
-    \includegraphics[width=0.92\textwidth]{codigo_modelo_relaciones}
+    \includegraphics[width=0.82\textwidth]{codigo_modelo_relaciones}
     \caption{Implementación de relaciones Eloquent en \texttt{Turnos\_Dependencias\_Reservas.php}}
     \label{fig:codigo_modelo_relaciones}
 \end{figure}
@@ -119,9 +117,9 @@ Entre las relaciones más complejas, se destaca el uso de relaciones \texttt{has
 \subsection{Integración de Google Socialite y Enrutamiento por Rol}
 Para permitir el acceso ágil de la comunidad universitaria mediante sus cuentas institucionales de Google (\texttt{@unsa.edu.ar}), se implementó el controlador \texttt{LoginController}:
 
-\begin{figure}[htbp]
+\begin{figure}[!htbp]
     \centering
-    \includegraphics[width=0.92\textwidth]{codigo_socialite}
+    \includegraphics[width=0.82\textwidth]{codigo_socialite}
     \caption{Lógica de autenticación OAuth y redirección condicional por rol en \texttt{LoginController.php}}
     \label{fig:codigo_socialite}
 \end{figure}
