@@ -91,12 +91,12 @@ Si deseas usar otros nombres de archivo o agregar más fotos:
 ---
 
 ### Paso 2: Estructura Segura de Carpetas en el Servidor
-En hosting compartido con Apache nunca se debe poner el núcleo de Laravel dentro de `public_html`. La estructura debe ser:
+En hosting compartido con Apache nunca se debe poner el núcleo de Laravel dentro de `public_html`. La estructura implementada es:
 
 ```text
 /home/observatorioalanis/
 │
-├── turnos/                     <-- Aquí subes el proyecto Laravel COMPLETO (excepto public/ y node_modules/)
+├── turnos_core/                <-- Aquí vive el núcleo privado de Laravel (fuera del alcance web)
 │   ├── app/
 │   ├── bootstrap/
 │   ├── config/
@@ -107,31 +107,36 @@ En hosting compartido con Apache nunca se debe poner el núcleo de Laravel dentr
 │   ├── .env
 │   └── ...
 │
-└── public_html/                <-- Aquí subes ÚNICAMENTE el contenido de la carpeta 'public/' de Laravel
+└── public_html/                <-- Aquí vive ÚNICAMENTE el contenido de 'public/' de Laravel
     ├── index.php
     ├── .htaccess
     ├── css/
     ├── js/
     ├── img/
+    ├── uploads/
     └── favicon.ico
 ```
 
 ---
 
 ### Paso 3: Configurar el archivo `public_html/index.php`
-Abre el archivo `index.php` que subiste dentro de `public_html/` y verifica que las rutas apunten a la carpeta `turnos`:
+El archivo `index.php` dentro de `public_html/` apunta a `../turnos_core` y vincula `path.public` al directorio actual:
 ```php
-require __DIR__.'/../turnos/vendor/autoload.php';
+require __DIR__.'/../turnos_core/vendor/autoload.php';
 
-$app = require_once __DIR__.'/../turnos/bootstrap/app.php';
+$app = require_once __DIR__.'/../turnos_core/bootstrap/app.php';
+
+$app->bind('path.public', function() {
+    return __DIR__;
+});
 ```
 
 ---
 
 ### Paso 4: Archivo `.env` de Producción
-En `/home/observatorioalanis/turnos/.env`, configura los parámetros de producción:
+En `/home/observatorioalanis/turnos_core/.env`, se configuran los parámetros de producción (usando `127.0.0.1` para conectar por TCP desde la jaula `chroot`):
 ```env
-APP_NAME="Observatorio Dr. Elvio Alanís"
+APP_NAME="Observatorio Astronómico Dr. Elvio Alanís"
 APP_ENV=production
 APP_KEY=base64:TU_APP_KEY_AQUI
 APP_DEBUG=false
@@ -142,23 +147,35 @@ DB_HOST=127.0.0.1
 DB_PORT=3306
 DB_DATABASE=observatorioalanis
 DB_USERNAME=observatorioalanis
-DB_PASSWORD=MdDHcpwbT7O0sy1kyH44eho0b
+DB_PASSWORD=TU_PASSWORD_DE_BD_AQUI
 ```
 
 ---
 
-### Paso 5: Permisos de Escritura en el Servidor
-En Usermin (File Manager) o por FTP, asegúrate de que las siguientes carpetas tengan permisos de escritura (chmod 775 o 777):
-- `/home/observatorioalanis/turnos/storage/` (y sus subcarpetas `logs/`, `framework/views/`, `framework/sessions/`, `framework/cache/`)
-- `/home/observatorioalanis/turnos/bootstrap/cache/`
+### Paso 5: Permisos en el Servidor Linux
+En Usermin (File Manager) o por FTPS, las siguientes rutas cuentan con permisos adecuados:
+- `/home/observatorioalanis/turnos_core/storage/` y subcarpetas (`chmod 775`)
+- `/home/observatorioalanis/turnos_core/bootstrap/cache/` (`chmod 775`)
+- `/home/observatorioalanis/public_html/uploads/` (`chmod 775`)
+- `/home/observatorioalanis/turnos_core/vendor/h4cc/wkhtmltopdf-amd64/bin/wkhtmltopdf-amd64` (`chmod 755` para ejecución de reportes PDF)
 
 ---
 
 ### Paso 6: Importar la Base de Datos
-1. Exporta tu base de datos local a un archivo `.sql`:
-   ```bash
-   mysqldump -u root -p turnos > turnos_produccion.sql
-   ```
-2. Ingresa a **Usermin** -> Menú lateral -> **Applications** -> **MySQL Database**.
-3. Selecciona la base de datos `observatorioalanis`.
-4. Utiliza la opción **Execute SQL** o **Import** para subir el archivo `.sql` e importar las tablas y registros iniciales.
+1. Ingresa a **Usermin** -> Menú lateral -> **Applications** -> **MySQL Database**.
+2. Selecciona la base de datos `observatorioalanis`.
+3. Utiliza la opción **Execute SQL** -> **Run SQL from file** para importar el esquema completo y los datos iniciales.
+
+---
+
+### Paso 7: Modo Pre-Lanzamiento ("Sitio en Preparación" con `down`)
+Para mantener el portal bloqueado al público general antes del lanzamiento oficial mientras el equipo y el tribunal evaluador realizan pruebas:
+
+1. **Activar el modo pre-lanzamiento:**
+   Colocar el archivo `down` (JSON de mantenimiento de Laravel) dentro de:
+   `/home/observatorioalanis/turnos_core/storage/framework/down`
+   Los visitantes externos verán la portada institucional *"Sitio Oficial en Preparación"* (vista `resources/views/errors/503.blade.php`, código HTTP `503`).
+2. **Acceso de previsualización (Bypass):**
+   Ingresar una vez a `https://observatorioalanis.exa.unsa.edu.ar/<TOKEN_SECRETO_PREVIEW>`. Laravel emitirá la cookie firmada `laravel_maintenance` en el navegador y habilitará la navegación completa del sitio.
+3. **Lanzamiento oficial:**
+   Eliminar (o renombrar a `down_off`) el archivo `/home/observatorioalanis/turnos_core/storage/framework/down`. El portal quedará habilitado al público inmediatamente.
