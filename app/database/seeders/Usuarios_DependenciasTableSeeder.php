@@ -15,7 +15,7 @@ class Usuarios_DependenciasTableSeeder extends Seeder
     public function run()
     {
         $dependencias = [];
-        for ($i = 1; $i <= 26; $i++) {
+        for ($i = 1; $i <= 27; $i++) {
             $dependencias[] = [
                 'usuario_id' => '1',
                 'dependencia_id' => (string)$i,

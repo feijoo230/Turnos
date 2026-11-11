@@ -15,6 +15,9 @@ informe_final/build/
 node_modules/
 .env
 .env.backup
+app/.env
+app/.env.backup
+deploy_produccion/
 .phpunit.result.cache
 
 # Laravel specific (within app directory)
