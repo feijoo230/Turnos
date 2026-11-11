@@ -17,7 +17,7 @@ A continuación, se presentan los requerimientos funcionales del Sistema de Gest
 
 \textbf{2. Gestión de la estructura universitaria y dependencias}
 \begin{enumerate}[resume]
-    \item El sistema debe modelar la organización jerárquica y multinivel de la UNSa mediante el patrón \textit{Nested Set}, representando la estructura desde el nivel central y facultades hasta institutos, laboratorios y el Observatorio Alanis.
+    \item El sistema debe modelar la organización jerárquica y multinivel de la UNSa mediante el patrón \textit{Nested Set}, representando la estructura desde el nivel central y facultades hasta institutos, laboratorios y el Observatorio Alanís.
     \item El sistema debe proveer operaciones de Alta, Baja, Modificación y consulta sobre las dependencias y sus respectivas tipologías.
     \item El sistema debe permitir asociar trámites a dependencias específicas, regulando la vigencia y condiciones operativas de cada servicio ofrecido.
 \end{enumerate}
@@ -110,15 +110,15 @@ Entre los principales requerimientos no funcionales del sistema se destacan:
 \section{Casos de uso principales}
 Los flujos principales de interacción del sistema se resumen en los siguientes casos de uso:
 
-\begin{figure}[!htbp]
+\begin{figure}[H]
     \centering
-    \includegraphics[width=0.65\textwidth]{diagrama_casos_uso}
+    \includegraphics[width=0.84\textwidth]{diagrama_casos_uso}
     \caption{Diagrama de casos de uso general del sistema de turnos}
     \label{fig:diagrama_casos_uso}
 \end{figure}
 
 \begin{itemize}
-    \item \textbf{CU1 - Reservar Turno en el Portal Público:} Un particular o coordinador institucional selecciona la dependencia (ej. Observatorio Alanis) y la actividad, elige fecha y hora en el calendario reactivo, completa los datos de la modalidad (individual o grupal/escolar), confirma la reserva y descarga su comprobante PDF oficial.
+    \item \textbf{CU1 - Reservar Turno en el Portal Público:} Un particular o coordinador institucional selecciona la dependencia (ej. Observatorio Alanís) y la actividad, elige fecha y hora en el calendario reactivo, completa los datos de la modalidad (individual o grupal/escolar), confirma la reserva y descarga su comprobante PDF oficial.
     \item \textbf{CU2 - Autogestión y Cancelación en ``Mis Turnos'':} El usuario accede a su cuenta, visualiza sus reservas activas y pasadas, y procede a cancelar una cita indicando el motivo, lo que libera el cupo de forma instantánea y despacha el correo correspondiente.
     \item \textbf{CU3 - Carga Pública de Nómina de Integrantes de Delegaciones:} El directivo o docente a cargo accede mediante el código de reserva a la interfaz pública de integrantes para cargar o modificar la lista de alumnos y acompañantes previa a la visita.
     \item \textbf{CU4 - Configurar Capacidad (Mesas Habilitadas) y Feriados:} El administrador ajusta la capacidad diaria de atención utilizando el interruptor rápido (\textit{toggle}) de mesas habilitadas y gestiona los feriados o asuetos mediante importación masiva.
@@ -129,9 +129,9 @@ Los flujos principales de interacción del sistema se resumen en los siguientes 
     \item \textbf{CU9 - Consulta de Estadísticas y Exportación de Reportes:} La administración visualiza los gráficos interactivos de afluencia mensual y distribución de estados, y exporta los padrones de reservas a planillas de cálculo.
 \end{itemize}
 
-\begin{figure}[!htbp]
+\begin{figure}[H]
     \centering
-    \includegraphics[width=0.65\textwidth]{diagrama_flujo_reserva}
+    \includegraphics[width=0.90\textwidth]{diagrama_flujo_reserva}
     \caption{Diagrama de flujo del proceso de reserva reactiva y autogestión de turnos}
     \label{fig:diagrama_flujo_reserva}
 \end{figure}
@@ -140,17 +140,17 @@ Los flujos principales de interacción del sistema se resumen en los siguientes 
 El modelo relacional garantiza la integridad referencial, la consistencia de las reservas y la auditabilidad operativa. Sus entidades clave comprenden:
 
 \begin{itemize}
-    \item \texttt{dependencias} y \texttt{tipos\_dependencias}: Estructura jerárquica universitaria modelada mediante \textit{Nested Set} (\texttt{\_lft}, \texttt{\_rgt}, \texttt{parent\_id}, \texttt{nivel}) y su clasificación tipológica.
-    \item \texttt{usuarios\_dependencias}: Tabla pivote que vincula operadores con sus dependencias asignadas (\texttt{usuario\_id}, \texttt{dependencia\_id}) para garantizar la segregación departamental.
-    \item \texttt{dependencia\_tramites}: Catálogo de servicios y actividades por dependencia, parametrizando modalidades de atención (\texttt{tipo\_modalidad}, \texttt{permite\_grupal}, \texttt{min\_personas\_reserva}, \texttt{max\_personas\_reserva}, \texttt{requiere\_institucion}, \texttt{requiere\_\allowbreak nomina}).
-    \item \texttt{turnos\_tramites}, \texttt{turnos\_horarios} y \texttt{mesas\_habilitadas}: Configuración de vigencias temporales de agenda (\texttt{fecha\_desde}, \texttt{fecha\_hasta}, \texttt{tipo\_evento\_id}, \texttt{proyecto\_extension\_id}), bloques horarios con cupos por día (\texttt{hora\_inicio}, \texttt{hora\_fin}, \texttt{duracion\_minutos}, \texttt{cantidad\_turnos}) y puestos activos con interruptor rápido (\texttt{activo}).
-    \item \texttt{dependencia\_turnos\_reservas} y \texttt{turnos\_reservas\_estados}: Registro central de reservas (\texttt{codigo}, \texttt{fecha}, \texttt{hora}, \texttt{nombre\_apellido}, \texttt{dni}, \texttt{email}, \texttt{es\_grupal}, \texttt{nombre\_institucion}, \texttt{nivel\_institucion}, \texttt{curso\_comision}, \texttt{cargo\_responsable}, \texttt{cantidad\_personas}, \texttt{cantidad\_acompanantes}, \texttt{motivo\_cancelacion}) y catálogo de estados (\texttt{estado\_id}).
-    \item \texttt{dependencia\_turnos\_reservas\_integrantes}: Nómina detallada de alumnos y acompañantes vinculados a una reserva escolar o grupal (\texttt{reserva\_id}, \texttt{dni}, \texttt{nombre}, \texttt{apellido}).
-    \item \texttt{plantillas\_email}: Definición de plantillas HTML transaccionales segmentadas por \texttt{circuito} (\textit{individual} / \textit{colegio}) y \texttt{evento} (\textit{solicitud}, \textit{confirmacion}, \textit{cancelacion}), con \texttt{asunto}, \texttt{cuerpo\_html} y \texttt{variables\_disponibles}.
-    \item \texttt{feriados}: Calendario de días no laborables y asuetos académicos con fecha, descripción y estado activo.
-    \item \texttt{tramites}, \texttt{documentos} y \texttt{pases}: Gestión de trámites digitales, archivos adjuntos de respaldo y trazabilidad de derivaciones inter-dependencia (\texttt{dependencia\_origen\_id}, \texttt{dependencia\_destino\_id}).
-    \item \texttt{proyectos\_extension}, \texttt{investigaciones}, \texttt{equipo\_miembros}, \texttt{instalaciones} y \texttt{tipos\_evento}: Entidades del módulo CMS de divulgación científica e institucional del Observatorio.
-    \item \texttt{users}, \texttt{roles}, \texttt{permissions} y \texttt{model\_has\_roles}: Esquema de autenticación (incluyendo \texttt{google\_id} para SSO) y autorización granular RBAC.
+    \item \texttt{dependencias} y \texttt{tipos\_\allowbreak dependencias}: Estructura jerárquica universitaria modelada mediante relación reflexiva y árbol \textit{Nested Set} (\texttt{parent\_\allowbreak id}, \texttt{nivel}, \texttt{\_lft}, \texttt{\_rgt}, \texttt{es\_\allowbreak unidad\_\allowbreak academica}) junto con su clasificación tipológica (\texttt{tipo\_\allowbreak dependencia\_\allowbreak id}).
+    \item \texttt{usuarios\_\allowbreak dependencias}: Tabla pivote que vincula operadores con sus dependencias asignadas (\texttt{usuario\_\allowbreak id}, \texttt{dependencia\_\allowbreak id}) para garantizar la segregación departamental.
+    \item \texttt{dependencia\_\allowbreak tramites}: Catálogo de servicios y actividades por dependencia, parametrizando reglas de atención (\texttt{tipo\_\allowbreak modalidad}, \texttt{permite\_\allowbreak grupal}, \texttt{requiere\_\allowbreak institucion}, \texttt{requiere\_\allowbreak nomina}, \texttt{min\_\allowbreak personas\_\allowbreak reserva}, \texttt{max\_\allowbreak personas\_\allowbreak reserva}).
+    \item \texttt{turnos\_\allowbreak tramites}, \texttt{turnos\_\allowbreak horarios} y \texttt{mesas\_\allowbreak habilitadas}: Configuración de agendas y períodos de vigencia (\texttt{dependencia\_\allowbreak tramite\_\allowbreak id}, \texttt{proyecto\_\allowbreak extension\_\allowbreak id}, \texttt{tipo\_\allowbreak evento\_\allowbreak id}, \texttt{responsable\_\allowbreak id}, \texttt{fecha\_\allowbreak desde}, \texttt{fecha\_\allowbreak hasta}), franjas horarias por día de la semana (\texttt{lunes}..\texttt{domingo}, \texttt{hora\_\allowbreak inicio}, \texttt{hora\_\allowbreak fin}, \texttt{duracion\_\allowbreak minutos}, \texttt{cantidad\_\allowbreak turnos}) y puestos operativos con interruptor rápido (\texttt{activo}).
+    \item \texttt{dependencia\_\allowbreak turnos\_\allowbreak reservas} y \texttt{turnos\_\allowbreak reservas\_\allowbreak estados}: Tabla central de reservas de turnos (\texttt{codigo}, \texttt{fecha\_\allowbreak hora}, \texttt{fecha}, \texttt{hora}, \texttt{nombre\_\allowbreak apellido}, \texttt{dni}, \texttt{celular}, \texttt{email}, \texttt{es\_\allowbreak grupal}, \texttt{nombre\_\allowbreak institucion}, \texttt{nivel\_\allowbreak institucion}, \texttt{curso\_\allowbreak comision}, \texttt{cantidad\_\allowbreak personas}, \texttt{cantidad\_\allowbreak acompanantes}, \texttt{motivo\_\allowbreak cancelacion}) vinculada al catálogo de estados (\texttt{estado\_\allowbreak id}).
+    \item \texttt{dependencia\_\allowbreak turnos\_\allowbreak reservas\_\allowbreak integrantes}: Nómina detallada de alumnos y visitantes vinculados a una reserva escolar o grupal (\texttt{reserva\_\allowbreak id}, \texttt{nombre}, \texttt{apellido}, \texttt{dni}).
+    \item \texttt{plantillas\_\allowbreak email}: Definición de plantillas HTML transaccionales identificadas por \texttt{clave} única para cada \texttt{circuito} (\textit{individual} / \textit{colegios}) y \texttt{evento} (\textit{solicitud}, \textit{confirmacion}, \textit{cancelacion}), con \texttt{asunto}, \texttt{cuerpo\_\allowbreak html}, \texttt{variables\_\allowbreak disponibles} y \texttt{activo}.
+    \item \texttt{feriados}: Calendario de días no laborables y asuetos académicos con fecha (\texttt{fecha}), descripción del motivo (\texttt{observacion}) y estado (\texttt{activo}).
+    \item \texttt{tramites}, \texttt{documentos} y \texttt{pases}: Gestión de expedientes digitales, archivos adjuntos de respaldo y trazabilidad de derivaciones entre dependencias (\texttt{dependencia\_\allowbreak origen\_\allowbreak id}, \texttt{dependencia\_\allowbreak destino\_\allowbreak id}).
+    \item \texttt{proyectos\_\allowbreak extension}, \texttt{in\-ves\-ti\-ga\-cio\-nes}, \texttt{equipo\_\allowbreak miembros}, \texttt{ins\-ta\-la\-cio\-nes} y \texttt{tipos\_\allowbreak evento}: Entidades del módulo CMS de divulgación científica e institucional del Observatorio.
+    \item \texttt{users}, \texttt{roles}, \texttt{permissions} y \texttt{model\_\allowbreak has\_\allowbreak roles}: Esquema de autenticación (incluyendo \texttt{google\_\allowbreak id} para SSO) y autorización granular RBAC.
 \end{itemize}
 
 \section{Arquitectura del sistema}

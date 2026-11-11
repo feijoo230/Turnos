@@ -1,12 +1,8 @@
 \documentclass[11pt,a4paper]{extreport}
 \usepackage[utf8]{inputenc}
-\usepackage[spanish]{babel}
+\usepackage[spanish,es-nolists]{babel}
 \usepackage{graphicx}
 \PassOptionsToPackage{hyphens}{url}
-\usepackage{hyperref}
-\hypersetup{
-    hidelinks
-}
 \usepackage{geometry}
 \usepackage{titlesec}
 % Formato de capítulos en una sola línea: "1. Introducción" en lugar de "Capítulo 1 \n Introducción"
@@ -14,11 +10,16 @@
 \titlespacing*{\chapter}{0pt}{0pt}{20pt}
 \usepackage{enumitem}
 \setlist{topsep=4pt, itemsep=2pt, parsep=0pt, partopsep=0pt}
+\renewcommand{\labelitemi}{$\bullet$}
 \usepackage[nottoc]{tocbibind}
 \usepackage{xcolor}
 \usepackage{listings}
 \usepackage{setspace}
 \usepackage{float}
+\usepackage{hyperref}
+\hypersetup{
+    hidelinks
+}
 
 \onehalfspacing % Interlineado 1.5 para mayor legibilidad
 \geometry{top=2.5cm, bottom=2.5cm, left=3cm, right=2.5cm}
@@ -68,6 +69,7 @@
 
 \begin{document}
 
+\pagenumbering{Alph}
 \begin{titlepage}
     \centering
     \begin{minipage}{0.45\textwidth}

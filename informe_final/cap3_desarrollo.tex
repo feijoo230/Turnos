@@ -15,19 +15,20 @@ La arquitectura de servicios definida en el archivo \texttt{docker-compose.yml} 
 El uso de redes virtuales (\texttt{turnos\_network}) garantiza una comunicación segura y privada entre los servicios, exponiendo únicamente el puerto 8083 para el acceso externo al sistema.
 
 \section{Estructura general del proyecto}
-El proyecto sigue el estándar de \textbf{Laravel 8.x}, organizando el código de manera que la lógica de negocio esté claramente separada de la presentación y los datos. Los directorios y componentes principales del proyecto comprenden:
+El repositorio raíz (\texttt{Turnos/}) organiza la infraestructura de contenedores (\texttt{docker/} y \texttt{docker-compose.yml}) junto con el directorio de la aplicación (\texttt{app/}), el cual sigue el estándar de \textbf{Laravel 8.x} separando la lógica de negocio, la presentación y la persistencia. Los directorios y componentes principales comprenden:
 
 \begin{itemize}
-    \item \texttt{app/Models}: Contiene las entidades Eloquent que representan el dominio académico y operativo: \texttt{Turnos\_Dependencias\_Reservas.php}, \texttt{ReservaIntegrante.php}, \texttt{Dependencia.php}, \texttt{Mesas\_Habilitadas.php}, \texttt{Feriado.php}, \texttt{PlantillaEmail.php}, \texttt{Pases.php}, así como los modelos del CMS institucional (\texttt{ProyectoExtension.php}, \texttt{Investigacion.php}, \texttt{MiembroEquipo.php}, \texttt{Instalacion.php}).
-    \item \texttt{app/Http/Controllers}: Agrupa los controladores encargados de procesar las solicitudes y coordinar la interacción entre vistas y modelos.
-    \item \texttt{database/migrations}: Historial versionado de la estructura de base de datos, garantizando la reproducción consistente del esquema.
-    \item \texttt{resources/views}: Plantillas modulares \textbf{Blade}, organizadas en \textit{layouts} maestros para la interfaz pública, el portal del usuario y el panel administrativo.
-    \item \texttt{routes/web.php}: Definición centralizada de todas las rutas HTTP del sistema y sus grupos de middlewares asociados.
+    \item \texttt{app/app/Models} y \texttt{app/app/User.php}: Contienen las entidades Eloquent que representan el dominio académico, operativo, institucional y de seguridad del sistema.
+    \item \texttt{app/app/Http} (\texttt{Controllers}, \texttt{Middleware}, \texttt{Requests}): Agrupa los controladores de frontend y administración, los filtros de seguridad HTTP y las clases de validación de formularios.
+    \item \texttt{app/app/Exports}, \texttt{Imports}, \texttt{Mail}, \texttt{Helpers}, \texttt{Providers} y \texttt{Rules}: Módulos dedicados a la exportación e importación de planillas Excel, clases \textit{Mailable} transaccionales, funciones auxiliares globales, proveedores de servicios y reglas de validación personalizadas.
+    \item \texttt{app/database} (\texttt{migrations}, \texttt{seeders}, \texttt{factories}) y \texttt{estructura.sql}: Historial versionado del esquema relacional y poblado inicial de datos.
+    \item \texttt{app/resources} (\texttt{views}, \texttt{js}, \texttt{sass}) y \texttt{app/public}: Plantillas modulares \textbf{Blade}, componentes reactivos en \textbf{Vue.js 2}, hojas de estilo y activos compilados.
+    \item \texttt{app/routes} (\texttt{web.php}, \texttt{api.php}), \texttt{bootstrap}, \texttt{config}, \texttt{storage} y \texttt{.env}: Definición centralizada de rutas HTTP, configuración del framework, almacenamiento y variables de entorno.
 \end{itemize}
 
-\begin{figure}[!htbp]
+\begin{figure}[H]
     \centering
-    \includegraphics[width=0.44\textwidth]{codigo_tree_proyecto}
+    \includegraphics[width=0.40\textwidth]{codigo_tree_proyecto}
     \caption{Estructura general de directorios del proyecto Laravel}
     \label{fig:tree_proyecto}
 \end{figure}
@@ -37,9 +38,9 @@ El frontend del Sistema de Turnos Académicos ha evolucionado hacia una arquitec
 
 Para el inicio de sesión, se implementó una interfaz moderna y limpia, alineada con la identidad visual institucional de la universidad. Además de la autenticación tradicional, se integró el acceso mediante cuentas de Google utilizando el paquete \textbf{Laravel Socialite}, agilizando el registro y acceso de los usuarios a su panel de autogestión.
 
-\begin{figure}[!htbp]
+\begin{figure}[H]
     \centering
-    \includegraphics[width=0.78\textwidth]{login_cosmico}
+    \includegraphics[width=0.76\textwidth]{login_cosmico}
     \caption{Portal de acceso unificado con diseño institucional y autenticación Google Single Sign-On (SSO)}
     \label{fig:login_cosmico}
 \end{figure}
@@ -65,9 +66,9 @@ El backend de la aplicación se apoya en los mecanismos nativos de Laravel para 
 \subsection{Rutas y Middlewares}
 Las rutas del sistema se encuentran agrupadas en \texttt{routes/web.php}, estableciendo una clara separación por niveles de acceso y perfiles de usuario mediante middlewares específicos:
 
-\begin{figure}[!htbp]
+\begin{figure}[H]
     \centering
-    \includegraphics[width=0.88\textwidth]{codigo_rutas_web}
+    \includegraphics[width=0.90\textwidth]{codigo_rutas_web}
     \caption{Definición de rutas protegidas y filtros de acceso por middleware en \texttt{web.php}}
     \label{fig:codigo_rutas_web}
 \end{figure}
@@ -83,33 +84,38 @@ Las rutas del sistema se encuentran agrupadas en \texttt{routes/web.php}, establ
 Los controladores coordinan la lógica entre las peticiones HTTP, los modelos Eloquent y la presentación:
 
 \begin{itemize}
-    \item \textbf{Controladores Frontend:} \texttt{LandingController}, \texttt{FrontendController} y \texttt{Tramites\allowbreak Controller}.
-    \item \textbf{Controladores de Operatoria y Gestión:} \texttt{TurnosDependencias\allowbreak ReservasController}, \texttt{MesasHabilitadasController}, \texttt{EstadisticasController} y \texttt{PasesController}.
-    \item \textbf{Controladores de Configuración y Seguridad:} \texttt{PlantillasEmailController}, \texttt{FeriadosController}, \texttt{DependenciasController}, \texttt{Usuarios\allowbreak Controller}, \texttt{RolesController} y \texttt{PermisosController}.
+    \item \textbf{Controladores de Acceso y Frontend:} Gestionan la autenticación institucional (\texttt{Auth/\allowbreak Login\-Con\-tro\-ller}), el panel de inicio (\texttt{Home\-Con\-tro\-ller}), las vistas públicas del portal (\texttt{Lan\-ding\-Con\-tro\-ller} y \texttt{Fron\-tend\-Con\-tro\-ller}) y el asistente reactivo de reservas (\texttt{Tra\-mi\-tes\-Con\-tro\-ller}).
+    \item \textbf{Controladores de Operatoria, Agendas y Gestión:} Coordinan la bandeja de reservas (\texttt{Tur\-nos\-De\-pen\-den\-cias\-Re\-ser\-vas\-Con\-tro\-ller}), el catálogo de servicios (\texttt{Tra\-mi\-tes\-De\-pen\-den\-cias\-Con\-tro\-ller}), la programación de agendas y franjas (\texttt{Tur\-nos\-Tra\-mi\-tes\-Con\-tro\-ller} y \texttt{Tur\-nos\-Ho\-ra\-rios\-Con\-tro\-ller}), el control de puestos (\texttt{Me\-sas\-Ha\-bi\-li\-ta\-das\-Con\-tro\-ller}), las métricas (\texttt{Es\-ta\-dis\-ti\-cas\-Con\-tro\-ller}) y el circuito de expedientes (\texttt{Tra\-mi\-tes\-Di\-gi\-ta\-les\-Con\-tro\-ller} y \texttt{Pa\-ses\-Con\-tro\-ller}).
+    \item \textbf{Controladores del CMS Institucional:} Administran la divulgación de proyectos (\texttt{Pro\-yec\-to\-Ex\-ten\-sion\-Con\-tro\-ller}), publicaciones (\texttt{In\-ves\-ti\-ga\-cion\-Con\-tro\-ller}), plantel docente (\texttt{Equi\-po\-Con\-tro\-ller}), infraestructura (\texttt{Ins\-ta\-la\-cion\-Con\-tro\-ller}) y clasificación de actividades (\texttt{Ti\-po\-Even\-to\-Con\-tro\-ller}).
+    \item \textbf{Controladores de Configuración y Seguridad:} Regulan las plantillas de correo (\texttt{Plan\-ti\-llas\-Email\-Con\-tro\-ller}), los días inhábiles (\texttt{Fe\-ria\-dos\-Con\-tro\-ller}), el árbol de unidades (\texttt{De\-pen\-den\-cias\-Con\-tro\-ller}) y el esquema RBAC (\texttt{Usua\-rios\-Con\-tro\-ller}, \texttt{Usua\-rios\-De\-pen\-den\-cias\-Con\-tro\-ller}, \texttt{Usua\-rios\-Ro\-les\-Con\-tro\-ller}, \texttt{Ro\-les\-Con\-tro\-ller}, \texttt{Per\-mi\-sos\-Con\-tro\-ller} y \texttt{Ro\-les\-Per\-mi\-sos\-Con\-tro\-ller}).
 \end{itemize}
 
-\begin{figure}[!htbp]
+\begin{figure}[H]
     \centering
-    \includegraphics[width=0.44\textwidth]{codigo_tree_controllers}
+    \includegraphics[width=0.38\textwidth]{codigo_tree_controllers}
     \caption{Estructura modular de controladores en \texttt{app/Http/Controllers/}}
     \label{fig:tree_controllers}
 \end{figure}
 
 \subsection{Modelos y Relaciones con Eloquent}
-El dominio de la aplicación se modela mediante entidades Eloquent que encapsulan las relaciones relacionales, mutadores y reglas de integridad.
+El dominio se estructura mediante el modelo de autenticación \texttt{app/\allowbreak User.php} y las clases ubicadas en el directorio \texttt{app/\allowbreak Models/}:
+\begin{itemize}
+    \item \textbf{Reservas, Agendas y Configuración:} Comprende las entidades de reservas y nóminas (\texttt{Turnos\_\allowbreak De\-pen\-den\-cias\_\allowbreak Re\-ser\-vas.php} y \texttt{Re\-ser\-va\-In\-te\-gran\-te.php}), la estructura jerárquica (\texttt{De\-pen\-den\-cia.php} y \texttt{Tipo\_\allowbreak De\-pen\-den\-cia.php}), el catálogo y agendas (\texttt{De\-pen\-den\-cia\_\allowbreak Tra\-mi\-te.php}, \texttt{Turnos\_\allowbreak Tra\-mi\-tes.php}, \texttt{Turnos\_\allowbreak Ho\-ra\-rios.php} y \texttt{Mesas\_\allowbreak Ha\-bi\-li\-ta\-das.php}), el calendario (\texttt{Fe\-ria\-do.php}) y las comunicaciones (\texttt{Plan\-ti\-lla\-Email.php}).
+    \item \textbf{Expedientes, Seguridad RBAC y CMS Institucional:} Abarca la circulación documental (\texttt{Tra\-mi\-te.php}, \texttt{Do\-cu\-men\-to.php} y \texttt{Pases.php}), la asignación de permisos y dependencias (\texttt{Usua\-rio.php}, \texttt{Usua\-rio\-de\-pen\-den\-cia.php} y \texttt{Rol.php}) y las entidades del portal institucional (\texttt{Pro\-yec\-to\-Ex\-ten\-sion.php}, \texttt{In\-ves\-ti\-ga\-cion.php}, \texttt{Miem\-bro\-Equi\-po.php}, \texttt{Ins\-ta\-la\-cion.php} y \texttt{Ti\-po\-Even\-to.php}).
+\end{itemize}
 
-\begin{figure}[!htbp]
+\begin{figure}[H]
     \centering
-    \includegraphics[width=0.44\textwidth]{codigo_tree_models}
-    \caption{Modelos Eloquent del dominio en \texttt{app/Models/}}
+    \includegraphics[width=0.40\textwidth]{codigo_tree_models}
+    \caption{Modelos Eloquent del dominio en \texttt{app/User.php} y \texttt{app/Models/}}
     \label{fig:tree_models}
 \end{figure}
 
 Entre las relaciones más complejas, se destaca el uso de relaciones \texttt{hasOneThrough} e interacciones uno a muchos:
 
-\begin{figure}[!htbp]
+\begin{figure}[H]
     \centering
-    \includegraphics[width=0.82\textwidth]{codigo_modelo_relaciones}
+    \includegraphics[width=0.80\textwidth]{codigo_modelo_relaciones}
     \caption{Implementación de relaciones Eloquent en \texttt{Turnos\_Dependencias\_Reservas.php}}
     \label{fig:codigo_modelo_relaciones}
 \end{figure}
@@ -117,9 +123,9 @@ Entre las relaciones más complejas, se destaca el uso de relaciones \texttt{has
 \subsection{Integración de Google Socialite y Enrutamiento por Rol}
 Para permitir el acceso ágil de la comunidad universitaria mediante sus cuentas institucionales de Google (\texttt{@unsa.edu.ar}), se implementó el controlador \texttt{LoginController}:
 
-\begin{figure}[!htbp]
+\begin{figure}[H]
     \centering
-    \includegraphics[width=0.82\textwidth]{codigo_socialite}
+    \includegraphics[width=0.80\textwidth]{codigo_socialite}
     \caption{Lógica de autenticación OAuth y redirección condicional por rol en \texttt{LoginController.php}}
     \label{fig:codigo_socialite}
 \end{figure}

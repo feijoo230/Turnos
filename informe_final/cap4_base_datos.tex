@@ -9,22 +9,22 @@ A lo largo del ciclo de desarrollo, la base de datos fue sometida a refactorizac
 
 A continuación se describen las entidades principales identificadas en el esquema \texttt{estructura.sql} y sus interacciones dentro del sistema:
 
-\begin{figure}[!htbp]
+\begin{figure}[H]
     \centering
-    \includegraphics[width=0.92\textwidth]{diagrama_er}
-    \caption{Diagrama Entidad-Relación (DER) simplificado del sistema de turnos}
+    \includegraphics[width=1.0\textwidth]{diagrama_er}
+    \caption{Diagrama Entidad-Relación (DER) del sistema de turnos con notación Pata de Gallo y cardinalidades explícitas}
     \label{fig:diagrama_er}
 \end{figure}
 
 \begin{itemize}
-    \item \textbf{Dependencias y Jerarquía:} La tabla \texttt{dependencias} (vinculada a \texttt{tipos\_\allowbreak dependencias}) es la columna vertebral del sistema. Utiliza el motor \textit{InnoDB} y el patrón \textbf{Nested Set} (\texttt{\_lft}, \texttt{\_rgt}, \texttt{parent\_id}) para realizar consultas jerárquicas indexadas, representando la estructura UNSa $\rightarrow$ Facultad $\rightarrow$ Departamento $\rightarrow$ Observatorio. Asimismo, \texttt{usuarios\_dependencias} asocia operadores con sus unidades asignadas.
-    \item \textbf{Catálogo de Servicios y Modalidades:} La tabla \texttt{dependencia\_tramites} define las actividades ofrecidas por cada dependencia y sus reglas operativas (\texttt{tipo\_modalidad}, \texttt{permite\_grupal}, \texttt{min\_personas\_reserva}, \texttt{max\_personas\_reserva}, \texttt{requiere\_institucion}, \texttt{requiere\_nomina}).
-    \item \textbf{Agendas, Horarios y Capacidad Operativa:} La tabla \texttt{turnos\_tramites} parametriza los períodos de vigencia (\texttt{fecha\_desde}, \texttt{fecha\_hasta}) y vincula cada servicio con sus bloques en \texttt{turnos\_horarios} (\texttt{hora\_inicio}, \texttt{hora\_fin}, \texttt{duracion\_minutos}, \texttt{cantidad\_turnos}). En paralelo, \texttt{mesas\_habilitadas} controla los puestos activos por dependencia mediante el campo booleano \texttt{activo} (interruptor rápido).
-    \item \textbf{Reservas de Turnos y Nóminas de Integrantes:} La tabla \texttt{dependencia\_\allowbreak turnos\_\allowbreak reservas} centraliza las citas solicitadas (\texttt{codigo}, datos del titular, \texttt{fecha}, \texttt{hora}, \texttt{turno\_horario\_id}, \texttt{dependencia\_tramite\_id}, \texttt{estado\_id} hacia \texttt{turnos\_reservas\_estados}, datos de colegios y \texttt{motivo\_cancelacion}). Para delegaciones escolares y grupales, se relaciona uno a muchos con \texttt{dependencia\_turnos\_reservas\_integrantes} (\texttt{reserva\_id}, \texttt{dni}, \texttt{nombre}, \texttt{apellido}).
-    \item \textbf{Gestión de Plantillas de Correo Transaccional:} La tabla \texttt{plantillas\_email} almacena las definiciones HTML de las comunicaciones, incluyendo \texttt{clave}, \texttt{nombre}, \texttt{circuito} (\textit{individual} o \textit{colegio}), \texttt{evento} (\textit{solicitud}, \textit{confirmacion}, \textit{cancelacion}), \texttt{asunto}, \texttt{cuerpo\_html}, \texttt{variables\_disponibles} y \texttt{activo}.
-    \item \textbf{Calendario y Días No Laborables:} La tabla \texttt{feriados} registra las fechas festivas y asuetos institucionales, permitiendo al motor de reservas excluir dichas jornadas automáticamente.
-    \item \textbf{Trámites Digitales y Derivaciones:} Las tablas \texttt{tramites}, \texttt{documentos} y \texttt{pases} registran los expedientes digitales, su documentación adjunta y el historial de derivaciones entre dependencias (\texttt{dependencia\_origen\_id}, \texttt{dependencia\_destino\_id}, \texttt{motivo}).
-    \item \textbf{Gestor de Contenidos Institucionales (CMS):} Se integran las tablas \texttt{proyectos\_extension}, \texttt{investigaciones}, \texttt{equipo\_miembros}, \texttt{instalaciones} y \texttt{tipos\_evento}, las cuales estructuran los recursos de divulgación científica exhibidos en el portal público del Observatorio.
+    \item \textbf{Dependencias y Jerarquía:} La tabla \texttt{dependencias} (vinculada a \texttt{tipos\_\allowbreak dependencias}) es la columna vertebral del sistema. Utiliza el motor \textit{InnoDB}, una relación reflexiva (\texttt{parent\_\allowbreak id}) y el patrón de árbol \textit{Nested Set} (\texttt{\_lft}, \texttt{\_rgt}, \texttt{nivel}, \texttt{es\_\allowbreak unidad\_\allowbreak academica}) para representar la jerarquía institucional UNSa $\rightarrow$ Facultad $\rightarrow$ Departamento $\rightarrow$ Observatorio. Asimismo, la tabla pivote \texttt{usuarios\_\allowbreak dependencias} (\texttt{usuario\_\allowbreak id}, \texttt{dependencia\_\allowbreak id}) asocia a los operadores con sus unidades asignadas.
+    \item \textbf{Catálogo de Servicios y Modalidades:} La tabla \texttt{dependencia\_\allowbreak tramites} define las actividades ofrecidas por cada dependencia y sus reglas operativas (\texttt{tipo\_\allowbreak modalidad}, \texttt{permite\_\allowbreak grupal}, \texttt{requiere\_\allowbreak institucion}, \texttt{requiere\_\allowbreak nomina}, \texttt{min\_\allowbreak personas\_\allowbreak reserva}, \texttt{max\_\allowbreak personas\_\allowbreak reserva}).
+    \item \textbf{Agendas, Horarios y Capacidad Operativa:} La tabla \texttt{turnos\_\allowbreak tramites} parametriza la vigencia y vinculación de cada agenda (\texttt{dependencia\_\allowbreak tramite\_\allowbreak id}, \texttt{proyecto\_\allowbreak extension\_\allowbreak id}, \texttt{tipo\_\allowbreak evento\_\allowbreak id}, \texttt{responsable\_\allowbreak id}, \texttt{fecha\_\allowbreak desde}, \texttt{fecha\_\allowbreak hasta}) y se relaciona con sus franjas en \texttt{turnos\_\allowbreak horarios} (\texttt{turno\_\allowbreak tramite\_\allowbreak id}, \texttt{lunes}..\texttt{domingo}, \texttt{hora\_\allowbreak inicio}, \texttt{hora\_\allowbreak fin}, \texttt{duracion\_\allowbreak minutos}, \texttt{cantidad\_\allowbreak turnos}). En paralelo, \texttt{mesas\_\allowbreak habilitadas} controla los puestos activos por dependencia mediante el campo booleano \texttt{activo} (interruptor rápido).
+    \item \textbf{Reservas de Turnos y Nóminas de Integrantes:} La tabla \texttt{dependencia\_\allowbreak turnos\_\allowbreak reservas} centraliza las citas solicitadas (\texttt{codigo}, datos del titular, \texttt{fecha\_\allowbreak hora}, \texttt{fecha}, \texttt{hora}, \texttt{dependencia\_\allowbreak tramite\_\allowbreak id}, \texttt{turno\_\allowbreak horario\_\allowbreak id}, \texttt{estado\_\allowbreak id} hacia \texttt{turnos\_\allowbreak reservas\_\allowbreak estados}, \texttt{es\_\allowbreak grupal}, \texttt{nombre\_\allowbreak institucion}, \texttt{nivel\_\allowbreak institucion}, \texttt{curso\_\allowbreak comision}, \texttt{cantidad\_\allowbreak personas}, \texttt{cantidad\_\allowbreak acompanantes} y \texttt{motivo\_\allowbreak cancelacion}). Para delegaciones escolares y grupales, se relaciona uno a muchos con \texttt{dependencia\_\allowbreak turnos\_\allowbreak reservas\_\allowbreak integrantes} (\texttt{reserva\_\allowbreak id}, \texttt{nombre}, \texttt{apellido}, \texttt{dni}).
+    \item \textbf{Gestión de Plantillas de Correo Transaccional:} La tabla \texttt{plantillas\_\allowbreak email} almacena las definiciones HTML de las comunicaciones identificadas por \texttt{clave} única para cada \texttt{circuito} (\textit{individual} o \textit{colegios}) y \texttt{evento} (\textit{solicitud}, \textit{confirmacion}, \textit{cancelacion}), incluyendo \texttt{nombre}, \texttt{descripcion}, \texttt{asunto}, \texttt{cuerpo\_\allowbreak html}, \texttt{variables\_\allowbreak disponibles} y \texttt{activo}.
+    \item \textbf{Calendario y Días No Laborables:} La tabla \texttt{feriados} registra las fechas festivas y asuetos institucionales (\texttt{fecha}, \texttt{observacion}, \texttt{activo}), permitiendo al motor de reservas excluir dichas jornadas automáticamente.
+    \item \textbf{Trámites Digitales y Derivaciones:} Las tablas \texttt{tramites}, \texttt{documentos} y \texttt{pases} registran los expedientes digitales, su documentación adjunta y el historial de derivaciones entre dependencias.
+    \item \textbf{Gestor de Contenidos Institucionales (CMS):} Se integran las tablas \texttt{proyectos\_\allowbreak extension}, \texttt{in\-ves\-ti\-ga\-cio\-nes}, \texttt{equipo\_\allowbreak miembros}, \texttt{ins\-ta\-la\-cio\-nes} y \texttt{tipos\_\allowbreak evento}, las cuales estructuran los recursos de divulgación científica exhibidos en el portal público del Observatorio.
 \end{itemize}
 
 \section{Diccionario de Datos y Migraciones}
@@ -36,9 +36,9 @@ La estructura se ha implementado utilizando las \textbf{Migraciones de Laravel},
     \item \textbf{Trazabilidad:} Todas las tablas incluyen los campos \texttt{created\_at} y \texttt{updated\_at}, permitiendo auditar cuándo se creó una dependencia o cuándo se modificó el estado de un turno.
 \end{itemize}
 
-\begin{figure}[!htbp]
+\begin{figure}[H]
     \centering
-    \includegraphics[width=0.46\textwidth]{codigo_tree_migrations}
+    \includegraphics[width=0.56\textwidth]{codigo_tree_migrations}
     \caption{Historial versionado de migraciones de la base de datos en \texttt{database/migrations/}}
     \label{fig:tree_migrations}
 \end{figure}
@@ -47,6 +47,6 @@ La estructura se ha implementado utilizando las \textbf{Migraciones de Laravel},
 Debido a que el sistema puede recibir una alta concurrencia durante periodos de inscripciones o eventos en el Observatorio, se han aplicado las siguientes estrategias:
 
 \begin{itemize}
-    \item \textbf{Indexación Estratégica:} Se han creado índices compuestos, como en la tabla \texttt{dependencias} (\texttt{\_lft}, \texttt{\_rgt}, \texttt{parent\_id}), para acelerar la navegación por el árbol académico.
-    \item \textbf{Soft Deletes:} Tablas como \texttt{personas} y \texttt{dependencias} implementan \textit{borrado lógico} (\texttt{deleted\_at}), permitiendo recuperar información eliminada accidentalmente y manteniendo el historial de atención.
+    \item \textbf{Indexación Estratégica:} Se han definido claves foráneas indexadas e índices sobre columnas de búsqueda frecuente (\texttt{parent\_\allowbreak id}, \texttt{\_lft}, \texttt{\_rgt}, \texttt{fecha}, \texttt{estado\_\allowbreak id} y \texttt{clave}), acelerando la navegación por el árbol académico y el cálculo de disponibilidad.
+    \item \textbf{Soft Deletes:} Tablas estructurales y operativas como \texttt{dependencias}, \texttt{tipos\_\allowbreak dependencias}, \texttt{dependencia\_\allowbreak tramites}, \texttt{tramites}, \texttt{documentos} y \texttt{pases} implementan \textit{borrado lógico} (\texttt{deleted\_\allowbreak at}), permitiendo recuperar información eliminada accidentalmente y manteniendo la trazabilidad histórica de atención.
 \end{itemize}
