@@ -153,7 +153,7 @@ class PlantillasEmailController extends Controller
                 $message->from($fromEmail, $fromName)
                     ->to($destinatario)
                     ->subject('[PRUEBA] ' . $rendered['asunto'])
-                    ->html($rendered['cuerpo_html']);
+                    ->setBody($rendered['cuerpo_html'], 'text/html');
             });
 
             return back()->with('success', "Correo de prueba enviado exitosamente a {$destinatario} utilizando la plantilla '{$plantilla->nombre}'.");
