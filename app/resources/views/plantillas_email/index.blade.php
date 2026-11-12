@@ -203,18 +203,9 @@
                 <!-- Botones de Acción -->
                 <div style="background: #f8fafc; border-top: 1px solid #edf2f7; padding: 12px 18px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 6px;">
                   <div class="btn-group">
-                    <a href="{{ route('plantillas-email.edit', $tpl->id) }}" class="btn btn-primary btn-sm" style="font-weight: 600; border-radius: 4px;" title="Editar plantilla y variables">
+                    <a href="{{ route('plantillas-email.edit', $tpl->id) }}" class="btn btn-primary btn-sm" style="font-weight: 600; border-radius: 4px;" title="Editar plantilla, variables y enviar prueba">
                       <i class="fa fa-pencil"></i> Modificar Plantilla
                     </a>
-
-                    <button type="button" class="btn btn-success btn-sm btn-enviar-prueba" 
-                            data-id="{{ $tpl->id }}" 
-                            data-title="{{ $tpl->nombre }}" 
-                            data-circuito="{{ $tpl->circuito }}"
-                            style="border-radius: 4px; margin-left: 4px;" 
-                            title="Enviar un correo real a una casilla de prueba">
-                      <i class="fa fa-paper-plane"></i> Enviar Prueba
-                    </button>
                   </div>
 
                   <div class="pull-right">
@@ -251,60 +242,4 @@
     </div>
   </div>
 </div>
-
-<!-- MODAL ENVIAR PRUEBA -->
-<div class="modal fade" id="modalEnviarPrueba" tabindex="-1" role="dialog" aria-labelledby="modalEnviarPruebaLabel" aria-hidden="true">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content" style="border-radius: 10px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.2);">
-      <form id="formEnviarPrueba" method="POST" action="">
-        {{ csrf_field() }}
-        <div class="modal-header" style="background: #16a34a; color: #ffffff; padding: 14px 20px;">
-          <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar" style="color: #ffffff; opacity: 0.8;"><span aria-hidden="true">&times;</span></button>
-          <h4 class="modal-title" id="modalEnviarPruebaLabel" style="font-weight: 700; font-size: 16px;">
-            <i class="fa fa-paper-plane"></i> Enviar Correo de Prueba
-          </h4>
-        </div>
-        <div class="modal-body" style="padding: 20px 24px;">
-          <div class="alert alert-info" style="border-radius: 6px; font-size: 13px;">
-            <i class="fa fa-info-circle"></i> Se enviará un correo real utilizando la plantilla seleccionada (<strong id="modalPruebaNombre"></strong>), renderizada con los datos de simulación del circuito.
-          </div>
-
-          <div class="form-group">
-            <label for="email_prueba" style="font-weight: 700; color: #1e293b;">
-              Casilla de Correo de Destino: <span class="text-danger">*</span>
-            </label>
-            <input type="email" class="form-control input-lg" id="email_prueba" name="email_prueba" required placeholder="ej: tu_correo@unsa.edu.ar" value="{{ auth()->user()->email ?? '' }}" style="border-radius: 6px;">
-            <span class="help-block" style="font-size: 12px; color: #64748b;">
-              Ingrese la dirección donde desea recibir el correo para comprobar el formato, diseño y llegada.
-            </span>
-          </div>
-        </div>
-        <div class="modal-footer" style="padding: 14px 24px; background: #f8fafc;">
-          <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
-          <button type="submit" class="btn btn-success" style="font-weight: 700;">
-            <i class="fa fa-send"></i> Enviar Correo Ahora
-          </button>
-        </div>
-      </form>
-    </div>
-  </div>
-</div>
-@stop
-
-@section('script')
-<script>
-$(document).ready(function() {
-  // Manejo del modal de envío de prueba
-  $(document).on('click', '.btn-enviar-prueba', function(e) {
-    e.preventDefault();
-    var id = $(this).attr('data-id') || $(this).data('id');
-    var title = $(this).attr('data-title') || $(this).data('title');
-    var formAction = "{{ url('plantillas-email') }}/" + id + "/enviar-prueba";
-    
-    $('#modalPruebaNombre').text(title);
-    $('#formEnviarPrueba').attr('action', formAction);
-    $('#modalEnviarPrueba').modal('show');
-  });
-});
-</script>
 @stop
