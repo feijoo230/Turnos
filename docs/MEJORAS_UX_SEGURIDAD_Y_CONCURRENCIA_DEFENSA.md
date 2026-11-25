@@ -120,14 +120,14 @@ Valida:
 3. Bloqueo de consulta por **DNI solo**, **Código solo**, **IDOR** en PDF/confirmación/nómina/cancelación y flujo legítimo **Código + DNI** con liberación de cupo al cancelar.
 
 ### B. Script de demo en vivo (peticiones HTTP paralelas y seguridad)
-El script `docs/demo_concurrencia_defensa.py` (solo librería estándar de Python) permite demostrar en vivo ante el tribunal:
+El script `docs/demo_concurrencia_defensa.py` (solo librería estándar de Python) descubre automáticamente un espacio, actividad, fecha y horario activos en tu servidor local, dispara 5 pedidos simultáneos sincronizados con `threading.Barrier` y luego ejecuta las 8 pruebas de seguridad contra la reserva real generada:
 
 ```bash
-# 1. Probar bloqueos de seguridad (IDOR, DNI solo, código solo)
-python docs/demo_concurrencia_defensa.py --url http://localhost:8083 --seguridad --reserva-id 1 --codigo OBS-XXXXX
+# Modo automático completo (concurrencia + seguridad en una sola ejecución):
+python docs/demo_concurrencia_defensa.py --url http://localhost:8083 --hilos 5 --personas 10
 
-# 2. Disparar 5 pedidos HTTP simultáneos reales contra el mismo horario
-python docs/demo_concurrencia_defensa.py --url http://localhost:8083 --concurrencia --dep 27 --tramite 1 --fecha 28/11/2026 --hora "19:00:00|1" --hilos 5 --personas 10
+# O probar solo seguridad sobre una reserva específica existente:
+python docs/demo_concurrencia_defensa.py --url http://localhost:8083 --solo-seguridad --reserva-id 15 --codigo OBS-7K4M9 --dni 30123456
 ```
 
 ### Nota sobre permisos en desarrollo local (Docker en Windows)
