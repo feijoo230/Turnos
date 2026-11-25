@@ -206,6 +206,8 @@ class Dependencia extends Model
             $tramites = Dependencia_Tramite::where('dependencia_id', $id)->get();
 
             foreach ($tramites as $tramite) {
+                $usaCupoPorDelegacion = $tramite->usaCupoPorDelegacion();
+
                 $turno_tramite = Turnos_Tramites::where('dependencia_tramite_id', $tramite->id)
                     ->where('activo', true)
                     ->where('fecha_hasta', '>=', $today)
@@ -219,7 +221,14 @@ class Dependencia extends Model
                     $reservas_all = Turnos_Dependencias_Reservas::where('dependencia_tramite_id', $tramite->id)
                         ->whereDate('fecha', '>=', $fecha_desde)
                         ->whereDate('fecha', '<=', $fecha_hasta)
-                        ->select(DB::raw('DATE(fecha) as fecha_date'), 'turno_horario_id', 'hora', DB::raw('count(*) as total'))
+                        ->where('estado_id', '!=', 4)
+                        ->select(
+                            DB::raw('DATE(fecha) as fecha_date'),
+                            'turno_horario_id',
+                            'hora',
+                            DB::raw('sum(cantidad_personas) as total_personas'),
+                            DB::raw('count(*) as total_reservas')
+                        )
                         ->groupBy('fecha_date', 'turno_horario_id', 'hora')
                         ->get()
                         ->groupBy('fecha_date');
@@ -238,14 +247,20 @@ class Dependencia extends Model
                         $isToday = $current_date->isToday();
                         
                         foreach ($turno_tramite->turnosHorarios as $horario) {
-                            if (!$horario->activo || !$horario->$diaSemana) continue;
+                            if (!$horario->activo || !$horario->$diaSemana || (int) $horario->duracion_minutos <= 0) {
+                                continue;
+                            }
 
-                            for ($tCurrent = $current_date->copy()->setTimeFromTimeString($horario->hora_inicio); $tCurrent->lt($current_date->copy()->setTimeFromTimeString($horario->hora_fin)); $tCurrent->addMinutes($horario->duracion_minutos)) {
+                            for ($tCurrent = $current_date->copy()->setTimeFromTimeString($horario->hora_inicio); $tCurrent->lt($current_date->copy()->setTimeFromTimeString($horario->hora_fin)); $tCurrent->addMinutes((int) $horario->duracion_minutos)) {
                                 $slot = $tCurrent->format('H:i:s');
                                 $reservas_count = 0;
-                                if($reservas_del_dia) {
+                                if ($reservas_del_dia) {
                                     $reserva_slot = $reservas_del_dia->where('turno_horario_id', $horario->id)->where('hora', $slot)->first();
-                                    if($reserva_slot) $reservas_count = $reserva_slot->total;
+                                    if ($reserva_slot) {
+                                        $reservas_count = $usaCupoPorDelegacion
+                                            ? (int) $reserva_slot->total_reservas
+                                            : (int) $reserva_slot->total_personas;
+                                    }
                                 }
 
                                 if (!$isToday || $tCurrent->isFuture()) {

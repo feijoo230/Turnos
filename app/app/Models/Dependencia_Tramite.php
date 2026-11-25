@@ -37,4 +37,20 @@ class Dependencia_Tramite extends Model
     {
         return $this->belongsTo(Dependencia::class, 'dependencia_id', 'id');
     }
+
+    /**
+     * Indica si el cupo del horario (cantidad_turnos) se mide en cantidad de delegaciones/reservas
+     * (trámites exclusivamente institucionales/escolares) o en plazas físicas de personas
+     * (individual, grupal y mixto).
+     */
+    public function usaCupoPorDelegacion(): bool
+    {
+        $modalidad = strtolower((string) ($this->tipo_modalidad ?? 'individual'));
+
+        if ($modalidad === 'mixto') {
+            return false;
+        }
+
+        return $modalidad === 'institucional' || (bool) $this->requiere_institucion;
+    }
 }

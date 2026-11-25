@@ -39,10 +39,10 @@ Route::get('tramite.paso3','frontend\TramitesController@paso3')->name('tramite.p
 Route::post('tramite.guardar','frontend\TramitesController@guardar')->name('tramite.guardar');//Valido
 Route::get('tramite/confirmacion/{id}', 'frontend\TramitesController@confirmacion')->name('tramite.confirmacion');
 Route::get('reserva/{codigo}/integrantes', 'frontend\TramitesController@cargarIntegrantesForm')->name('tramite.integrantes.form');
-Route::post('reserva/{codigo}/integrantes', 'frontend\TramitesController@guardarIntegrantes')->name('tramite.integrantes.guardar');
-Route::post('reserva/{codigo}/cancelar', 'frontend\TramitesController@cancelarReserva')->name('tramite.cancelar');
+Route::post('reserva/{codigo}/integrantes', 'frontend\TramitesController@guardarIntegrantes')->middleware('throttle:15,1')->name('tramite.integrantes.guardar');
+Route::post('reserva/{codigo}/cancelar', 'frontend\TramitesController@cancelarReserva')->middleware('throttle:15,1')->name('tramite.cancelar');
 
-Route::get('turno.buscar','frontend\TramitesController@buscar')->name('turno.buscar');//Valid
+Route::get('turno.buscar','frontend\TramitesController@buscar')->middleware('throttle:15,1')->name('turno.buscar');//Valid
 
 Route::get('getdirecciones','frontend\TramitesController@getDirecciones')->name('getdirecciones');//valid
 

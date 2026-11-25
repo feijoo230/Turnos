@@ -2,8 +2,13 @@
 	<div class="col-lg-8 col-xl-7">
 		<div class="card border-0 shadow-sm" style="border-radius: 16px; background: white;">
 			<div class="card-body p-4 text-center">
-				<h5 class="font-weight-bold text-dark mb-1"><i class="fas fa-search text-primary mr-2"></i>Consultar Estado de Turno Reservado</h5>
-				<p class="text-muted small mb-3">Ingrese el código de reserva y su número de DNI para consultar los detalles o descargar su comprobante.</p>
+				<h5 class="font-weight-bold text-dark mb-1">
+					<i class="fas fa-search text-primary mr-2"></i>Consultar o Cancelar un Turno
+					<button type="button" class="help-tip ml-1" data-bs-toggle="tooltip" data-bs-placement="top" title="Por seguridad pedimos Código y DNI juntos para proteger tus datos personales.">?</button>
+				</h5>
+				<p class="text-muted small mb-3">
+					Ingresá tu <strong>código de reserva</strong> y tu <strong>DNI</strong> para ver el estado, descargar el comprobante PDF, cargar integrantes o cancelar tu visita.
+				</p>
 
 				@if(session('success'))
 					<div class="alert alert-success alert-dismissible fade show text-left text-start font-weight-bold mb-3" role="alert" style="border-radius: 10px;">
@@ -19,18 +24,23 @@
 					</div>
 				@endif
 
-				{!! Form::open(['route' => 'turno.buscar', 'method'=> 'get', 'class' => 'form-horizontal']) !!}
+				{!! Form::open(['route' => 'turno.buscar', 'method'=> 'get', 'class' => 'form-horizontal text-left text-start']) !!}
 					<div class="row">
 						<div class="col-md-6 col-12 mb-2">
-							{!! Form::text('codigo_turno', null, ['class' => 'form-control form-control-lg', 'placeholder' => 'Código de turno (Ej: TUR-123)', 'style' => 'border-radius: 10px; font-size: 0.95rem;']) !!}
+							<label for="codigo_turno" class="small font-weight-bold text-secondary mb-1">Código de Reserva *</label>
+							{!! Form::text('codigo_turno', old('codigo_turno'), ['id' => 'codigo_turno', 'class' => 'form-control form-control-lg', 'placeholder' => 'Ej: OBS-7K4M9', 'required' => true, 'style' => 'border-radius: 10px; font-size: 0.95rem; text-transform: uppercase;']) !!}
 						</div>
 						<div class="col-md-6 col-12 mb-2">
-							{!! Form::text('dni_turno', null, ['class' => 'form-control form-control-lg', 'placeholder' => 'Número de DNI', 'style' => 'border-radius: 10px; font-size: 0.95rem;']) !!}
+							<label for="dni_turno" class="small font-weight-bold text-secondary mb-1">DNI del Titular *</label>
+							{!! Form::text('dni_turno', old('dni_turno'), ['id' => 'dni_turno', 'class' => 'form-control form-control-lg', 'placeholder' => 'Solo números, ej: 30123456', 'inputmode' => 'numeric', 'required' => true, 'style' => 'border-radius: 10px; font-size: 0.95rem;']) !!}
 						</div>
 					</div>
-					<div class="text-right text-end mt-2">
+					<div class="d-flex justify-content-between align-items-center flex-wrap mt-2" style="gap: 10px;">
+						<small class="text-muted">
+							<i class="fas fa-envelope-open-text mr-1"></i> ¿Olvidaste tu código? Revisá tu correo o ingresá en <a href="{{ route('login') }}" class="font-weight-bold">Mi Portal</a>.
+						</small>
 						<button type="submit" class="btn btn-primary font-weight-bold px-4" style="border-radius: 10px;">
-							<i class="fas fa-search mr-1 me-1"></i> Consultar
+							<i class="fas fa-search mr-1 me-1"></i> Consultar Turno
 						</button>
 					</div>
 				{!! Form::close() !!}
@@ -99,11 +109,11 @@
 								@endif
 								
 								<div class="d-flex justify-content-between align-items-center pt-2 border-top flex-wrap" style="gap: 10px;">
-									<a href="{!! route('turnos.print', [$turno_reserva_busqueda->id]) !!}" class="btn btn-danger font-weight-bold" style="border-radius: 8px;">
+									<a href="{!! route('turnos.print', [$turno_reserva_busqueda->id]) !!}" class="btn btn-danger font-weight-bold" target="_blank" style="border-radius: 8px;">
 										<i class="fas fa-file-pdf mr-1 me-1"></i> Descargar Comprobante PDF
 									</a>
 
-									@if($turno_reserva_busqueda->estado_id != 4)
+									@if($turno_reserva_busqueda->estado_id != 4 && (!$turno_reserva_busqueda->fecha_hora || !$turno_reserva_busqueda->fecha_hora->isPast()))
 										<button type="button" class="btn btn-outline-danger font-weight-bold" style="border-radius: 8px;" data-toggle="modal" data-target="#modalCancelarReservaBusqueda" data-bs-toggle="modal" data-bs-target="#modalCancelarReservaBusqueda">
 											<i class="fas fa-times-circle mr-1 me-1"></i> Cancelar Reserva
 										</button>

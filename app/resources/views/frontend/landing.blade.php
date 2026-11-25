@@ -2,7 +2,7 @@
 
 @section('content')
   <!-- HERO BANNER -->
-  <div style="background: linear-gradient(rgba(15, 23, 42, 0.82), rgba(15, 23, 42, 0.82)), url('{{ asset('img/observatorio/hero-bg.jpg') }}') center/cover no-repeat; padding: 120px 0; border-bottom: 1px solid #e2e8f0; color: white;">
+  <div style="background: linear-gradient(180deg, rgba(15, 23, 42, 0.66) 0%, rgba(15, 23, 42, 0.78) 100%), url('{{ asset('img/observatorio/hero-bg.jpg') }}?v=2') center 45%/cover no-repeat; padding: 120px 0; border-bottom: 1px solid #e2e8f0; color: white;">
     <div class="container text-center">
       <h2 class="page-title" style="color: white !important; font-size: 3rem; text-shadow: 0 2px 4px rgba(0,0,0,0.5);">Observatorio Astronómico<br>Prof. Elvio Alanís</h2>
       <p class="lead" style="max-width: 800px; margin: 0 auto; color: #e2e8f0; font-size: 1.15rem; text-shadow: 0 1px 2px rgba(0,0,0,0.5);">

@@ -103,6 +103,8 @@ class TramitesController extends Controller
         $feriados_text = Feriado::whereDate('fecha', '>=', Carbon::today())->get();
 
         $turno_dependencia = $turno_tramite;
+        $dependencia_tramite = Dependencia_Tramite::with('dependencia')->find($dependencia_tramite_id);
+        $dependencia = $dependencia_tramite ? $dependencia_tramite->dependencia : Dependencia::find($request->session()->get('dependencia_id'));
 
         $dias_activos = [
             'lunes' => false,
@@ -125,7 +127,7 @@ class TramitesController extends Controller
             }
         }
 
-        return view('frontend.form-turno-paso2')->with(compact('turno_dependencia', 'turno_fecha', 'turno_hora', 'fecha_desde', 'feriados','feriados_text', 'dias_activos'));
+        return view('frontend.form-turno-paso2')->with(compact('turno_dependencia', 'dependencia', 'dependencia_tramite', 'turno_fecha', 'turno_hora', 'fecha_desde', 'feriados','feriados_text', 'dias_activos'));
     }
 
     public function paso3(Request $request)
@@ -133,23 +135,67 @@ class TramitesController extends Controller
         try { 
             $input = $request->all();
 
-            $request->session()->put('turno_fecha', $input['turno_fecha']);
-            $request->session()->put('turno_hora', $input['turno_hora']);
+            if (!empty($input['turno_fecha'])) {
+                $request->session()->put('turno_fecha', $input['turno_fecha']);
+            }
+            if (!empty($input['turno_hora'])) {
+                $request->session()->put('turno_hora', $input['turno_hora']);
+            }
 
             $dependencia_id = $request->session()->get('dependencia_id');
             $dependencia_tramite_id = $request->session()->get('dependencia_tramite_id');
             $turno_fecha = $request->session()->get('turno_fecha');
             $turno_hora = $request->session()->get('turno_hora');
 
-            $dependencia = Dependencia::find($dependencia_id)->toArray();
+            if (empty($turno_fecha) || empty($turno_hora) || strpos($turno_hora, '|') === false) {
+                return redirect()->route('tramite.paso2')->with('error', 'Por favor seleccione un día en el calendario y un horario disponible antes de continuar.');
+            }
+
+            list($hora_raw) = explode('|', $turno_hora);
+            $turno_hora_display = substr($hora_raw, 0, 5);
+
+            $dependenciaModel = Dependencia::find($dependencia_id);
+            if (!$dependenciaModel) {
+                return redirect()->route('tramite.index');
+            }
+            $dependencia = $dependenciaModel->toArray();
             $dependencia_tramite = Dependencia_Tramite::find($dependencia_tramite_id);
 
             $usuario = Auth::user();
 
-            return view('frontend.form-turno-paso3')->with(compact('dependencia', 'dependencia_tramite', 'turno_fecha', 'turno_hora', 'usuario'));
+            return view('frontend.form-turno-paso3')->with(compact('dependencia', 'dependencia_tramite', 'turno_fecha', 'turno_hora', 'turno_hora_display', 'usuario'));
         } catch (\Exception $e) {
             return redirect(route('tramite.index'));
         }
+    }
+
+    private function autorizarReservaEnSesion(Request $request, Turnos_Dependencias_Reservas $reserva): void
+    {
+        $autorizadas = $request->session()->get('reservas_autorizadas', []);
+        $autorizadas[$reserva->id] = $reserva->codigo;
+        $request->session()->put('reservas_autorizadas', $autorizadas);
+    }
+
+    private function esAdminOOperador(): bool
+    {
+        return Auth::check() && Auth::user()->hasAnyRole(['ADMINISTRADOR', 'OPERADOR']);
+    }
+
+    private function esTitularAutenticado(Turnos_Dependencias_Reservas $reserva): bool
+    {
+        return Auth::check()
+            && !empty($reserva->email)
+            && strcasecmp(trim((string) Auth::user()->email), trim((string) $reserva->email)) === 0;
+    }
+
+    private function puedeAccederReserva(Request $request, Turnos_Dependencias_Reservas $reserva): bool
+    {
+        if ($this->esAdminOOperador() || $this->esTitularAutenticado($reserva)) {
+            return true;
+        }
+
+        $autorizadas = $request->session()->get('reservas_autorizadas', []);
+        return isset($autorizadas[$reserva->id]) && $autorizadas[$reserva->id] === $reserva->codigo;
     }
 
     public function guardar(StoreTurno $request)
@@ -170,49 +216,45 @@ class TramitesController extends Controller
 
         $dependencia_tramite_id = $request->session()->get('dependencia_tramite_id');
         $dependencia_tramite = Dependencia_Tramite::find($dependencia_tramite_id);
+        if (!$dependencia_tramite) {
+            return redirect()->route('tramite.index')->with('error', 'El trámite seleccionado ya no está disponible.');
+        }
 
-        $turno_horario = \App\Models\Turnos_Horarios::find($turno_horario_id);
-        $fecha = Carbon::createFromFormat('d/m/Y', $request->session()->get('turno_fecha'));
+        try {
+            $fecha = Carbon::createFromFormat('d/m/Y', $request->session()->get('turno_fecha'))->startOfDay();
+            $fecha_hora = Carbon::createFromFormat('d/m/Y H:i:s', $request->session()->get('turno_fecha').' '.$turno_hora);
+        } catch (\Exception $e) {
+            return redirect()->route('tramite.index')->with('error', 'La fecha u horario del turno es inválido. Por favor seleccione nuevamente.');
+        }
 
-        $isInstitucional = $request->filled('nombre_institucion') || ($dependencia_tramite && ($dependencia_tramite->tipo_modalidad === 'institucional' || $dependencia_tramite->requiere_institucion));
+        if ($fecha_hora->isPast()) {
+            return redirect()->route('tramite.paso2')->with('error', 'El horario seleccionado ya pasó. Por favor elija una nueva fecha u horario.');
+        }
+
+        // Verificar que la fecha no sea feriado activo
+        $esFeriado = Feriado::where('activo', 1)
+            ->where('fecha', $fecha->format('d/m/Y'))
+            ->exists();
+        if ($esFeriado) {
+            return redirect()->route('tramite.paso2')->with('error', 'La fecha seleccionada corresponde a un feriado sin atención.');
+        }
+
+        $usaCupoPorDelegacion = $dependencia_tramite->usaCupoPorDelegacion();
         $solicitadas = (int) $request->input('cantidad_personas', 1);
+        $dniNormalizado = Turnos_Dependencias_Reservas::normalizarDni($input['dni']);
 
         // Validación de Límite Máximo configurado por el Administrador
-        if ($dependencia_tramite && $dependencia_tramite->max_personas_reserva && $solicitadas > $dependencia_tramite->max_personas_reserva) {
+        if ($dependencia_tramite->max_personas_reserva && $solicitadas > $dependencia_tramite->max_personas_reserva) {
             return back()->withInput()->with('error', "La cantidad de personas solicitadas ({$solicitadas}) supera el límite máximo permitido para este trámite ({$dependencia_tramite->max_personas_reserva} personas).");
         }
 
-        // Validación de Límite Mínimo configurado para reservas grupales
-        if ($request->boolean('es_grupal') && $dependencia_tramite && $dependencia_tramite->min_personas_reserva && $solicitadas < $dependencia_tramite->min_personas_reserva) {
+        // Validación de Límite Mínimo configurado para reservas grupales / institucionales
+        if (($request->boolean('es_grupal') || $usaCupoPorDelegacion) && $dependencia_tramite->min_personas_reserva && $solicitadas < $dependencia_tramite->min_personas_reserva) {
             return back()->withInput()->with('error', "La cantidad de personas solicitadas ({$solicitadas}) es menor al mínimo requerido para esta modalidad ({$dependencia_tramite->min_personas_reserva} personas).");
         }
 
-        // Validación de Cupo disponible en el Horario
-        if ($isInstitucional) {
-            $reservas_count = Turnos_Dependencias_Reservas::where('turno_horario_id', $turno_horario_id)
-                ->whereDate('fecha', $fecha)
-                ->where('hora', $turno_hora)
-                ->where('estado_id', '!=', 4)
-                ->count();
-
-            if ($reservas_count >= $turno_horario->cantidad_turnos) {
-                return back()->withInput()->with('error', "El horario seleccionado ya no posee cupos disponibles para una delegación.");
-            }
-        } else {
-            $reservas_sum = Turnos_Dependencias_Reservas::where('turno_horario_id', $turno_horario_id)
-                ->whereDate('fecha', $fecha)
-                ->where('hora', $turno_hora)
-                ->where('estado_id', '!=', 4)
-                ->sum('cantidad_personas');
-
-            if (($reservas_sum + $solicitadas) > $turno_horario->cantidad_turnos) {
-                $disponibles = max(0, $turno_horario->cantidad_turnos - $reservas_sum);
-                return back()->withInput()->with('error', "El turno seleccionado no tiene cupo suficiente. Lugares disponibles: {$disponibles}. Usted solicitó: {$solicitadas}.");
-            }
-        }
-
-        // Validación de Excel vs Cantidad de Personas
-        if ($request->boolean('es_grupal') || (isset($dependencia_tramite) && ($dependencia_tramite->tipo_modalidad ?? '') === 'institucional')) {
+        // Validación de Excel vs Cantidad de Personas (antes de abrir transacción de BD)
+        if ($request->boolean('es_grupal') || $usaCupoPorDelegacion) {
             if ($request->hasFile('archivo_integrantes')) {
                 $data = Excel::toArray([], $request->file('archivo_integrantes'));
                 if (isset($data[0]) && count($data[0]) > 1) {
@@ -223,104 +265,200 @@ class TramitesController extends Controller
                 }
             }
         }
-        // END of the check
 
-        $aux_input = [
-            'fecha_hora' => Carbon::createFromFormat('d/m/Y H:i:s', $request->session()->get('turno_fecha').' '.$turno_hora),
-            'fecha' => Carbon::createFromFormat('d/m/Y', $request->session()->get('turno_fecha')),
-            'hora' => $turno_hora,
-            'nombre_apellido' => $input['nombre_apellido'],
-            'dni' => $input['dni'],
-            'celular' => $input['celular'],
-            'email' => $input['email'],
-            'es_grupal' => $request->boolean('es_grupal') || (isset($dependencia_tramite) && ($dependencia_tramite->tipo_modalidad ?? '') === 'institucional'),
-            'cantidad_personas' => $solicitadas,
-            'nombre_institucion' => $request->input('nombre_institucion'),
-            'cargo_responsable' => $request->input('cargo_responsable'),
-            'nivel_institucion' => $request->input('nivel_institucion'),
-            'cantidad_acompanantes' => (int) $request->input('cantidad_acompanantes', 0),
-            'curso_comision' => $request->input('curso_comision'),
-            'turno_horario_id' => $turno_horario_id,
-            'dependencia_tramite_id' => $request->session()->get('dependencia_tramite_id'),
-            'estado_id' => 1,
-            'activo' => 1
+        $diasMap = [
+            1 => 'lunes', 2 => 'martes', 3 => 'miercoles', 4 => 'jueves', 5 => 'viernes', 6 => 'sabado', 7 => 'domingo'
         ];
+        $diaSemana = $diasMap[$fecha->dayOfWeekIso];
 
-        $turno_reserva = Turnos_Dependencias_Reservas::create($aux_input);
+        try {
+            // Transacción atómica con bloqueo pesimista (FOR UPDATE) sobre la fila padre turnos_horarios
+            // Garantiza cero sobreventa ante pedidos simultáneos incluso cuando hay 0 reservas previas.
+            $turno_reserva = DB::transaction(function () use (
+                $turno_horario_id,
+                $dependencia_tramite_id,
+                $dependencia_tramite,
+                $usaCupoPorDelegacion,
+                $fecha,
+                $fecha_hora,
+                $turno_hora,
+                $diaSemana,
+                $solicitadas,
+                $dniNormalizado,
+                $input,
+                $request
+            ) {
+                $turno_horario = \App\Models\Turnos_Horarios::with('turno_tramite.tramite.dependencia')
+                    ->where('id', $turno_horario_id)
+                    ->lockForUpdate()
+                    ->first();
 
-        if ($request->hasFile('archivo_integrantes')) {
-            Excel::import(new IntegrantesImport($turno_reserva->id), $request->file('archivo_integrantes'));
+                if (!$turno_horario || !$turno_horario->activo || !$turno_horario->$diaSemana) {
+                    throw new \RuntimeException('El horario seleccionado ya no se encuentra habilitado para ese día.');
+                }
+
+                $turno_tramite = $turno_horario->turno_tramite;
+                if (!$turno_tramite || !$turno_tramite->activo || $fecha->lt($turno_tramite->fecha_desde->copy()->startOfDay()) || $fecha->gt($turno_tramite->fecha_hasta->copy()->startOfDay())) {
+                    throw new \RuntimeException('La fecha seleccionada se encuentra fuera del período habilitado para este trámite.');
+                }
+
+                // Evitar duplicación del mismo DNI en el mismo día y horario
+                $duplicados = Turnos_Dependencias_Reservas::where('turno_horario_id', $turno_horario_id)
+                    ->whereDate('fecha', $fecha)
+                    ->where('hora', $turno_hora)
+                    ->where('estado_id', '!=', 4)
+                    ->pluck('dni');
+
+                foreach ($duplicados as $dniExistente) {
+                    if (Turnos_Dependencias_Reservas::normalizarDni($dniExistente) === $dniNormalizado) {
+                        throw new \RuntimeException('Ya existe una reserva activa registrada con este DNI para el mismo día y horario.');
+                    }
+                }
+
+                // Control de cupo atómico diferenciado por modalidad del trámite
+                if ($usaCupoPorDelegacion) {
+                    $reservas_count = Turnos_Dependencias_Reservas::where('turno_horario_id', $turno_horario_id)
+                        ->whereDate('fecha', $fecha)
+                        ->where('hora', $turno_hora)
+                        ->where('estado_id', '!=', 4)
+                        ->count();
+
+                    if ($reservas_count >= $turno_horario->cantidad_turnos) {
+                        throw new \RuntimeException('El horario seleccionado ya no posee cupos disponibles para una delegación.');
+                    }
+                } else {
+                    $reservas_sum = (int) Turnos_Dependencias_Reservas::where('turno_horario_id', $turno_horario_id)
+                        ->whereDate('fecha', $fecha)
+                        ->where('hora', $turno_hora)
+                        ->where('estado_id', '!=', 4)
+                        ->sum('cantidad_personas');
+
+                    if (($reservas_sum + $solicitadas) > $turno_horario->cantidad_turnos) {
+                        $disponibles = max(0, $turno_horario->cantidad_turnos - $reservas_sum);
+                        throw new \RuntimeException("El turno seleccionado no tiene cupo suficiente. Lugares disponibles: {$disponibles}. Usted solicitó: {$solicitadas}.");
+                    }
+                }
+
+                $dependencia_codigo = optional(optional(optional($turno_tramite)->tramite)->dependencia)->codigo ?? 'OBS';
+                $codigoGenerado = Turnos_Dependencias_Reservas::generarCodigoUnico($dependencia_codigo);
+
+                $aux_input = [
+                    'codigo' => $codigoGenerado,
+                    'fecha_hora' => $fecha_hora,
+                    'fecha' => $fecha,
+                    'hora' => $turno_hora,
+                    'nombre_apellido' => trim($input['nombre_apellido']),
+                    'dni' => $dniNormalizado,
+                    'celular' => trim($input['celular']),
+                    'email' => trim($input['email']),
+                    'es_grupal' => $request->boolean('es_grupal') || $usaCupoPorDelegacion || $solicitadas > 1,
+                    'cantidad_personas' => $solicitadas,
+                    'nombre_institucion' => $request->input('nombre_institucion'),
+                    'cargo_responsable' => $request->input('cargo_responsable'),
+                    'nivel_institucion' => $request->input('nivel_institucion'),
+                    'cantidad_acompanantes' => (int) $request->input('cantidad_acompanantes', 0),
+                    'curso_comision' => $request->input('curso_comision'),
+                    'turno_horario_id' => $turno_horario_id,
+                    'dependencia_tramite_id' => $dependencia_tramite_id,
+                    'estado_id' => 1, // Pendiente de confirmación (cupo ya reservado)
+                    'activo' => 1
+                ];
+
+                $reserva = Turnos_Dependencias_Reservas::create($aux_input);
+
+                if ($request->hasFile('archivo_integrantes')) {
+                    Excel::import(new IntegrantesImport($reserva->id), $request->file('archivo_integrantes'));
+                }
+
+                return $reserva;
+            });
+        } catch (\RuntimeException $e) {
+            return back()->withInput()->with('error', $e->getMessage());
         }
 
-        $dependencia_codigo = $turno_reserva->turno_horario->turno_tramite->tramite->dependencia->codigo;
-        $turno_reserva->codigo = $dependencia_codigo.str_pad($turno_reserva->id, 6, "0", STR_PAD_LEFT);
-        $turno_reserva->save();
+        // Autorizar la reserva recién creada en la sesión del visitante
+        $this->autorizarReservaEnSesion($request, $turno_reserva);
+
+        // Enviar correo de solicitud registrada (fuera de la transacción para no retener el lock)
+        if (!empty($turno_reserva->email)) {
+            try {
+                $turno_reserva->load('turno_horario.turno_tramite.tramite.dependencia');
+                Mail::to($turno_reserva->email)->send(new \App\Mail\TurnoSolicitado($turno_reserva));
+            } catch (\Exception $e) {
+                Log::error("Error al enviar mail de solicitud registrada para turno {$turno_reserva->codigo}: " . $e->getMessage());
+            }
+        }
 
         $request->session()->forget('dependencia_id');
         $request->session()->forget('dependencia_tramite_id');
         $request->session()->forget('turno_tramite_id');
         $request->session()->forget('turno_fecha');
         $request->session()->forget('turno_hora');
-        
-        $request->session()->forget('turno_reserva_busqueda'); // Forget the search result from session
+        $request->session()->forget('turno_reserva_busqueda');
+
         return redirect()->route('tramite.confirmacion', ['id' => $turno_reserva->id]);
     }
 
-    public function confirmacion($id)
+    public function confirmacion(Request $request, $id)
     {
-        $turno_reserva = Turnos_Dependencias_Reservas::with('turno_tramite.tramite.dependencia')->find($id);
+        $turno_reserva = Turnos_Dependencias_Reservas::with([
+            'turno_tramite.tramite.dependencia',
+            'turno_horario.turno_tramite.tramite.dependencia',
+            'integrantes'
+        ])->find($id);
+
+        if (!$turno_reserva || !$this->puedeAccederReserva($request, $turno_reserva)) {
+            return redirect()->route('turnos')->with('error', 'Por seguridad, para ver los detalles de tu turno consultalo abajo ingresando tu código de reserva y tu DNI.');
+        }
+
         return view('frontend.form-turno-paso4')->with(compact('turno_reserva'));
     }
 
-    public function print($id)
+    public function print(Request $request, $id)
     {
-        $turno_reserva = Turnos_Dependencias_Reservas::with('turno_tramite.tramite.dependencia')->find($id);
+        $turno_reserva = Turnos_Dependencias_Reservas::with([
+            'turno_tramite.tramite.dependencia',
+            'turno_horario.turno_tramite.tramite.dependencia',
+            'integrantes'
+        ])->findOrFail($id);
 
-        $turno_reserva->fecha_hora_text = $turno_reserva->fecha_hora->format('d/m/Y h:i');
+        if (!$this->puedeAccederReserva($request, $turno_reserva)) {
+            abort(403, 'No tiene autorización para descargar este comprobante. Consulte su reserva ingresando código y DNI.');
+        }
+
+        $turno_reserva->fecha_hora_text = $turno_reserva->fecha_hora
+            ? $turno_reserva->fecha_hora->format('d/m/Y H:i')
+            : '';
 
         $html = view('htmltopdf.turno_comprobante')
             ->with('turno_reserva', $turno_reserva)->render();
        
-        $pdf = \PDF::loadHTML($html);
+        $pdf = \PDF::loadHTML($html)
+            ->setPaper('a4')
+            ->setOption('encoding', 'UTF-8')
+            ->setOption('margin-top', '10mm')
+            ->setOption('margin-bottom', '10mm')
+            ->setOption('margin-left', '12mm')
+            ->setOption('margin-right', '12mm');
+
         return $pdf->download('comprobante_'.$turno_reserva->codigo.'.pdf'); 
     }
 
     protected function buscar(SearchTurno $request)
     {
-        $input = $request->all();
-        $query = Turnos_Dependencias_Reservas::with('turno_horario.turno_tramite.tramite.dependencia')
-            ->where('activo', 1);
+        $codigo = $request->input('codigo_turno');
+        $dni = $request->input('dni_turno');
 
-        if (!empty($input['codigo_turno'])) {
-            $query->where('codigo', $input['codigo_turno']);
-            $turno_reserva_busqueda = $query->first();
-            return back()->with('turno_reserva_busqueda', $turno_reserva_busqueda);
+        $reserva = Turnos_Dependencias_Reservas::buscarPorCodigoYDni($codigo, $dni);
+
+        if (!$reserva) {
+            return back()->withInput()->with('error', 'No se encontró ninguna reserva que coincida con ese código y DNI. Revisá ambos datos e intentá nuevamente.');
         }
 
-        if (!empty($input['dni_turno'])) {
-            $dni = $input['dni_turno'];
-            $query->where('dni', $dni)
-                  ->whereDate('fecha', '>=', Carbon::today())
-                  ->orderBy('fecha', 'asc')
-                  ->orderBy('hora', 'asc');
-            
-            $reservas = $query->get();
+        // Autorizar esta reserva en la sesión tras verificar el doble factor (Código + DNI)
+        $this->autorizarReservaEnSesion($request, $reserva);
 
-            if ($reservas->count() > 1) {
-                $html = view('htmltopdf.listado_mis_turnos')
-                    ->with('reservas', $reservas)
-                    ->with('dni', $dni)
-                    ->render();
-
-                $pdf = \PDF::loadHTML($html);
-                return $pdf->download('mis_turnos_'.$dni.'.pdf');
-            }
-
-            $turno_reserva_busqueda = $reservas->first();
-            return back()->with('turno_reserva_busqueda', $turno_reserva_busqueda);
-        }
-
-        return back();
+        return back()->with('turno_reserva_busqueda', $reserva);
     }
 
     public function loadHorarios(Request $request)
@@ -336,7 +474,7 @@ class TramitesController extends Controller
         $turno_fecha = Carbon::createFromFormat('d/m/Y', $input['turno_fecha']);
 
         $dependencia_tramite = Dependencia_Tramite::find($turno_tramite->dependencia_tramite_id);
-        $isInstitucional = $dependencia_tramite && ($dependencia_tramite->tipo_modalidad === 'institucional' || $dependencia_tramite->requiere_institucion);
+        $isInstitucional = $dependencia_tramite && $dependencia_tramite->usaCupoPorDelegacion();
 
         $reservas = Turnos_Dependencias_Reservas::where('dependencia_tramite_id', $turno_tramite->dependencia_tramite_id)
             ->whereDate('fecha', $turno_fecha)
@@ -363,13 +501,13 @@ class TramitesController extends Controller
         $diaSemana = $diasMap[$turno_fecha->dayOfWeekIso];
 
         foreach ($turno_tramite->turnosHorarios as $horario) {
-            if (!$horario->activo || !$horario->$diaSemana) {
+            if (!$horario->activo || !$horario->$diaSemana || (int) $horario->duracion_minutos <= 0) {
                 continue;
             }
 
             $tStart = $turno_fecha->copy()->setTimeFromTimeString($horario->hora_inicio);
             $tEnd = $turno_fecha->copy()->setTimeFromTimeString($horario->hora_fin);
-            $duration = $horario->duracion_minutos;
+            $duration = (int) $horario->duracion_minutos;
 
             $tCurrent = $tStart->copy();
 
@@ -400,14 +538,33 @@ class TramitesController extends Controller
         $aHorarios = array_unique($aHorarios, SORT_REGULAR);
 
         if (empty($aHorarios)) {
-            $html = 'Sin turnos. Por favor seleccione otro día.';
+            $html = '<div class="text-center py-4 px-3">'
+                . '<i class="fas fa-calendar-times fa-2x text-muted mb-2 d-block"></i>'
+                . '<p class="font-weight-bold text-dark mb-1">No quedan horarios disponibles para este día</p>'
+                . '<small class="text-muted">Por favor elija otra fecha pintada de azul en el calendario.</small>'
+                . '</div>';
         } else {
-            $html = '<select name="turno_hora" size="30" class="select list-group overflow-auto text-center shadow-sm" style="max-height: 267px; font-size: 1.1em; margin-bottom: 10px; width: 100%; border: 1px solid #dee2e6; border-radius: 8px;" required="true">';
+            $html = '<div class="slots-grid w-100 text-left">';
+            foreach ($aHorarios as $idx => $horario) {
+                $horaCorta = substr($horario['hora'], 0, 5);
+                $val = $horario['hora'] . '|' . $horario['id'];
+                $slotId = 'slot_hora_' . $idx;
+                $cupoTexto = $isInstitucional
+                    ? ($horario['available'] == 1 ? '1 cupo disponible (delegación)' : $horario['available'] . ' cupos disponibles')
+                    : ($horario['available'] == 1 ? '1 lugar disponible' : $horario['available'] . ' lugares disponibles');
 
-            foreach ($aHorarios as $horario) {
-                $html = $html.'<option class="list-group-item" value="'.$horario['hora'].'|'.$horario['id'].'">'.$horario['hora'].' ('.$horario['available'].' disponibles)</option>';
+                $html .= '<label class="slot-option" for="' . $slotId . '">'
+                    . '<input type="radio" id="' . $slotId . '" name="turno_hora" value="' . e($val) . '" data-hora-corta="' . e($horaCorta) . '" required>'
+                    . '<div class="slot-card">'
+                    . '<div class="slot-card-left">'
+                    . '<span class="slot-time"><i class="far fa-clock mr-1"></i> ' . e($horaCorta) . ' hs</span>'
+                    . '<span class="slot-seats">' . e($cupoTexto) . '</span>'
+                    . '</div>'
+                    . '<span class="slot-check"><i class="fas fa-check-circle"></i></span>'
+                    . '</div>'
+                    . '</label>';
             }
-            $html = $html.'</select>';
+            $html .= '</div>';
         }
 
         return $html;
@@ -428,7 +585,7 @@ class TramitesController extends Controller
         $has_turns = false;
         $today = Carbon::today();
         $dependencia_tramite = Dependencia_Tramite::find($dependencia_tramite_id);
-        $isInstitucional = $dependencia_tramite && ($dependencia_tramite->tipo_modalidad === 'institucional' || $dependencia_tramite->requiere_institucion);
+        $isInstitucional = $dependencia_tramite && $dependencia_tramite->usaCupoPorDelegacion();
 
         $turno_tramite = Turnos_Tramites::where('dependencia_tramite_id', $dependencia_tramite_id)
             ->where('activo', true)
@@ -487,13 +644,13 @@ class TramitesController extends Controller
                 $diaSemana = $diasMap[$current_date->dayOfWeekIso];
 
                 foreach ($turno_tramite->turnosHorarios as $horario) {
-                    if (!$horario->activo || !$horario->$diaSemana) {
+                    if (!$horario->activo || !$horario->$diaSemana || (int) $horario->duracion_minutos <= 0) {
                         continue;
                     }
 
                     $tStart = $current_date->copy()->setTimeFromTimeString($horario->hora_inicio);
                     $tEnd = $current_date->copy()->setTimeFromTimeString($horario->hora_fin);
-                    $duration = $horario->duracion_minutos;
+                    $duration = (int) $horario->duracion_minutos;
 
                     $tCurrent = $tStart->copy();
 
@@ -538,7 +695,7 @@ class TramitesController extends Controller
         }
 
         $dependencia_tramite = Dependencia_Tramite::find($turno_tramite->dependencia_tramite_id);
-        $isInstitucional = $dependencia_tramite && ($dependencia_tramite->tipo_modalidad === 'institucional' || $dependencia_tramite->requiere_institucion);
+        $isInstitucional = $dependencia_tramite && $dependencia_tramite->usaCupoPorDelegacion();
 
         $fecha_desde = $turno_tramite->fecha_desde;
         if (Carbon::today() > $fecha_desde) {
@@ -553,21 +710,25 @@ class TramitesController extends Controller
             ->whereDate('fecha', '>=', $fecha_desde)
             ->whereDate('fecha', '<=', $fecha_hasta)
             ->where('estado_id', '!=', 4)
-            ->select(DB::raw('DATE(fecha) as fecha_date'), 'hora', DB::raw('sum(cantidad_personas) as total_personas'), DB::raw('count(*) as total_reservas'))
-            ->groupBy('fecha_date', 'hora')
+            ->select(DB::raw('DATE(fecha) as fecha_date'), 'turno_horario_id', 'hora', DB::raw('sum(cantidad_personas) as total_personas'), DB::raw('count(*) as total_reservas'))
+            ->groupBy('fecha_date', 'turno_horario_id', 'hora')
             ->get()
             ->groupBy('fecha_date');
 
         while ($current_date <= $fecha_hasta) {
             $aHorarios = [];
             $turno_fecha = $current_date;
+            $isToday = $turno_fecha->isToday();
             $reservas_del_dia = $reservas->get($turno_fecha->format('Y-m-d'));
 
-            $reservas_por_hora = [];
+            $reservas_por_horario_y_hora = [];
             if ($reservas_del_dia) {
-                $reservas_por_hora = $reservas_del_dia->pluck($isInstitucional ? 'total_reservas' : 'total_personas', 'hora')->toArray();
+                foreach ($reservas_del_dia as $res) {
+                    $reservas_por_horario_y_hora[$res->turno_horario_id][$res->hora] = $isInstitucional
+                        ? (int) $res->total_reservas
+                        : (int) $res->total_personas;
+                }
             }
-
 
             $diasMap = [
                 1 => 'lunes', 2 => 'martes', 3 => 'miercoles', 4 => 'jueves', 5 => 'viernes', 6 => 'sabado', 7 => 'domingo'
@@ -575,23 +736,22 @@ class TramitesController extends Controller
             $diaSemana = $diasMap[$turno_fecha->dayOfWeekIso];
 
             foreach ($turno_tramite->turnosHorarios as $horario) {
-                if (!$horario->activo || !$horario->$diaSemana) {
+                if (!$horario->activo || !$horario->$diaSemana || (int) $horario->duracion_minutos <= 0) {
                     continue;
                 }
 
-
                 $tStart = $turno_fecha->copy()->setTimeFromTimeString($horario->hora_inicio);
                 $tEnd = $turno_fecha->copy()->setTimeFromTimeString($horario->hora_fin);
-                $duration = $horario->duracion_minutos;
+                $duration = (int) $horario->duracion_minutos;
 
                 $tCurrent = $tStart->copy();
 
                 while ($tCurrent < $tEnd) {
                     $slot = $tCurrent->format('H:i:s');
-                    $reservas_count = $reservas_por_hora[$slot] ?? 0;
+                    $reservas_count = $reservas_por_horario_y_hora[$horario->id][$slot] ?? 0;
+                    $isPastSlotForToday = $isToday && $tCurrent->isPast();
 
-
-                    if ($reservas_count < $horario->cantidad_turnos) {
+                    if (!$isPastSlotForToday && $reservas_count < $horario->cantidad_turnos) {
                         $aHorarios[] = $slot;
                     }
 
@@ -621,11 +781,15 @@ class TramitesController extends Controller
         return view('frontend.mis-turnos', compact('reservas'));
     }
 
-    public function cargarIntegrantesForm($codigo)
+    public function cargarIntegrantesForm(Request $request, $codigo)
     {
         $reserva = Turnos_Dependencias_Reservas::with(['turno_horario.turno_tramite.tramite.dependencia', 'integrantes'])
             ->where('codigo', $codigo)
             ->firstOrFail();
+
+        if (!$this->puedeAccederReserva($request, $reserva)) {
+            return redirect()->route('turnos')->with('error', 'Por seguridad, ingresá tu código de reserva y tu DNI en la consulta para gestionar la nómina de integrantes.');
+        }
 
         return view('frontend.cargar-integrantes', compact('reserva'));
     }
@@ -633,6 +797,18 @@ class TramitesController extends Controller
     public function guardarIntegrantes(Request $request, $codigo)
     {
         $reserva = Turnos_Dependencias_Reservas::where('codigo', $codigo)->firstOrFail();
+
+        if (!$this->puedeAccederReserva($request, $reserva)) {
+            abort(403, 'No tiene autorización para modificar la nómina de esta reserva.');
+        }
+
+        if ($reserva->estado_id == 4) {
+            return back()->with('error', 'No se puede modificar la nómina de una reserva cancelada.');
+        }
+
+        if ($reserva->fecha_hora && $reserva->fecha_hora->isPast()) {
+            return back()->with('error', 'No se puede modificar la nómina de una visita ya transcurrida.');
+        }
 
         if ($request->hasFile('archivo_integrantes')) {
             $request->validate([
@@ -670,7 +846,7 @@ class TramitesController extends Controller
     {
         $request->validate([
             'motivo_cancelacion' => 'required|string|min:5|max:1000',
-            'dni_cancelacion' => 'nullable|string'
+            'dni_cancelacion' => 'nullable|string|max:20'
         ], [
             'motivo_cancelacion.required' => 'Debe ingresar el motivo de la cancelación.',
             'motivo_cancelacion.min' => 'El motivo de cancelación debe tener al menos 5 caracteres.'
@@ -678,14 +854,24 @@ class TramitesController extends Controller
 
         $reserva = Turnos_Dependencias_Reservas::where('codigo', $codigo)->firstOrFail();
 
-        if ($request->filled('dni_cancelacion')) {
-            if (trim($reserva->dni) !== trim($request->input('dni_cancelacion'))) {
-                return back()->with('error', 'El número de DNI no coincide con la reserva.');
+        if (!$this->puedeAccederReserva($request, $reserva)) {
+            abort(403, 'No tiene autorización para cancelar esta reserva. Debe verificar primero su código y DNI.');
+        }
+
+        // Para visitantes públicos (no autenticados como titular ni admin/operador), exigir confirmación explícita del DNI
+        if (!$this->esAdminOOperador() && !$this->esTitularAutenticado($reserva)) {
+            $dniEnviado = Turnos_Dependencias_Reservas::normalizarDni($request->input('dni_cancelacion'));
+            if ($dniEnviado === '' || $dniEnviado !== Turnos_Dependencias_Reservas::normalizarDni($reserva->dni)) {
+                return back()->with('error', 'Debe confirmar el número de DNI del titular para cancelar esta reserva.');
             }
         }
 
         if ($reserva->estado_id == 4) {
             return back()->with('error', 'Esta reserva ya se encuentra cancelada.');
+        }
+
+        if ($reserva->fecha_hora && $reserva->fecha_hora->isPast()) {
+            return back()->with('error', 'No es posible cancelar un turno cuya fecha y horario ya pasaron.');
         }
 
         $reserva->estado_id = 4; // Cancelado
@@ -701,6 +887,6 @@ class TramitesController extends Controller
             }
         }
 
-        return back()->with('success', "El turno {$reserva->codigo} ha sido cancelado exitosamente y el cupo ha sido re-habilitado.");
+        return back()->with('success', "El turno {$reserva->codigo} ha sido cancelado exitosamente y el cupo ha sido liberado.");
     }
 }

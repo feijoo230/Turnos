@@ -35,10 +35,13 @@ class TurnoCancelado extends Mailable
         $fromEmail = config('mail.from.address', 'turnos@unsa.edu.ar');
         $fromName = config('mail.from.name', 'Sistema de Turnos UNSa');
 
-        // Detectar si pertenece al circuito de colegios/institucional o individual
+        // Detectar si pertenece al circuito de colegios/institucional o individual/grupal
+        $tramite = ($this->reserva->turno_horario && $this->reserva->turno_horario->turno_tramite)
+            ? $this->reserva->turno_horario->turno_tramite->tramite
+            : null;
+
         $esColegio = !empty($this->reserva->nombre_institucion)
-            || (bool) $this->reserva->es_grupal
-            || ($this->reserva->turno_horario && $this->reserva->turno_horario->turno_tramite && optional($this->reserva->turno_horario->turno_tramite->tramite)->tipo_modalidad === 'institucional');
+            || ($tramite && $tramite->usaCupoPorDelegacion());
 
         $clave = $esColegio ? 'turno_cancelado_colegio' : 'turno_cancelado_individual';
         $plantilla = PlantillaEmail::getActiveByClave($clave);

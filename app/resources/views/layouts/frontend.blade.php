@@ -55,9 +55,9 @@
       letter-spacing: -0.5px;
     }
 
-    /* Hero Banner Header con la Imagen Original de Fondo */
+    /* Hero Banner Header con la Imagen de la UNSa y Cúpula del Observatorio */
     .portal-hero {
-      background: linear-gradient(rgba(15, 23, 42, 0.72), rgba(30, 60, 114, 0.78)), url("{{ asset('img/turnosonline/turnosonline7.jpg') }}") no-repeat center center;
+      background: linear-gradient(rgba(15, 23, 42, 0.66), rgba(30, 60, 114, 0.78)), url("{{ asset('img/observatorio/hero-bg.jpg') }}?v=2") no-repeat center 45%;
       background-size: cover;
       color: white;
       padding: 55px 0 75px;
@@ -104,10 +104,20 @@
     .wizard-steps {
       display: flex;
       justify-content: space-around;
-      align-items: center;
+      align-items: flex-start;
       margin-bottom: 30px;
       position: relative;
       padding: 0 10px;
+    }
+    .wizard-steps::before {
+      content: '';
+      position: absolute;
+      top: 24px;
+      left: 16%;
+      right: 16%;
+      height: 3px;
+      background: #e2e8f0;
+      z-index: 1;
     }
     .wizard-step-item {
       display: flex;
@@ -115,6 +125,8 @@
       align-items: center;
       position: relative;
       z-index: 2;
+      flex: 1;
+      text-align: center;
     }
     .wizard-step-circle {
       width: 48px;
@@ -136,6 +148,11 @@
       border-color: #2563eb;
       box-shadow: 0 4px 14px rgba(37, 99, 235, 0.4);
     }
+    .wizard-step-item.completed .wizard-step-circle {
+      background: #dcfce7;
+      color: #15803d;
+      border-color: #22c55e;
+    }
     .wizard-step-title {
       font-size: 0.9rem;
       font-weight: 600;
@@ -145,6 +162,56 @@
     .wizard-step-item.active .wizard-step-title {
       color: #1e293b;
       font-weight: 700;
+    }
+    .wizard-step-item.completed .wizard-step-title {
+      color: #15803d;
+      font-weight: 700;
+    }
+
+    /* Ayudas visuales y Tooltips accesibles */
+    .ux-guide-banner {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      background: #f0f9ff;
+      border: 1px solid #bae6fd;
+      border-left: 4px solid #0284c7;
+      border-radius: 12px;
+      padding: 12px 16px;
+      color: #0c4a6e;
+      font-size: 0.92rem;
+      line-height: 1.5;
+      text-align: left;
+    }
+    .ux-guide-banner > i {
+      color: #0284c7;
+      font-size: 1.15rem;
+      margin-top: 2px;
+      flex-shrink: 0;
+    }
+    .help-tip {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: #e0f2fe;
+      color: #0369a1;
+      border: 1px solid #7dd3fc;
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 0;
+      line-height: 1;
+      cursor: pointer;
+      vertical-align: middle;
+      transition: all 0.15s ease;
+    }
+    .help-tip:hover, .help-tip:focus {
+      background: #0284c7;
+      color: #ffffff;
+      border-color: #0284c7;
+      outline: none;
     }
 
     /* Buttons */
@@ -198,9 +265,9 @@
       padding: 5px !important;
     }
     .ui-state-default, .ui-widget-content .ui-state-default {
-      border: none !important;
+      border: 1px solid #e2e8f0 !important;
       background: #f1f5f9 !important;
-      color: #1e293b !important;
+      color: #64748b !important;
       text-align: center !important;
       border-radius: 10px !important;
       font-weight: 600 !important;
@@ -208,14 +275,30 @@
       font-size: 1.1rem !important; /* Números del día más grandes */
       transition: all 0.2s ease !important;
     }
-    .ui-state-active, .ui-widget-content .ui-state-active {
-      background: #11998e !important;
+    .ui-datepicker td.day-available a.ui-state-default {
+      background: #e0f2fe !important;
+      border: 1.5px solid #7dd3fc !important;
+      color: #0c4a6e !important;
+      font-weight: 700 !important;
+    }
+    .ui-datepicker td.ui-state-disabled span.ui-state-default {
+      background: #f8fafc !important;
+      border-color: #f1f5f9 !important;
+      color: #94a3b8 !important;
+      opacity: 0.6 !important;
+    }
+    .ui-state-active, .ui-widget-content .ui-state-active,
+    .ui-datepicker td.day-available a.ui-state-active {
+      background: #059669 !important;
+      border-color: #047857 !important;
       color: white !important;
       font-weight: 700 !important;
-      box-shadow: 0 4px 14px rgba(17, 153, 142, 0.45) !important;
+      box-shadow: 0 4px 14px rgba(5, 150, 105, 0.45) !important;
     }
-    .ui-state-hover, .ui-widget-content .ui-state-hover {
-      background: #3b82f6 !important;
+    .ui-state-hover, .ui-widget-content .ui-state-hover,
+    .ui-datepicker td.day-available a.ui-state-hover {
+      background: #0284c7 !important;
+      border-color: #0369a1 !important;
       color: white !important;
     }
     .ui-datepicker-prev, .ui-datepicker-next {
@@ -243,9 +326,12 @@
       </a>
 
       <div class="d-flex align-items-center" style="gap: 10px;">
+        <a href="{{ url('/') }}" class="btn btn-light border font-weight-bold d-none d-sm-inline-flex align-items-center" style="border-radius: 20px; padding: 6px 16px; color: #334155; gap: 6px;">
+          <i class="fas fa-arrow-left"></i> <span>Observatorio</span>
+        </a>
         @guest
           <a href="{{ route('login') }}" class="btn btn-outline-primary font-weight-bold" style="border-radius: 20px; padding: 6px 18px;">
-            <i class="fas fa-sign-in-alt mr-1"></i> Acceso
+            <i class="fas fa-sign-in-alt mr-1"></i> Mi Portal
           </a>
         @else
           <div class="dropdown">
@@ -288,9 +374,9 @@
     <div class="container">
       <div class="row justify-content-center">
         <div class="col-lg-8">
-          <span class="hero-badge"><i class="fas fa-graduation-cap mr-1"></i> Portal Oficial de Atención</span>
-          <h1 class="font-weight-bold mb-2" style="font-size: 2.3rem; letter-spacing: -0.5px; text-shadow: 0 2px 4px rgba(0,0,0,0.3);">Reserva tu Turno en la UNSa</h1>
-          <p class="lead opacity-90 mb-0" style="font-size: 1.1rem; text-shadow: 0 1px 3px rgba(0,0,0,0.4);">Solicita tu turno de atención de manera rápida, ágil y transparente desde cualquier dispositivo.</p>
+          <span class="hero-badge"><i class="fas fa-calendar-check mr-1"></i> Turnos Online · Sin Cargo</span>
+          <h1 class="font-weight-bold mb-2" style="font-size: 2.3rem; letter-spacing: -0.5px; text-shadow: 0 2px 4px rgba(0,0,0,0.3);">Reservá tu Visita o Turno en la UNSa</h1>
+          <p class="lead opacity-90 mb-0" style="font-size: 1.08rem; text-shadow: 0 1px 3px rgba(0,0,0,0.4);">Seguí estos 3 pasos simples. En menos de 2 minutos vas a tener tu comprobante listo.</p>
         </div>
       </div>
     </div>
@@ -342,6 +428,16 @@
   <script src="{{ asset('js/app.js') }}"></script>
   <script src="{{ asset('js/frontend-mix.js') }}"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      if (typeof bootstrap !== 'undefined' && bootstrap.Tooltip) {
+        var triggers = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        triggers.forEach(function (el) {
+          new bootstrap.Tooltip(el, { trigger: 'hover focus click' });
+        });
+      }
+    });
+  </script>
   @yield('script')
 
 </body>

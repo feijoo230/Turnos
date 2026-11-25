@@ -24,16 +24,24 @@ class SearchTurno extends FormRequest
     public function rules()
     {
         return [
-            'codigo_turno' => 'required_without:dni_turno|max:255',
-            'dni_turno' => 'required_without:codigo_turno|max:20'
+            'codigo_turno' => 'required|string|max:50',
+            'dni_turno' => 'required|string|max:20'
         ];
     }
 
     public function attributes()
     {
         return [
-            'codigo_turno' => 'CODIGO DE TURNO',
+            'codigo_turno' => 'código de reserva',
             'dni_turno' => 'DNI'
+        ];
+    }
+
+    public function messages()
+    {
+        return [
+            'codigo_turno.required' => 'Por seguridad, ingresá el código de reserva junto con tu DNI.',
+            'dni_turno.required' => 'Por seguridad, ingresá tu número de DNI junto con el código de reserva.',
         ];
     }
 }
