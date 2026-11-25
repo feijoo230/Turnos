@@ -452,13 +452,13 @@ class TramitesController extends Controller
         $reserva = Turnos_Dependencias_Reservas::buscarPorCodigoYDni($codigo, $dni);
 
         if (!$reserva) {
-            return back()->withInput()->with('error', 'No se encontró ninguna reserva que coincida con ese código y DNI. Revisá ambos datos e intentá nuevamente.');
+            return redirect()->route('turnos')->withInput()->with('error', 'No se encontró ninguna reserva que coincida con ese código y DNI. Revisá ambos datos e intentá nuevamente.');
         }
 
         // Autorizar esta reserva en la sesión tras verificar el doble factor (Código + DNI)
         $this->autorizarReservaEnSesion($request, $reserva);
 
-        return back()->with('turno_reserva_busqueda', $reserva);
+        return redirect()->to(route('turnos') . '#alert-consulta')->with('turno_reserva_busqueda', $reserva);
     }
 
     public function loadHorarios(Request $request)

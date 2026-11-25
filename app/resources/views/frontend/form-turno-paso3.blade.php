@@ -2,10 +2,10 @@
 @section('content')
 
 @php
-	$modalidad = isset($dependencia_tramite) ? ($dependencia_tramite->tipo_modalidad ?? 'individual') : 'individual';
-	$isInstitucional = ($modalidad === 'institucional' || (isset($dependencia_tramite) && $dependencia_tramite->requiere_institucion));
-	$isGrupal = ($modalidad === 'grupal');
+	$modalidad = isset($dependencia_tramite) ? strtolower((string) ($dependencia_tramite->tipo_modalidad ?? 'individual')) : 'individual';
 	$isMixto = ($modalidad === 'mixto');
+	$isInstitucional = !$isMixto && ($modalidad === 'institucional' || (isset($dependencia_tramite) && (bool) $dependencia_tramite->requiere_institucion));
+	$isGrupal = ($modalidad === 'grupal');
 	$maxPersonas = isset($dependencia_tramite) && $dependencia_tramite->max_personas_reserva ? $dependencia_tramite->max_personas_reserva : 50;
 	$minPersonas = isset($dependencia_tramite) && $dependencia_tramite->min_personas_reserva ? $dependencia_tramite->min_personas_reserva : 2;
 	$requiereNomina = isset($dependencia_tramite) ? ($dependencia_tramite->requiere_nomina ?? false) : false;

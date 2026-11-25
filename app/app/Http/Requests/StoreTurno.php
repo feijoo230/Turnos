@@ -36,8 +36,10 @@ class StoreTurno extends FormRequest
         $dependencia_tramite = $dependencia_tramite_id ? \App\Models\Dependencia_Tramite::find($dependencia_tramite_id) : null;
 
         $requiereNomina = $dependencia_tramite ? (bool) ($dependencia_tramite->requiere_nomina ?? false) : false;
-        $isInstitucionalSubmission = $this->filled('nombre_institucion') || 
-            ($dependencia_tramite && ($dependencia_tramite->tipo_modalidad === 'institucional' || (bool) ($dependencia_tramite->requiere_institucion ?? false)));
+        $esMixto = $dependencia_tramite && strtolower((string) ($dependencia_tramite->tipo_modalidad ?? '')) === 'mixto';
+        $esInstitucionalPuro = $dependencia_tramite && $dependencia_tramite->usaCupoPorDelegacion();
+        $envioDatosInstitucion = $this->filled('nombre_institucion') || $this->filled('nivel_institucion') || $this->filled('cargo_responsable');
+        $isInstitucionalSubmission = $esInstitucionalPuro || ($esMixto ? $envioDatosInstitucion : $this->filled('nombre_institucion'));
         $minPersonas = ($dependencia_tramite && $dependencia_tramite->min_personas_reserva) ? (int) $dependencia_tramite->min_personas_reserva : 2;
 
         $rules = [
@@ -61,17 +63,17 @@ class StoreTurno extends FormRequest
             'activo' => 'integer',
         ];
 
-        if ($this->boolean('es_grupal')) {
+        if ($this->boolean('es_grupal') || $esInstitucionalPuro) {
             $rules['cantidad_personas'] = "required|integer|min:{$minPersonas}";
 
             if ($isInstitucionalSubmission) {
                 $rules['nombre_institucion'] = 'required|string|max:255';
                 $rules['nivel_institucion'] = 'required|string|max:255';
                 $rules['cargo_responsable'] = 'required|string|max:255';
-            }
 
-            if ($requiereNomina) {
-                $rules['archivo_integrantes'] = 'required|file|mimes:xls,xlsx,csv|max:2048';
+                if ($requiereNomina) {
+                    $rules['archivo_integrantes'] = 'required|file|mimes:xls,xlsx,csv|max:2048';
+                }
             }
         }
 

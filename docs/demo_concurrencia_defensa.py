@@ -115,19 +115,37 @@ def autodescubrir_turno(base_url: str, dep_forzado=None, tramite_forzado=None):
             m_slot = re.search(r'name="turno_hora"\s+value="([^"]+)"', html_hor)
             m_seats = re.search(r'class="slot-seats">([^<]+)<', html_hor)
             if m_slot:
+                cupo_txt = m_seats.group(1).strip() if m_seats else "disponible"
+                m_num = re.search(r"(\d+)", cupo_txt)
+                cupo_num = int(m_num.group(1)) if m_num else 1
                 return {
                     "dep": dep,
                     "tramite": tramite,
                     "fecha": fecha_str,
                     "hora_slot": m_slot.group(1),
-                    "cupo_label": m_seats.group(1).strip() if m_seats else "disponible",
+                    "cupo_label": cupo_txt,
+                    "cupo_disponible": cupo_num,
                 }
         cur += datetime.timedelta(days=1)
 
     raise RuntimeError(f"No se encontró ningún horario disponible para '{tramite['nombre']}'.")
 
 
-def intentar_reserva(idx: int, barrier: threading.Barrier, base_url: str, dep_id: int, tramite: dict, fecha: str, hora_slot: str, personas: int, prefijo_dni: int):
+def encode_multipart(fields: dict, file_field: str = None, filename: str = None, file_bytes: bytes = None):
+    boundary = f"----DemoBoundary{random.randint(100000, 999999)}"
+    parts = []
+    for k, v in fields.items():
+        parts.append(f"--{boundary}\r\nContent-Disposition: form-data; name=\"{k}\"\r\n\r\n{v}\r\n".encode("utf-8"))
+    if file_field and filename and file_bytes is not None:
+        parts.append(
+            f"--{boundary}\r\nContent-Disposition: form-data; name=\"{file_field}\"; filename=\"{filename}\"\r\n"
+            f"Content-Type: text/csv\r\n\r\n".encode("utf-8") + file_bytes + b"\r\n"
+        )
+    parts.append(f"--{boundary}--\r\n".encode("utf-8"))
+    return b"".join(parts), f"multipart/form-data; boundary={boundary}"
+
+
+def intentar_reserva(idx: int, barrier: threading.Barrier, base_url: str, dep_id: int, tramite: dict, fecha: str, hora_slot: str, personas: int, prefijo_dni: int, cupo_disponible: int):
     opener, _ = make_opener()
 
     # Preparar sesión: Paso 2 -> Paso 3
@@ -141,12 +159,31 @@ def intentar_reserva(idx: int, barrier: threading.Barrier, base_url: str, dep_id
 
     mod = str(tramite.get("tipo_modalidad") or "individual").lower()
     req_inst = str(tramite.get("requiere_institucion") or "0") in ("1", "true", "True")
+    req_nomina = str(tramite.get("requiere_nomina") or "0") in ("1", "true", "True")
     es_institucional = (mod == "institucional") or (req_inst and mod != "mixto")
-    es_grupal = es_institucional or (mod == "grupal") or (mod == "mixto" and personas > 1)
 
     min_p = int(tramite.get("min_personas_reserva") or 2)
     max_p = int(tramite.get("max_personas_reserva") or 30)
-    cant = 1 if mod == "individual" and not es_institucional else max(min_p, min(personas, max_p))
+
+    if personas is None:
+        # Ajuste automático inteligente para provocar competencia real por el cupo disponible
+        if es_institucional:
+            cant = min_p
+        elif mod == "grupal":
+            cant = min_p
+        elif mod == "mixto":
+            cant = 1 if cupo_disponible < min_p else max(1, min(min_p, cupo_disponible))
+        else:
+            cant = 1
+    else:
+        if mod == "individual" and not es_institucional:
+            cant = 1
+        elif mod == "mixto" and personas == 1:
+            cant = 1
+        else:
+            cant = max(min_p, min(personas, max_p))
+
+    es_grupal = es_institucional or (mod == "grupal") or (mod == "mixto" and cant > 1)
 
     dni = f"{prefijo_dni}{idx:02d}"
     data = {
@@ -167,8 +204,14 @@ def intentar_reserva(idx: int, barrier: threading.Barrier, base_url: str, dep_id
             "cantidad_acompanantes": 1,
         })
 
-    payload = urllib.parse.urlencode(data).encode("utf-8")
-    req = urllib.request.Request(f"{base_url}/tramite.guardar", data=payload, method="POST")
+    if es_institucional and req_nomina:
+        csv_lines = ["nombre,apellido,dni"] + [f"Alumno{n},Demo{idx},{prefijo_dni}{idx}{n:02d}" for n in range(1, cant + 1)]
+        body_bytes, content_type = encode_multipart(data, "archivo_integrantes", f"nomina_{idx}.csv", ("\n".join(csv_lines) + "\n").encode("utf-8"))
+        req = urllib.request.Request(f"{base_url}/tramite.guardar", data=body_bytes, method="POST")
+        req.add_header("Content-Type", content_type)
+    else:
+        payload = urllib.parse.urlencode(data).encode("utf-8")
+        req = urllib.request.Request(f"{base_url}/tramite.guardar", data=payload, method="POST")
 
     # Sincronizar TODOS los hilos para disparar el POST exactamente al mismo milisegundo
     barrier.wait()
@@ -213,7 +256,7 @@ def demo_concurrencia(base_url: str, info: dict, hilos: int, personas: int):
 
     with concurrent.futures.ThreadPoolExecutor(max_workers=hilos) as ex:
         futures = [
-            ex.submit(intentar_reserva, i + 1, barrier, base_url, dep["id"], tramite, info["fecha"], info["hora_slot"], personas, prefijo_dni)
+            ex.submit(intentar_reserva, i + 1, barrier, base_url, dep["id"], tramite, info["fecha"], info["hora_slot"], personas, prefijo_dni, info.get("cupo_disponible", 1))
             for i in range(hilos)
         ]
         resultados = [f.result() for f in concurrent.futures.as_completed(futures)]
@@ -263,9 +306,9 @@ def demo_seguridad(base_url: str, reserva_id: int, codigo: str, dni: str = None)
     except urllib.error.HTTPError as e:
         print(f"  [INFO] Nómina devolvió HTTP {e.code} (verificá que el código '{codigo}' exista en BD)")
 
-    # 4. POST cancelar directo sin autorización (obteniendo CSRF desde /turnos)
-    html_turnos = opener.open(f"{base_url}/turnos").read().decode("utf-8", errors="ignore")
-    csrf = extract_csrf_token(html_turnos)
+    # 4. POST cancelar directo sin autorización (obteniendo CSRF desde /login que siempre tiene form POST)
+    html_csrf = opener.open(f"{base_url}/login").read().decode("utf-8", errors="ignore")
+    csrf = extract_csrf_token(html_csrf)
     if csrf:
         req_cancel = urllib.request.Request(
             f"{base_url}/reserva/{urllib.parse.quote(codigo)}/cancelar",
@@ -294,9 +337,13 @@ def demo_seguridad(base_url: str, reserva_id: int, codigo: str, dni: str = None)
     # 8. Flujo legítimo con Código + DNI válidos -> permite ver y descargar PDF
     if dni:
         opener_ok, _ = make_opener()
-        body_ok = opener_ok.open(
-            f"{base_url}/turno.buscar?codigo_turno={urllib.parse.quote(codigo.lower().replace('-', ''))}&dni_turno={urllib.parse.quote(dni)}"
-        ).read().decode("utf-8", errors="ignore")
+        # Abrimos /turnos primero para simular al visitante entrando por el portal
+        opener_ok.open(f"{base_url}/turnos").read()
+        req_ok = urllib.request.Request(
+            f"{base_url}/turno.buscar?codigo_turno={urllib.parse.quote(codigo.lower().replace('-', ''))}&dni_turno={urllib.parse.quote(dni)}",
+            headers={"Referer": f"{base_url}/turnos"},
+        )
+        body_ok = opener_ok.open(req_ok).read().decode("utf-8", errors="ignore")
         encontrada = "RESERVA ENCONTRADA" in body_ok
         print(f"  [{'OK' if encontrada else 'FALLA'}] Titular legítimo (Código + DNI) -> consulta autorizada")
         if encontrada:
@@ -320,7 +367,7 @@ def main():
     parser.add_argument("--dep", type=int, default=None)
     parser.add_argument("--tramite", type=int, default=None)
     parser.add_argument("--hilos", type=int, default=5)
-    parser.add_argument("--personas", type=int, default=10)
+    parser.add_argument("--personas", type=int, default=None, help="Cantidad de personas por hilo (si se omite, se ajusta automáticamente al cupo disponible)")
     args = parser.parse_args()
 
     base_url = args.url.rstrip("/")

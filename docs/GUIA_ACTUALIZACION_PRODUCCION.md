@@ -41,7 +41,7 @@ Antes de subir cualquier actualización, verificar que **nunca** se incluyan:
 
 ## 3. Cómo Saber Exactamente Qué Archivos Subir
 
-El repositorio incluye un script auxiliar que compara tus cambios locales o commits desde el último despliegue y filtra automáticamente los archivos protegidos:
+El repositorio incluye un script auxiliar que compara tus cambios desde el último despliegue marcado (`.agents/skills/deploy-filezilla/.last_deploy_commit`) hasta el último commit (`HEAD`), filtrando automáticamente archivos protegidos:
 
 ```bash
 # Ver qué archivos cambiaron desde el último despliegue marcado:
@@ -50,36 +50,56 @@ python .agents/skills/deploy-filezilla/scripts/plan_deploy.py
 # Ver solo cambios sin commitear:
 python .agents/skills/deploy-filezilla/scripts/plan_deploy.py --uncommitted
 
-# Comparar desde un commit específico (por ejemplo, últimos 2 commits):
-python .agents/skills/deploy-filezilla/scripts/plan_deploy.py --since HEAD~2
+# Comparar desde un commit específico (por ejemplo, desde el despliegue inicial 3e2e31c):
+python .agents/skills/deploy-filezilla/scripts/plan_deploy.py --since 3e2e31c
+```
+
+> **¿Hace falta meter todo en un solo commit?** No. Una vez marcado el último commit subido a producción (`.last_deploy_commit`), el script junta automáticamente todos los commits acumulados hasta `HEAD` y sube solo la diferencia neta.
+
+---
+
+## 4. Opción A (Más Rápida — 100% Automática): Subida Directa por FTPS desde Consola
+
+Sin abrir FileZilla ni Usermin. El script se conecta por FTPS cifrado (`cpanel.exa.unsa.edu.ar:21`), sortea automáticamente el error `550 Overwrite permission denied` de ProFTPD (borra cada archivo viejo antes de subir el nuevo), crea carpetas faltantes, **limpia automáticamente la caché de vistas Blade y rutas** en el servidor y actualiza `.last_deploy_commit` al finalizar:
+
+```powershell
+# 1. Simular primero sin tocar el servidor (recomendado):
+python .agents/skills/deploy-filezilla/scripts/plan_deploy.py --since 3e2e31c --deploy-ftps --dry-run
+
+# 2. Subir efectivamente a producción (te pide la contraseña FTPS una vez):
+python .agents/skills/deploy-filezilla/scripts/plan_deploy.py --since 3e2e31c --deploy-ftps
+
+# (Opcional) Si agregás --save-credentials, guarda la clave solo en deploy_produccion/.ftps_config.json (ignorado por Git).
+# En futuros despliegues, como ya queda guardado .last_deploy_commit, alcanza con:
+python .agents/skills/deploy-filezilla/scripts/plan_deploy.py --deploy-ftps
 ```
 
 ---
 
-## 4. Opción A (Recomendada para 6 o más archivos): Parche ZIP Incremental
+## 5. Opción B (Respaldo sin consola FTPS): Parche ZIP Incremental + Usermin
 
-Esta es la forma más rápida y segura porque **Usermin File Manager sí sobrescribe archivos al extraer**, evitando el error `550 Overwrite permission denied` de FileZilla archivo por archivo.
+Si alguna vez preferís subir un solo archivo o actualizás `vendor/`:
 
 ### Paso a paso
 1. **Generar el ZIP incremental en tu PC:**
    ```bash
    python .agents/skills/deploy-filezilla/scripts/plan_deploy.py --build-zip
    ```
-   El script empaqueta únicamente los archivos modificados/nuevos con sus rutas exactas (`turnos_core/...` y `public_html/...`) dentro de `deploy_produccion/` (por ejemplo `parche_YYYYMMDD_HHMMSS.zip`).
+   El script empaqueta únicamente los archivos modificados/nuevos con sus rutas exactas (`turnos_core/...` y `public_html/...`) dentro de `deploy_produccion/` (por ejemplo `patch_deploy_YYYYMMDD_HHMMSS.zip`).
 2. **Subir el ZIP por FileZilla:**
    - Conectate a `cpanel.exa.unsa.edu.ar` (puerto `21`, FTPS modo pasivo).
    - En el panel derecho ubicá la raíz del usuario (donde se ven juntas las carpetas `public_html` y `turnos_core`).
-   - Arrastrá el archivo `parche_*.zip` desde tu PC a esa raíz remota.
+   - Arrastrá el archivo `patch_deploy_*.zip` desde tu PC a esa raíz remota.
 3. **Extraer en Usermin:**
    - Ingresá a `https://usermin.exa.unsa.edu.ar` $\rightarrow$ **File Manager**.
-   - Buscá el `parche_*.zip` en la raíz (`/home/observatorioalanis/`).
-   - Clic derecho $\rightarrow$ **Extract** (confirmar sobrescritura si consulta).
+   - Buscá el `patch_deploy_*.zip` en la raíz (`/home/observatorioalanis/`).
+   - Clic derecho $\rightarrow$ **Extract** (Usermin sí sobrescribe archivos existentes).
 4. **Limpieza obligatoria:**
-   - Una vez extraído, **borrá el `parche_*.zip`** del servidor para no dejar archivos temporales públicos o en la raíz.
+   - Una vez extraído, **borrá el `patch_deploy_*.zip`** del servidor y marcá el despliegue con `--mark-deployed`.
 
 ---
 
-## 5. Opción B (Para 1 a 5 archivos): Subida Manual por FileZilla
+## 6. Opción C (Para 1 a 5 archivos): Subida Manual por FileZilla
 
 El servidor FTP tiene `AllowOverwrite off` (ProFTPD). Si arrastrás un archivo que ya existe en el servidor, FileZilla devolverá **`550 Overwrite permission denied`**.
 
@@ -94,7 +114,7 @@ El servidor FTP tiene `AllowOverwrite off` (ProFTPD). Si arrastrás un archivo q
 
 ---
 
-## 6. Pasos Extra en Usermin Según el Tipo de Cambio
+## 7. Pasos Extra en Usermin Según el Tipo de Cambio
 
 Revisá qué tipo de archivos incluyó tu actualización y aplicá solo los pasos que correspondan:
 
@@ -108,7 +128,7 @@ Revisá qué tipo de archivos incluyó tu actualización y aplicá solo los paso
 
 ---
 
-## 7. Verificación Final y Cierre del Despliegue
+## 8. Verificación Final y Cierre del Despliegue
 
 1. **Comprobar en el navegador** (recargando con `Ctrl + Shift + R` para evitar caché):
    - Sitio principal: `https://observatorioalanis.exa.unsa.edu.ar` *(o `/preview-unsa2026` si el modo mantenimiento `storage/framework/down` sigue activo)*.
